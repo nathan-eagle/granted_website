@@ -33,3 +33,4 @@ Vercel Setup
 
 Notes
 - If the Vercel URL shows 404, set Project Settings → Root Directory to `site/` and redeploy.
+Sat Sep  6 17:48:53 EDT 2025
