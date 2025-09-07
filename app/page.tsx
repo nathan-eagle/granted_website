@@ -39,7 +39,7 @@ export default async function Home() {
             </div>
           </div>
           <div className="text-center">
-            <img src="/images/imgi_7_img1.jpg" alt="Granted" width="520" height="560" className="mx-auto rounded-xl border" />
+            <img src="/images/imgi_7_img1.jpg" alt="Granted" width="520" height="560" className="mx-auto rounded-xl" />
           </div>
         </div>
       </section>
@@ -48,7 +48,7 @@ export default async function Home() {
       <section className="bg-white">
         <div className="mx-auto max-w-7xl px-6 md:px-8 py-14 grid md:grid-cols-2 gap-12 items-start">
           <div className="order-2 md:order-1 text-center">
-            <img src="/images/imgi_9_img3.jpg" alt="Use cases" width="460" height="540" className="mx-auto rounded-xl border" />
+            <img src="/images/imgi_9_img3.jpg" alt="Use cases" width="460" height="540" className="mx-auto rounded-xl" />
           </div>
           <div className="order-1 md:order-2">
             <h3 className="text-[30px] md:text-[36px] font-extrabold leading-tight">{h3}</h3>
@@ -106,7 +106,7 @@ export default async function Home() {
       {/* CTA band */}
       <section className="bg-black">
         <div className="mx-auto max-w-7xl px-6 md:px-8 py-24">
-          <div className="mx-auto max-w-5xl rounded-[24px] p-10 md:p-16 shadow-lg" style={{background:'linear-gradient(180deg,#fde68a,#fbbf24)'}}>
+          <div className="mx-auto max-w-5xl rounded-[24px] p-10 md:p-16 shadow-lg" style={{background:'linear-gradient(180deg,#fde68a,#f59e0b)'}}>
             <h3 className="text-[34px] md:text-[54px] font-extrabold text-black text-center">Ready to Get Granted?</h3>
             <p className="mt-4 text-black/80 text-center text-lg">Save time. Stop frustration. Get inspired. Start your free trial today.</p>
             <div className="mt-10 flex justify-center">
