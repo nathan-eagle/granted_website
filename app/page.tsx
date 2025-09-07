@@ -14,13 +14,13 @@ export default async function Home() {
       {/* Hero (black) */}
       <section className="bg-black text-white">
         <div className="mx-auto max-w-7xl px-6 md:px-8 py-20 md:py-28 text-center">
-          <h1 className="font-extrabold leading-tight text-[42px] md:text-[68px] lg:text-[76px] tracking-tight">{headline}</h1>
+          <h1 className="font-extrabold leading-[1.05] text-[46px] md:text-[72px] lg:text-[84px] tracking-tight">{headline}</h1>
           <div className="mt-6 text-[22px] md:text-[28px] font-semibold">{subhead}</div>
           <div className="mt-5 text-gray-300 max-w-3xl mx-auto space-y-2 text-[16px] md:text-[18px]">
             <p>{p1}</p>
             <p>{p2}</p>
           </div>
-          <div className="mt-10">
+          <div className="mt-12">
             <a href="https://app.grantedai.com" className="px-6 py-3 rounded-md bg-yellow-400 text-black font-semibold hover:bg-yellow-300 border border-yellow-500 shadow">Start Writing</a>
           </div>
         </div>
