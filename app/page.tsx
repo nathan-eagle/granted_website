@@ -1,5 +1,5 @@
 import { loadScraped } from '@/lib/scraped'
-import CheckoutButton from '@/components/CheckoutButton'
+import CheckoutButton from '../components/CheckoutButton'
 import Image from 'next/image'
 
 export default async function Home() {

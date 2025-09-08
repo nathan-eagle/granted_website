@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import Stripe from 'stripe'
+// Load Stripe dynamically at runtime to avoid bundler resolution issues
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY || ''
 const priceMonthly = process.env.STRIPE_PRICE_MONTHLY || ''
@@ -8,6 +8,7 @@ const priceYearly = process.env.STRIPE_PRICE_YEARLY || ''
 export async function POST(req: Request) {
   try {
     if (!stripeSecretKey) return NextResponse.json({ error: 'Stripe not configured' }, { status: 500 })
+    const { default: Stripe } = await import('stripe')
     const stripe = new Stripe(stripeSecretKey, { apiVersion: '2024-06-20' })
     const body = await req.json().catch(() => ({})) as any
     const plan = String(body?.plan || 'monthly')
@@ -32,4 +33,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Failed to create session' }, { status: 500 })
   }
 }
-
