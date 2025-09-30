@@ -1,60 +1,60 @@
-import { loadScraped } from '@/lib/scraped'
-import CheckoutButton from '../components/CheckoutButton'
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
+import Container from '@/components/Container'
+import { ButtonLink } from '@/components/ButtonLink'
 import Image from 'next/image'
 
-export default async function Home() {
-  const scraped = await loadScraped('home')
-  const headline = 'You have better things to do with your time'
-  const subhead = 'Get your projects funded faster with AI'
-  const p1 = 'Studies show grant applicants spend 40% of their time fundraising. It\'s time to get back to the real work.'
-  const p2 = "Granted's specialized AI is trained on over half a million successful grant proposals. Say hello to your fundraising copilot."
-  const h2 = "Granted ensures it's the quality of your ideas that counts, not your English."
-  const h3 = 'From a $100 donor appeal to a $1 million NIH R01 grant.'
-
+export default function HomePage() {
   return (
-    <div>
-      {/* Hero (black) */}
+    <>
+      <Header />
+
+      {/* Black hero */}
       <section className="bg-black text-white">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-8 py-24 md:py-32 text-center">
-          <h1 className="font-extrabold tracking-tight text-[72px] leading-[100.8px]">{headline}</h1>
-          <div className="mt-6 text-[36px] leading-[50.4px] font-extrabold">{subhead}</div>
-          <div className="mt-5 text-gray-300 max-w-3xl mx-auto space-y-2 text-[16px] md:text-[18px]">
-            <p>{p1}</p>
-            <p>{p2}</p>
+        <Container className="py-24 md:py-36 text-center">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight">You have better things to do with your time</h1>
+          <p className="mt-6 text-xl md:text-2xl">Get your projects funded faster with AI</p>
+          <p className="max-w-3xl mx-auto mt-4 text-lg text-slate-300">
+            Studies show grant applicants spend 40% of their time fundraising. It's time to get back to the real work.
+            Granted&apos;s specialized AI is trained on over half a million successful grant proposals.
+            Say hello to your fundraising copilot.
+          </p>
+          <div className="mt-10">
+            <ButtonLink href="https://app.grantedai.com">Start Writing</ButtonLink>
           </div>
-          <div className="mt-12"><CheckoutButton label="Start Writing" /></div>
-        </div>
+        </Container>
       </section>
 
-      {/* Section: quality of ideas */}
-      <section className="bg-white">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-8 py-20 grid md:grid-cols-2 gap-16 items-center">
+      {/* Ensure's it's the quality of your ideas */}
+      <section>
+        <Container className="py-20 grid lg:grid-cols-2 gap-10 items-center">
           <div>
-            <h2 className="text-[36px] md:text-[48px] font-extrabold leading-[1.1]">{h2}</h2>
-            <p className="mt-5 text-gray-700 max-w-xl text-[16px] md:text-[18px]">
-              Instantly generate high-quality drafts for a wide range of grant proposals, appeals, letters of support, articles, and more, just by entering simple information about your project.
+            <h2 className="text-4xl md:text-5xl">Granted ensures it&apos;s the quality of your ideas that counts, not your English.</h2>
+            <p className="mt-5 text-lg text-slate-700">
+              Instantly generate high-quality drafts for a wide range of grant proposals, appeals, letters of support,
+              articles, and more, just by entering simple information about your project.
             </p>
             <div className="mt-6">
-              <a href="/features" className="inline-flex items-center gap-2 px-4 py-2 rounded-md border font-medium hover:bg-white">Discover more features <span aria-hidden>→</span></a>
+              <ButtonLink href="/features" variant="ghost">Discover more features →</ButtonLink>
             </div>
           </div>
-          <div className="text-center">
-            <Image src="/images/imgi_7_img1.jpg" alt="Granted" width={420} height={480} className="mx-auto rounded-xl h-auto w-auto" sizes="(min-width: 1024px) 420px, 80vw" />
+          <div className="relative aspect-[4/3] w-full">
+            <Image src="/images/hero-figure.png" alt="Granted" fill className="object-contain" />
           </div>
-        </div>
+        </Container>
       </section>
 
-      {/* Section: donor appeal to NIH R01 */}
-      <section className="bg-white">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-8 py-16 grid md:grid-cols-2 gap-16 items-start">
-          <div className="order-2 md:order-1 text-center">
-            <Image src="/images/imgi_9_img3.jpg" alt="Use cases" width={400} height={480} className="mx-auto rounded-xl h-auto w-auto" sizes="(min-width: 1024px) 400px, 80vw" />
+      {/* Use case block */}
+      <section>
+        <Container className="py-14 grid lg:grid-cols-2 gap-10 items-center">
+          <div className="relative aspect-[3/4] w-full">
+            <Image src="/images/portrait-1.png" alt="Use cases" fill className="object-contain" />
           </div>
-          <div className="order-1 md:order-2">
-            <h3 className="text-[30px] md:text-[36px] font-extrabold leading-[1.15]">{h3}</h3>
-            <ul className="mt-6 text-gray-700 space-y-2 list-disc pl-5 text-[16px] md:text-[18px]">
+          <div>
+            <h3 className="text-3xl md:text-4xl font-bold">From a $100 donor appeal to a $1 million NIH R01 grant.</h3>
+            <ul className="mt-6 space-y-3 list-disc pl-6 text-slate-700">
               <li>Quickly assemble full fundraising proposals.</li>
-              <li>Granted's AI is specifically trained for grant proposal writing and produces superior outcomes compared to general-purpose AI writing tools.</li>
+              <li>Granted&apos;s AI is specifically trained for grant proposal writing and produces superior outcomes compared to general-purpose AI writing tools.</li>
               <li>50+ writing models to help draft highly personalized fundraising proposals.</li>
               <li>Specialized models for federal grants.</li>
               <li>Custom engineered for nearly every section of many NIH and NSF grants.</li>
@@ -62,70 +62,85 @@ export default async function Home() {
               <li>Keep donors in the loop with well-written project updates.</li>
             </ul>
           </div>
-        </div>
+        </Container>
       </section>
 
-      {/* Section: Mid CTA (yellow) */}
-      <section className="bg-black">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-8 py-10">
-          <div className="mx-auto max-w-4xl rounded-[24px] p-10 md:p-14 brand-cta-gradient text-center">
-            <h3 className="text-[40px] md:text-[56px] font-extrabold text-black">Let us write your next draft,<br/>no strings attached.</h3>
-            <p className="mt-3 text-black/80">See what Granted can do for you in just a few minutes and leave with the content you need.</p>
-            <div className="mt-6 flex justify-center"><CheckoutButton label="Start a 7-day free trial" /></div>
+      {/* Yellow banner */}
+      <section className="my-10">
+        <Container>
+          <div className="banner-yellow rounded-[32px] p-10 md:p-16 text-center">
+            <h3 className="text-3xl md:text-5xl font-extrabold">Let us write your next draft,<br className="hidden md:block" /> no strings attached.</h3>
+            <p className="mt-4 text-lg max-w-2xl mx-auto">
+              See what Granted can do for you in just a few minutes and leave with the content you need.
+            </p>
+            <div className="mt-6">
+              <ButtonLink href="https://app.grantedai.com">Start a 7-day free trial</ButtonLink>
+            </div>
           </div>
-        </div>
+        </Container>
       </section>
 
-      {/* Section: 3 Steps */}
+      {/* 3 steps */}
+      <section className="bg-slate-50">
+        <Container className="py-20">
+          <h2 className="text-3xl md:text-4xl font-bold text-center">3 Steps To Your Fastest Funding Ever</h2>
+          <div className="mt-10 grid md:grid-cols-3 gap-6">
+            {[
+              {
+                title: 'Create a new project.',
+                body: 'Enter your mission statement and describe your work.'
+              },
+              {
+                title: 'Select a model and complete the prompt.',
+                body: 'Each of the 50+ models require some essential information, such as key personnel, values, funding request amount, and project description.'
+              },
+              {
+                title: 'Watch as Granted creates a quality draft in seconds.',
+                body: 'Pick your favorite draft and go. Or copy it into a larger document in the editor to assemble your full proposal.'
+              },
+            ].map((card, i) => (
+              <div key={i} className="card p-8">
+                <div className="text-4xl font-extrabold text-[#F5CF49]">{i+1}</div>
+                <h3 className="mt-4 text-xl font-semibold">{card.title}</h3>
+                <p className="mt-2 text-slate-700">{card.body}</p>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* Equity / playing field section */}
+      <section className="py-20">
+        <Container className="grid lg:grid-cols-2 gap-10 items-center">
+          <div className="relative aspect-[3/4] w-full">
+            <Image src="/images/portrait-2.png" alt="Equity" fill className="object-contain" />
+          </div>
+          <div>
+            <h2 className="text-3xl md:text-4xl font-bold">Level the fundraising playing field.</h2>
+            <p className="mt-4 text-slate-700">
+              The fundraising game isn&apos;t fair. The submission and selection process has well-known equity issues that
+              disproportionately affect the careers of women, minorities, and non-native English speakers.
+            </p>
+            <p className="mt-4 text-slate-700">
+              Granted&apos;s mission is to make fundraising less tedious, more accessible, and more successful for everyone —
+              while freeing up millions of additional hours of productivity.
+            </p>
+          </div>
+        </Container>
+      </section>
+
+      {/* Bottom CTA */}
       <section className="bg-black text-white">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-8 py-24">
-          <h2 className="text-[56px] leading-[78.4px] font-extrabold text-center">3 Steps To Your Fastest Funding Ever</h2>
-          <div className="mt-12 grid gap-8 md:grid-cols-3">
-            <div className="rounded-[28px] bg-white/95 text-black p-8 shadow border border-gray-200">
-              <div className="text-4xl font-extrabold text-yellow-400">1</div>
-              <div className="mt-4 font-semibold">Create a new project.</div>
-              <p className="mt-2 text-gray-600">Enter your mission statement and describe your work.</p>
-            </div>
-            <div className="rounded-[28px] bg-white/95 text-black p-8 shadow border border-gray-200">
-              <div className="text-4xl font-extrabold text-yellow-400">2</div>
-              <div className="mt-4 font-semibold">Select a model and complete the prompt.</div>
-              <p className="mt-2 text-gray-600">Each of the 50+ models require some essential information, such as key personnel, values, funding request amount, and project description.</p>
-            </div>
-            <div className="rounded-[28px] bg-white/95 text-black p-8 shadow border border-gray-200">
-              <div className="text-4xl font-extrabold text-yellow-400">3</div>
-              <div className="mt-4 font-semibold">Watch as Granted creates a quality draft in seconds.</div>
-              <p className="mt-2 text-gray-600">Pick your favorite draft and go. Or copy it into a larger document in the editor to assemble your full proposal.</p>
-            </div>
+        <Container className="py-16 text-center">
+          <h3 className="text-3xl md:text-4xl font-bold">Ready to Get Granted?</h3>
+          <p className="mt-2 text-slate-300">Save time. Stop frustration. Get inspired. Start your free trial today.</p>
+          <div className="mt-6">
+            <ButtonLink href="https://app.grantedai.com">Start Writing</ButtonLink>
           </div>
-        </div>
+        </Container>
       </section>
 
-      {/* Section: Level the playing field */}
-      <section className="bg-white">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-8 py-24 grid md:grid-cols-2 gap-16 items-center">
-          <div className="order-2 md:order-1 text-center">
-            <Image src="/images/imgi_8_img2.jpg" alt="Equity" width={520} height={520} className="mx-auto rounded-xl h-auto w-auto" sizes="(min-width: 1024px) 520px, 80vw" />
-          </div>
-          <div className="order-1 md:order-2">
-            <h2 className="text-[48px] leading-[67.2px] font-extrabold">Level the fundraising playing field.</h2>
-            <p className="mt-6 text-gray-700 max-w-xl">The fundraising game isn't fair. The submission and selection process has well-known equity issues that disproportionately affect the careers of women, minorities, and non-native English speakers.</p>
-            <p className="mt-4 text-gray-700 max-w-xl">Granted's mission is to make fundraising less tedious, more accessible, and more successful for everyone &mdash; while freeing up millions of additional hours of productivity.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA band */}
-      <section className="bg-black">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-8 py-28">
-          <div className="mx-auto max-w-5xl rounded-[24px] p-10 md:p-16 shadow-lg brand-cta-gradient">
-            <h3 className="text-[34px] md:text-[54px] font-extrabold text-black text-center">Ready to Get Granted?</h3>
-            <p className="mt-4 text-black/80 text-center text-lg">Save time. Stop frustration. Get inspired. Start your free trial today.</p>
-            <div className="mt-10 flex justify-center">
-              <a href="https://app.grantedai.com" className="px-6 py-3 rounded-md bg-black text-white font-semibold hover:opacity-90 border border-black">Start Writing</a>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
+      <Footer />
+    </>
   )
 }

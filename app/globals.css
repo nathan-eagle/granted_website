@@ -2,18 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: 255 255 255;
-  --foreground: 17 24 39;
-  --brand-yellow-1: #FFE580;
-  --brand-yellow-2: #FFD132;
+/* Typography + smoothing */
+html { scroll-behavior: smooth; }
+body {
+  @apply antialiased text-slate-900 bg-white;
+}
+h1, h2, h3 { @apply font-semibold tracking-tight; }
+
+/* A consistent content max-width that mirrors Bubble's container */
+.container {
+  @apply mx-auto max-w-[1200px] px-6 md:px-8;
 }
 
-html, body { height: 100%; }
-body { color: rgb(var(--foreground)); background: rgb(var(--background)); }
+.button {
+  @apply inline-flex items-center justify-center px-6 py-3 rounded-full font-semibold;
+}
+.button-primary {
+  @apply bg-[#F5CF49] text-black hover:opacity-90;
+}
+.button-ghost {
+  @apply border border-slate-300 text-slate-900 hover:bg-slate-50;
+}
 
-a { text-decoration: none; }
-
-.brand-cta-gradient {
-  background: linear-gradient(180deg, var(--brand-yellow-1), var(--brand-yellow-2));
+/* Cards */
+.card {
+  @apply bg-white rounded-2xl shadow-lg;
+}
+/* Yellow rounded banner */
+.banner-yellow {
+  background: linear-gradient(180deg, #FFE89E 0%, #F5CF49 100%);
 }
