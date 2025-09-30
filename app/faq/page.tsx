@@ -1,26 +1,65 @@
-import { loadScraped, toParagraphs } from '@/lib/scraped'
-import { renderTextBlocks } from '@/lib/format'
-import Image from 'next/image'
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
+import Container from '@/components/Container'
+import { ButtonLink } from '@/components/ButtonLink'
 
-export default async function FAQPage() {
-  const scraped = await loadScraped('faq')
-  const paras = scraped ? toParagraphs(scraped) : []
+const faqs = [
+  'How does Granted work?',
+  "What's wrong with the way grant proposals are written today?" ,
+  'How much does Granted cost?',
+  'Do you have a free trial?',
+  'Is the content from Granted original?',
+  'How will my data be used?',
+  'Do you work with OpenAI, Microsoft, Google, Meta, or any other AI model providers?',
+  'Is the Granted AI trustworthy?',
+  'Can Granted get even a bad idea funded?',
+  'What projects can I use Granted for?',
+  'How do I request a new feature?',
+  'Is it dishonest to use AI writing tools like Granted?',
+  'Can I trust Granted with highly sensitive or protected information?',
+  'What happens if I cancel my plan?',
+]
+
+export default function FAQPage() {
   return (
-    <div>
-      <section className="bg-black text-white">
-        <div className="mx-auto max-w-7xl px-6 md:px-8 py-20 text-center">
-          <h1 className="text-[34px] md:text-[54px] font-extrabold">{scraped?.title ?? 'FAQ'}</h1>
-          {scraped?.description && <p className="mt-4 text-gray-300 max-w-3xl mx-auto">{scraped.description}</p>}
-        </div>
-      </section>
-      <section className="mx-auto max-w-7xl px-6 md:px-8 py-16">
-        <div className="grid gap-10 md:grid-cols-2 items-start">
-          <div className="prose prose-slate max-w-none">{renderTextBlocks(paras)}</div>
-          <div>
-            <Image src="/images/img2-2.jpg" alt="FAQ" width={600} height={500} className="rounded-xl w-full h-auto" sizes="(min-width: 1024px) 600px, 90vw" />
+    <>
+      <Header />
+      <main>
+        <section className="bg-black text-white">
+          <Container className="py-16 text-center">
+            <h1 className="text-4xl md:text-5xl font-extrabold">Granted | FAQs</h1>
+          </Container>
+        </section>
+
+        <Container className="py-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-center">Frequently Asked Questions</h2>
+          <div className="mt-8 divide-y">
+            {faqs.map((q, i) => (
+              <details key={i} className="group py-5">
+                <summary className="flex justify-between items-center cursor-pointer text-lg font-medium">
+                  {q}
+                  <span className="transform transition group-open:rotate-180">⌄</span>
+                </summary>
+                <div className="mt-3 text-slate-700">
+                  We&apos;ll add the exact copy from Bubble here (this is a placeholder so the component style and order match).
+                </div>
+              </details>
+            ))}
           </div>
-        </div>
-      </section>
-    </div>
+          <div className="mt-8 text-center">
+            <ButtonLink href="/features" variant="ghost">Discover more features</ButtonLink>
+          </div>
+        </Container>
+
+        <section className="bg-black text-white">
+          <Container className="py-16 text-center">
+            <h3 className="text-3xl md:text-4xl font-bold">Ready to Get Granted?</h3>
+            <p className="mt-2 text-slate-300">Save time. Stop frustration. Get inspired. Start your free trial today.</p>
+            <div className="mt-6"><ButtonLink href="https://app.grantedai.com">Start Writing</ButtonLink></div>
+          </Container>
+        </section>
+      </main>
+      <Footer />
+    </>
   )
 }
