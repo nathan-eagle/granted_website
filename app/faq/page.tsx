@@ -26,36 +26,44 @@ export default function FAQPage() {
       <Header />
       <main>
         <section className="bg-black text-white">
-          <Container className="py-16 text-center">
-            <h1 className="text-4xl md:text-5xl font-extrabold">Granted | FAQs</h1>
+          <Container className="py-28 text-center md:py-36">
+            <h1 className="heading-xl text-white">Granted | FAQs</h1>
           </Container>
         </section>
 
-        <Container className="py-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-center">Frequently Asked Questions</h2>
-          <div className="mt-8 divide-y">
+        <Container className="py-28 md:py-32">
+          <h2 className="heading-lg text-center">Frequently Asked Questions</h2>
+          <div className="mt-12 divide-y divide-slate-200 border-y border-slate-200">
             {faqs.map((q, i) => (
-              <details key={i} className="group py-5">
-                <summary className="flex justify-between items-center cursor-pointer text-lg font-medium">
+              <details key={i} className="group">
+                <summary className="flex cursor-pointer items-center justify-between gap-6 py-6 text-left text-base font-semibold text-slate-900 md:text-lg">
                   {q}
-                  <span className="transform transition group-open:rotate-180">⌄</span>
+                  <span className="text-slate-400 transition-transform duration-200 group-open:rotate-180">
+                    <svg aria-hidden className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clipRule="evenodd" />
+                    </svg>
+                  </span>
                 </summary>
-                <div className="mt-3 text-slate-700">
+                <div className="body-lg pb-6 text-slate-600">
                   We&apos;ll add the exact copy from Bubble here (this is a placeholder so the component style and order match).
                 </div>
               </details>
             ))}
           </div>
-          <div className="mt-8 text-center">
+          <div className="mt-10 text-center">
             <ButtonLink href="/features" variant="ghost">Discover more features</ButtonLink>
           </div>
         </Container>
 
         <section className="bg-black text-white">
-          <Container className="py-16 text-center">
-            <h3 className="text-3xl md:text-4xl font-bold">Ready to Get Granted?</h3>
-            <p className="mt-2 text-slate-300">Save time. Stop frustration. Get inspired. Start your free trial today.</p>
-            <div className="mt-6"><ButtonLink href="https://app.grantedai.com">Start Writing</ButtonLink></div>
+          <Container className="py-24 text-center md:py-32">
+            <h3 className="heading-lg text-white">Ready to Get Granted?</h3>
+            <p className="body-lg mx-auto mt-4 max-w-2xl text-slate-300">
+              Save time. Stop frustration. Get inspired. Start your free trial today.
+            </p>
+            <div className="mt-10">
+              <ButtonLink href="https://app.grantedai.com">Start Writing</ButtonLink>
+            </div>
           </Container>
         </section>
       </main>
