@@ -16,9 +16,15 @@ export default function Header() {
   return (
     <header className="w-full">
       <div className="container flex items-center justify-between py-6">
-        <Link href="/" className="flex items-center gap-2 font-extrabold text-lg tracking-tight">
-          <Image src="/images/logo-star.svg" alt="Granted" width={20} height={20} />
-          <span>Granted</span>
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/images/logo-wordmark.png"
+            alt="Granted"
+            width={150}
+            height={53}
+            priority
+            className="h-auto w-[140px] md:w-[170px]"
+          />
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">

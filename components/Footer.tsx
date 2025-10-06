@@ -6,14 +6,11 @@ export default function Footer() {
     <footer className="mt-28 border-t border-slate-200">
       <div className="container py-16">
         <div className="flex flex-wrap items-start justify-between gap-12">
-          <div className="flex items-start gap-3">
-            <Image src="/images/logo-star.svg" alt="Granted" width={20} height={20} />
-            <div>
-              <p className="font-semibold tracking-tight">Granted</p>
-              <p className="mt-2 text-sm text-slate-600 max-w-xs leading-relaxed">
-                Granted is making fundraising less tedious, more accessible, and more successful for everyone.
-              </p>
-            </div>
+          <div className="flex flex-col gap-3">
+            <Image src="/images/logo-wordmark.png" alt="Granted" width={180} height={64} className="h-auto w-[160px] md:w-[180px]" />
+            <p className="text-sm text-slate-600 max-w-xs leading-relaxed">
+              Granted is making fundraising less tedious, more accessible, and more successful for everyone.
+            </p>
           </div>
           <nav className="flex gap-16 text-sm text-slate-600">
             <div>
