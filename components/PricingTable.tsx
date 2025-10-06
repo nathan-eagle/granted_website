@@ -66,6 +66,7 @@ export function PricingTable() {
               type="button"
               className={`button ${isActive ? 'button-primary' : 'button-ghost'}`}
               onClick={() => setBilling(option.id)}
+              aria-pressed={isActive}
             >
               <span>{option.label}</span>
               {option.helper && (
