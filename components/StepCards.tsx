@@ -30,7 +30,7 @@ const STEPS = [
     body: 'Granted reads and analyzes the full document, identifying every section, evaluation criterion, and compliance requirement.',
   },
   {
-    title: 'Answer a few questions from your AI coach.',
+    title: 'Answer a few questions from your grant writing coach.',
     body: 'The grant coach asks targeted questions about your organization, project, and goals to gather the details it needs.',
   },
   {

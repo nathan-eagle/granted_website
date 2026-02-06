@@ -19,7 +19,7 @@ const PLANS = [
     },
     features: [
       '20k words per month',
-      'AI Grant Coach',
+      'Grant Writing Coach',
       'RFP Analysis & Requirement Discovery',
       'Unlimited Projects',
     ],
@@ -40,7 +40,7 @@ const PLANS = [
     features: [
       'Unlimited words',
       'Early Access to New Features',
-      'AI Grant Coach',
+      'Grant Writing Coach',
       'RFP Analysis & Requirement Discovery',
       'Unlimited Projects',
     ],

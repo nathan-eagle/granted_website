@@ -97,11 +97,11 @@ export default function FeaturesPage() {
             <h1 className="heading-xl mt-6 text-white">Funding For All</h1>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-slate-200">
               Granted ensures it&apos;s the quality of your ideas that counts, not your English. 50+ specialized
-              writing models, AI coaching, and real-time coverage tracking built specifically for grant proposals.
+              writing models, grant writing coaching, and real-time coverage tracking built specifically for grant proposals.
             </p>
             <div className="mt-10 flex justify-center gap-4">
               <CheckoutButton label="Draft Your First Proposal" />
-              <ButtonLink href="/tech" variant="ghost">Learn about the technology</ButtonLink>
+              <ButtonLink href="/tech" variant="ghost" className="border-white/20 text-white hover:bg-white/10 hover:border-white/30">Learn about the technology</ButtonLink>
             </div>
           </Container>
         </section>
@@ -130,7 +130,7 @@ export default function FeaturesPage() {
                   ))}
                 </ul>
                 <div className="pt-2">
-                  <ButtonLink href="/faq" variant="ghost" className="text-white">
+                  <ButtonLink href="/faq" variant="ghost" className="border-white/20 text-white hover:bg-white/10 hover:border-white/30">
                     Check out our FAQ
                   </ButtonLink>
                 </div>
@@ -193,7 +193,7 @@ export default function FeaturesPage() {
             </p>
             <div className="mt-10 flex justify-center gap-4">
               <CheckoutButton label="Draft Your First Proposal" />
-              <ButtonLink href="/contact" variant="ghost" className="text-white">
+              <ButtonLink href="/contact" variant="ghost" className="border-white/20 text-white hover:bg-white/10 hover:border-white/30">
                 Talk to sales
               </ButtonLink>
             </div>

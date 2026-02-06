@@ -16,7 +16,7 @@ export default function PricingPage() {
             </p>
             <h1 className="heading-xl text-white">A professional grant writer costs $5K+. <br className="hidden md:block" />Granted costs $29/month.</h1>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-white/60">
-              Every plan includes full RFP analysis, AI grant coaching, and section-by-section drafting. Start with a free 7-day trial.
+              Every plan includes full RFP analysis, grant writing coaching, and section-by-section drafting. Start with a free 7-day trial.
             </p>
             <div className="mt-10">
               <CheckoutButton label="Start Your Free Trial" />

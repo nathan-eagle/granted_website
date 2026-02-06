@@ -36,7 +36,7 @@ const AUDIENCES = [
   },
   {
     heading: 'First-Time Federal Applicants',
-    body: 'Never written a federal grant before? The AI coach walks you through every section.',
+    body: 'Never written a federal grant before? The grant writing coach walks you through every section.',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-brand-yellow">
         <circle cx="12" cy="12" r="10" />

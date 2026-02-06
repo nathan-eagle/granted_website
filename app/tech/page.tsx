@@ -33,9 +33,9 @@ const workflowSteps = [
   },
   {
     number: '03',
-    title: 'AI Grant Coach Q&A',
+    title: 'Grant Writing Coach Q&A',
     description:
-      'An AI coach asks you targeted questions about your organization, team qualifications, project goals, and budget. Your answers ground every section of the draft in your real data\u2014not generic boilerplate.',
+      'A grant writing coach asks you targeted questions about your organization, team qualifications, project goals, and budget. Your answers ground every section of the draft in your real data\u2014not generic boilerplate.',
     icon: (
       <svg aria-hidden className="h-8 w-8" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="3" y="4" width="18" height="14" rx="3" stroke="currentColor" strokeWidth="2" />
@@ -130,7 +130,7 @@ export default function TechPage() {
               </p>
               <div className="mt-10 flex justify-center gap-4">
                 <CheckoutButton label="Draft Your First Proposal" />
-                <ButtonLink href="/features" variant="ghost" className="text-white">
+                <ButtonLink href="/features" variant="ghost" className="border-white/20 text-white hover:bg-white/10 hover:border-white/30">
                   See all features
                 </ButtonLink>
               </div>
@@ -229,7 +229,7 @@ export default function TechPage() {
               </p>
               <div className="mt-10 flex justify-center gap-4">
                 <CheckoutButton label="Draft Your First Proposal" />
-                <ButtonLink href="/contact" variant="ghost" className="text-white">
+                <ButtonLink href="/contact" variant="ghost" className="border-white/20 text-white hover:bg-white/10 hover:border-white/30">
                   Talk to sales
                 </ButtonLink>
               </div>

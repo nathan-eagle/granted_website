@@ -79,7 +79,7 @@ function StatItem({ stat, index, animate }: { stat: typeof STATS[0]; index: numb
 /* ── Testimonials ── */
 const TESTIMONIALS = [
   {
-    quote: 'We used to spend six weeks on federal proposals. With Granted, our first complete draft was ready in two days. The AI coach caught three requirements we would have missed entirely.',
+    quote: 'We used to spend six weeks on federal proposals. With Granted, our first complete draft was ready in two days. The grant coach caught three requirements we would have missed entirely.',
     name: 'Dr. Maria Chen',
     title: 'Director of Research, Pacific Northwest Health Sciences',
     initials: 'MC',

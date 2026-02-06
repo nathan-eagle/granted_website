@@ -7,7 +7,7 @@ import CheckoutButton from '@/components/CheckoutButton'
 const faqs = [
   {
     q: 'How does Granted work?',
-    a: 'You start by uploading your RFP or grant guidelines. Our AI reads the full document, identifies every required section, and maps out exactly what the funder is asking for. Then an AI Grant Coach walks you through targeted questions about your organization, your project, and your goals. As you answer, Granted tracks your coverage of the RFP requirements in real time and drafts each section individually, grounded entirely in your specific responses and the funder&apos;s criteria. The result is a complete, tailored proposal -- not a generic template.',
+    a: 'You start by uploading your RFP or grant guidelines. Our AI reads the full document, identifies every required section, and maps out exactly what the funder is asking for. Then an Grant Writing Coach walks you through targeted questions about your organization, your project, and your goals. As you answer, Granted tracks your coverage of the RFP requirements in real time and drafts each section individually, grounded entirely in your specific responses and the funder&apos;s criteria. The result is a complete, tailored proposal -- not a generic template.',
   },
   {
     q: 'What&apos;s wrong with the way grant proposals are written today?',
@@ -15,7 +15,7 @@ const faqs = [
   },
   {
     q: 'How much does Granted cost?',
-    a: 'Granted offers two plans. The Basic plan is $29 per month and includes 20,000 words of AI-generated content, the AI Grant Coach, full RFP Analysis, and unlimited projects. The Professional plan is $89 per month and includes unlimited words along with early access to new features. Both plans come with a 7-day free trial so you can experience the full workflow before committing.',
+    a: 'Granted offers two plans. The Basic plan is $29 per month and includes 20,000 words of AI-generated content, the Grant Writing Coach, full RFP Analysis, and unlimited projects. The Professional plan is $89 per month and includes unlimited words along with early access to new features. Both plans come with a 7-day free trial so you can experience the full workflow before committing.',
   },
   {
     q: 'Do you have a free trial?',
@@ -35,7 +35,7 @@ const faqs = [
   },
   {
     q: 'Is the Granted AI trustworthy?',
-    a: 'Granted is designed to be transparent and verifiable at every step. The AI Grant Coach asks you direct questions and shows you exactly which RFP requirements have been addressed and which still need attention. Every drafted section is tied to your specific answers, so you can trace where the content came from. We encourage you to review, edit, and refine every draft -- Granted is a writing partner, not an autopilot.',
+    a: 'Granted is designed to be transparent and verifiable at every step. The Grant Writing Coach asks you direct questions and shows you exactly which RFP requirements have been addressed and which still need attention. Every drafted section is tied to your specific answers, so you can trace where the content came from. We encourage you to review, edit, and refine every draft -- Granted is a writing partner, not an autopilot.',
   },
   {
     q: 'Can Granted get even a bad idea funded?',

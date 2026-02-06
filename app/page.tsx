@@ -29,13 +29,13 @@ export default function HomePage() {
               {/* Left: copy */}
               <div>
                 <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow/80 mb-6">
-                  AI Grant Writing Coach
+                  Grant Writing Coach
                 </p>
                 <h1 className="heading-display">
                   Your research deserves better than fundraising
                 </h1>
                 <p className="body-lg mt-6 text-white/70 max-w-xl">
-                  Upload your RFP. Answer a few questions from an AI coach. Get a complete,
+                  Upload your RFP. Answer a few questions from a grant writing coach. Get a complete,
                   grounded first draft of every section &mdash; project narrative, budget
                   justification, and everything in between.
                 </p>
@@ -106,7 +106,7 @@ export default function HomePage() {
                 <h3 className="heading-lg">Purpose-built for grant proposals. Not a chatbot with a prompt.</h3>
                 <ul className="body-lg mt-6 space-y-2.5 list-disc pl-6 text-navy-light">
                   <li>Upload any RFP and let the AI identify every required section and evaluation criterion.</li>
-                  <li>An AI grant coach asks targeted questions to ground every paragraph in your real data.</li>
+                  <li>A grant writing coach asks targeted questions to ground every paragraph in your real data.</li>
                   <li>Section-by-section drafting for federal grants including NIH, NSF, EPA, USDA, and DARPA.</li>
                   <li>Real-time coverage tracking so you never miss a requirement.</li>
                   <li>Purpose-built for grant writing &mdash; not a general-purpose chatbot with a prompt.</li>

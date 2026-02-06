@@ -29,7 +29,7 @@ const sections = [
       </svg>
     ),
     title: 'Third-Party AI Processing',
-    body: 'Granted uses OpenAI&apos;s API to power its AI coach. Your data is processed under OpenAI&apos;s data processing agreement, which prohibits use of API inputs for model training.',
+    body: 'Granted uses OpenAI&apos;s API to power its grant writing coach. Your data is processed under OpenAI&apos;s data processing agreement, which prohibits use of API inputs for model training.',
   },
   {
     icon: (
@@ -160,7 +160,7 @@ export default function SecurityPage() {
               </p>
               <div className="mt-10 flex justify-center gap-4">
                 <ButtonLink href="/contact">Contact Us</ButtonLink>
-                <ButtonLink href="/faq" variant="ghost" className="text-white">
+                <ButtonLink href="/faq" variant="ghost" className="border-white/20 text-white hover:bg-white/10 hover:border-white/30">
                   Read the FAQ
                 </ButtonLink>
               </div>
