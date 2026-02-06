@@ -7,11 +7,11 @@ import Footer from '@/components/Footer'
 export const dynamic = 'force-static'
 
 export const metadata: Metadata = {
-  title: 'Grant Writing Blog | Granted AI',
+  title: 'Grant Writing Blog',
   description: 'Expert tips on writing NIH, NSF, and SBIR grant proposals. Learn from successful strategies and avoid common mistakes.',
   alternates: { canonical: 'https://grantedai.com/blog' },
   openGraph: {
-    title: 'Grant Writing Blog | Granted AI',
+    title: 'Grant Writing Blog',
     description: 'Expert tips on writing NIH, NSF, and SBIR grant proposals.',
     url: 'https://grantedai.com/blog',
     siteName: 'Granted AI',
