@@ -63,14 +63,16 @@
 }
 
 /* ── Buttons ── */
-.button {
-  @apply inline-flex items-center justify-center gap-2 rounded-pill px-7 min-h-[3.25rem] text-base font-semibold transition-colors duration-150;
-}
-.button-primary {
-  @apply bg-brand-yellow text-navy hover:bg-brand-gold;
-}
-.button-ghost {
-  @apply border border-navy/20 bg-transparent text-navy hover:border-navy/40 hover:bg-navy/5;
+@layer components {
+  .button {
+    @apply inline-flex items-center justify-center gap-2 rounded-pill px-7 min-h-[3.25rem] text-base font-semibold transition-colors duration-150;
+  }
+  .button-primary {
+    @apply bg-brand-yellow text-navy hover:bg-brand-gold;
+  }
+  .button-ghost {
+    @apply border border-navy/20 bg-transparent text-navy hover:border-navy/40 hover:bg-navy/5;
+  }
 }
 
 /* ── Cards ── */
