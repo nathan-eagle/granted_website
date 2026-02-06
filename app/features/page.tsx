@@ -90,7 +90,7 @@ export default function FeaturesPage() {
   return (
     <>
       <Header />
-      <main className="bg-black text-white">
+      <main className="bg-navy text-white">
         <section className="border-b border-white/10">
           <Container className="py-28 md:py-36 text-center">
             <p className="text-sm uppercase tracking-[0.35em] text-white/70">Features</p>
@@ -111,7 +111,7 @@ export default function FeaturesPage() {
             <div className="space-y-10">
               <div className="grid gap-6 sm:grid-cols-2">
                 {skillCards.map(card => (
-                  <div key={card.title} className="rounded-[32px] bg-[#F5CF49] p-8 text-black shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+                  <div key={card.title} className="rounded-[32px] bg-[#F5CF49] p-8 text-navy shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
                     <h3 className="text-xl font-semibold tracking-tight">{card.title}</h3>
                     <p className="mt-3 text-base leading-relaxed text-black/80">{card.body}</p>
                     <p className="body-sm mt-4 text-black/70">{card.footer}</p>
@@ -178,7 +178,7 @@ export default function FeaturesPage() {
                     <span className="text-3xl" aria-hidden>{card.emoji}</span>
                     <h3 className="text-lg font-semibold tracking-tight text-white">{card.title}</h3>
                   </div>
-                  <p className="mt-4 text-sm leading-relaxed text-slate-300">{card.body}</p>
+                  <p className="mt-4 text-sm leading-relaxed text-white/60">{card.body}</p>
                 </div>
               ))}
             </div>

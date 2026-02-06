@@ -70,7 +70,7 @@ export function PricingTable() {
             >
               <span>{option.label}</span>
               {option.helper && (
-                <span className="ml-2 rounded-pill bg-white/70 px-2 py-0.5 text-xs font-semibold text-slate-900">
+                <span className="ml-2 rounded-pill bg-white/70 px-2 py-0.5 text-xs font-semibold text-navy">
                   {option.helper}
                 </span>
               )}
@@ -85,24 +85,24 @@ export function PricingTable() {
           return (
             <div key={plan.name} className="relative">
               {plan.badge ? (
-                <span className="absolute -top-4 right-6 rounded-pill bg-black px-3 py-1 text-xs font-semibold text-white">
+                <span className="absolute -top-4 right-6 rounded-pill bg-navy px-3 py-1 text-xs font-semibold text-white">
                   {plan.badge}
                 </span>
               ) : null}
               <div className="card flex h-full flex-col gap-6 p-10">
                 <div>
-                  <h2 className="text-2xl font-semibold text-slate-900">{plan.name}</h2>
+                  <h2 className="text-2xl font-semibold text-navy">{plan.name}</h2>
                   <div className="mt-4 flex items-baseline gap-3">
-                    <span className="text-4xl font-bold text-slate-900">{current.price}</span>
-                    <span className="text-sm font-medium uppercase tracking-[0.08em] text-slate-500">
+                    <span className="text-4xl font-bold text-navy">{current.price}</span>
+                    <span className="text-sm font-medium uppercase tracking-[0.08em] text-navy-light/60">
                       {current.cadence}
                     </span>
                   </div>
                   {current.note ? (
-                    <p className="body-sm mt-3 text-slate-500">{current.note}</p>
+                    <p className="body-sm mt-3 text-navy-light/60">{current.note}</p>
                   ) : null}
                 </div>
-                <ul className="body-lg space-y-2.5 list-disc pl-6 text-slate-700">
+                <ul className="body-lg space-y-2.5 list-disc pl-6 text-navy-light">
                   {plan.features.map(feature => (
                     <li key={feature}>{feature}</li>
                   ))}

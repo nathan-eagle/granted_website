@@ -26,7 +26,7 @@ export default function FAQPage() {
     <>
       <Header />
       <main>
-        <section className="bg-black text-white">
+        <section className="bg-navy text-white">
           <Container className="py-28 text-center md:py-36">
             <h1 className="heading-xl text-white">Granted | FAQs</h1>
           </Container>
@@ -34,10 +34,10 @@ export default function FAQPage() {
 
         <Container className="py-28 md:py-32">
           <h2 className="heading-lg text-center">Frequently Asked Questions</h2>
-          <div className="mt-12 divide-y divide-slate-200 border-y border-slate-200">
+          <div className="mt-12 divide-y divide-navy/10 border-y border-navy/10">
             {faqs.map((q, i) => (
               <details key={i} className="group">
-                <summary className="flex cursor-pointer items-center justify-between gap-6 py-6 text-left text-base font-semibold text-slate-900 md:text-lg">
+                <summary className="flex cursor-pointer items-center justify-between gap-6 py-6 text-left text-base font-semibold text-navy md:text-lg">
                   {q}
                   <span className="text-slate-400 transition-transform duration-200 group-open:rotate-180">
                     <svg aria-hidden className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -45,7 +45,7 @@ export default function FAQPage() {
                     </svg>
                   </span>
                 </summary>
-                <div className="body-lg pb-6 text-slate-600">
+                <div className="body-lg pb-6 text-navy-light">
                   We&apos;ll add the exact copy from Bubble here (this is a placeholder so the component style and order match).
                 </div>
               </details>
@@ -56,10 +56,10 @@ export default function FAQPage() {
           </div>
         </Container>
 
-        <section className="bg-black text-white">
+        <section className="bg-navy text-white">
           <Container className="py-24 text-center md:py-32">
             <h3 className="heading-lg text-white">Ready to Get Granted?</h3>
-            <p className="body-lg mx-auto mt-4 max-w-2xl text-slate-300">
+            <p className="body-lg mx-auto mt-4 max-w-2xl text-white/60">
               Save time. Stop frustration. Get inspired. Start your free trial today.
             </p>
             <div className="mt-10">

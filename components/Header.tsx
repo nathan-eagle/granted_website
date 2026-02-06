@@ -34,7 +34,7 @@ export default function Header() {
           <div className="flex items-center gap-3 md:hidden">
             <Link
               href={SIGN_IN_URL}
-              className="text-sm font-semibold text-slate-700 transition-colors hover:text-slate-900"
+              className="text-sm font-semibold text-navy-light transition-colors hover:text-navy"
             >
               Sign in
             </Link>
@@ -52,8 +52,8 @@ export default function Header() {
               href={item.href}
               className={`text-sm tracking-[0.02em] transition-colors ${
                 pathname === item.href
-                  ? 'font-semibold text-slate-900'
-                  : 'font-medium text-slate-600 hover:text-slate-900'
+                  ? 'font-semibold text-navy'
+                  : 'font-medium text-slate-600 hover:text-navy'
               }`}
             >
               {item.label}
@@ -61,7 +61,7 @@ export default function Header() {
           ))}
           <Link
             href={SIGN_IN_URL}
-            className="text-sm font-semibold text-slate-700 transition-colors hover:text-slate-900"
+            className="text-sm font-semibold text-navy-light transition-colors hover:text-navy"
           >
             Sign in
           </Link>
