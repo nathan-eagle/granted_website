@@ -27,6 +27,10 @@ export default function PricingPage() {
           <p className="body-sm mt-8 text-center text-navy-light/60">
             Each plan is subject to our fair use policy and its respective platform limits.
           </p>
+          <p className="text-center text-sm text-navy-light/60 mt-4">
+            Nonprofit or educational institution?{' '}
+            <a href="/contact" className="underline hover:text-navy">Contact us for special pricing.</a>
+          </p>
 
           <div className="mt-20 text-center">
             <h3 className="heading-md">7-Days On Us</h3>

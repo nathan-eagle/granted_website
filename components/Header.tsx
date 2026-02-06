@@ -8,6 +8,7 @@ import CheckoutButton from '@/components/CheckoutButton'
 const nav = [
   { href: '/pricing', label: 'Pricing' },
   { href: '/tech', label: 'Technology' },
+  { href: '/security', label: 'Security' },
   { href: '/blog', label: 'Blog' },
   { href: '/faq', label: 'FAQ' },
 ]
