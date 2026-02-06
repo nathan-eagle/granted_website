@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useInView } from '@/hooks/useInView'
 
 interface ProposalSection {
   title: string
@@ -48,8 +49,16 @@ export default function CoachConversationC() {
   )
   const [activeCoachMsg, setActiveCoachMsg] = useState(-1)
   const [showCoach, setShowCoach] = useState(false)
+  const { ref, isInView } = useInView({ threshold: 0.15, triggerOnce: false })
 
   useEffect(() => {
+    if (!isInView) {
+      setSectionStates(sections.map(() => 'empty'))
+      setActiveCoachMsg(-1)
+      setShowCoach(false)
+      return
+    }
+
     const timers: ReturnType<typeof setTimeout>[] = []
 
     // Show coach sidebar after a brief pause
@@ -91,13 +100,13 @@ export default function CoachConversationC() {
     })
 
     return () => timers.forEach(clearTimeout)
-  }, [])
+  }, [isInView])
 
   const completedCount = sectionStates.filter((s) => s === 'complete').length
   const progress = Math.round((completedCount / sections.length) * 100)
 
   return (
-    <div className="relative w-full max-w-md mx-auto">
+    <div ref={ref} className="relative w-full max-w-md mx-auto">
       <div className="rounded-2xl bg-white border border-navy/10 shadow-lg overflow-hidden">
         {/* Header bar */}
         <div className="px-5 py-3 border-b border-navy/10 flex items-center justify-between">

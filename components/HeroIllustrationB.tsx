@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useInView } from '@/hooks/useInView'
 
 /* ── Variant B: "The Split Screen" ──
    Left pane = uploaded RFP with highlighted requirements.
@@ -40,14 +41,19 @@ const draftSections = [
 
 export default function HeroIllustrationB() {
   const [step, setStep] = useState(0)
+  const { ref, isInView } = useInView({ threshold: 0.15, triggerOnce: false })
 
   useEffect(() => {
+    if (!isInView) {
+      setStep(0)
+      return
+    }
     const timers: ReturnType<typeof setTimeout>[] = []
     for (let i = 1; i <= 12; i++) {
       timers.push(setTimeout(() => setStep(i), i * 400))
     }
     return () => timers.forEach(clearTimeout)
-  }, [])
+  }, [isInView])
 
   const fade = (visible: boolean, delay = 0) => ({
     opacity: visible ? 1 : 0,
@@ -67,7 +73,7 @@ export default function HeroIllustrationB() {
   const coveragePct = Math.min(Math.round((visibleDrafts / draftSections.length) * 96), 96)
 
   return (
-    <div className="relative w-full max-w-lg mx-auto">
+    <div ref={ref} className="relative w-full max-w-lg mx-auto">
       {/* ── Floating coverage badge ── */}
       <div
         className="absolute -top-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.08] backdrop-blur-sm"

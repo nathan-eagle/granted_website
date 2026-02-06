@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useInView } from '@/hooks/useInView'
 
 interface Requirement {
   id: string
@@ -70,12 +71,20 @@ export default function DocumentStackC() {
   const [checkedItems, setCheckedItems] = useState(0)
   const [showChart, setShowChart] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const { ref, isInView } = useInView({ threshold: 0.15, triggerOnce: false })
 
   const coveredCount = requirements.filter((r) => r.status === 'covered').length
   const partialCount = requirements.filter((r) => r.status === 'partial').length
   const totalScore = Math.round(((coveredCount + partialCount * 0.5) / requirements.length) * 100)
 
   useEffect(() => {
+    if (!isInView) {
+      setCheckedItems(0)
+      setShowChart(false)
+      setMounted(false)
+      return
+    }
+
     setMounted(true)
     const timers: NodeJS.Timeout[] = []
 
@@ -92,7 +101,7 @@ export default function DocumentStackC() {
     )
 
     return () => timers.forEach(clearTimeout)
-  }, [])
+  }, [isInView])
 
   // Radial progress SVG parameters
   const radius = 32
@@ -100,7 +109,7 @@ export default function DocumentStackC() {
   const visibleScore = showChart ? totalScore : 0
 
   return (
-    <div className="relative w-full max-w-sm mx-auto aspect-square">
+    <div ref={ref} className="relative w-full max-w-sm mx-auto aspect-square">
       {/* Main card */}
       <div
         className="absolute inset-0 rounded-2xl bg-white border border-navy/10 shadow-lg overflow-hidden flex flex-col"
