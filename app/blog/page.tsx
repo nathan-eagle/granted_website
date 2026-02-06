@@ -177,13 +177,18 @@ export default async function BlogIndex() {
                     backgroundImage: 'radial-gradient(circle at 80% 20%, rgba(255,255,255,0.3) 0%, transparent 50%), radial-gradient(circle at 20% 80%, rgba(255,255,255,0.2) 0%, transparent 50%)',
                   }} />
                 </div>
-                <div className="flex items-center gap-4 text-sm text-navy-light/60">
-                  <span>{featured.minutes} min read</span>
-                  {featured.frontmatter.date && (
-                    <>
-                      <span className="w-1 h-1 rounded-full bg-navy-light/30" />
-                      <span>{new Date(featured.frontmatter.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
-                    </>
+                <div className="flex items-center justify-between text-sm text-navy-light/60">
+                  <div className="flex items-center gap-4">
+                    <span>{featured.minutes} min read</span>
+                    {featured.frontmatter.date && (
+                      <>
+                        <span className="w-1 h-1 rounded-full bg-navy-light/30" />
+                        <span>{new Date(featured.frontmatter.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                      </>
+                    )}
+                  </div>
+                  {featured.frontmatter.author && (
+                    <span className="text-navy-light/50 font-medium">{featured.frontmatter.author}</span>
                   )}
                 </div>
               </Link>
@@ -206,9 +211,12 @@ export default async function BlogIndex() {
                     {p.frontmatter.title || p.slug}
                   </Link>
                   <p className="text-sm text-navy-light mt-3 line-clamp-3 flex-1">{p.description}</p>
-                  {p.frontmatter.date && (
-                    <div className="text-xs text-navy-light/40 mt-4 pt-4 border-t border-navy/5">
-                      {new Date(p.frontmatter.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                  {(p.frontmatter.date || p.frontmatter.author) && (
+                    <div className="flex items-center justify-between text-xs text-navy-light/40 mt-4 pt-4 border-t border-navy/5">
+                      <span>{p.frontmatter.date ? new Date(p.frontmatter.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : ''}</span>
+                      {p.frontmatter.author && (
+                        <span className="text-navy-light/50 font-medium">{p.frontmatter.author}</span>
+                      )}
                     </div>
                   )}
                 </div>

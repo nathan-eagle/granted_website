@@ -6,6 +6,7 @@ export type PostFrontmatter = {
   title: string
   description?: string
   date?: string
+  author?: string
 }
 
 const CONTENT_DIR = path.join(process.cwd(), 'content', 'blog')

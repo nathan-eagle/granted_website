@@ -63,6 +63,7 @@ export default async function BlogPost({ params }: Params) {
       url: 'https://grantedai.com',
     },
     ...(frontmatter.date ? { datePublished: frontmatter.date } : {}),
+    ...(frontmatter.author ? { author: { '@type': 'Person', name: frontmatter.author } } : {}),
   }
 
   return (
@@ -75,16 +76,20 @@ export default async function BlogPost({ params }: Params) {
         />
         <article className="prose prose-slate max-w-none">
           <h1>{title}</h1>
-          {frontmatter.date && (
-            <p className="text-sm text-slate-500 -mt-4">
-              {new Date(frontmatter.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-              {' · '}
+          <div className="flex items-center justify-between -mt-4">
+            <p className="text-sm text-slate-500">
+              {frontmatter.date && (
+                <>
+                  {new Date(frontmatter.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  {' · '}
+                </>
+              )}
               {minutes} min read
             </p>
-          )}
-          {!frontmatter.date && (
-            <p className="text-sm text-slate-500 -mt-4">{minutes} min read</p>
-          )}
+            {frontmatter.author && (
+              <p className="text-sm text-slate-500 font-medium">{frontmatter.author}</p>
+            )}
+          </div>
           <MDXRemote source={content} options={{ mdxOptions: { remarkPlugins: [remarkGfm], rehypePlugins: [rehypeSlug] } }} />
         </article>
         <div className="mt-12 border-t pt-8 text-center">
