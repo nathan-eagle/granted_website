@@ -2,6 +2,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
 import { ButtonLink } from '@/components/ButtonLink'
+import CheckoutButton from '@/components/CheckoutButton'
 
 const faqs = [
   'How does Granted work?',
@@ -62,7 +63,7 @@ export default function FAQPage() {
               Save time. Stop frustration. Get inspired. Start your free trial today.
             </p>
             <div className="mt-10">
-              <ButtonLink href="https://app.grantedai.com">Start Writing</ButtonLink>
+              <CheckoutButton label="Start Writing" />
             </div>
           </Container>
         </section>

@@ -2,6 +2,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
 import { ButtonLink } from '@/components/ButtonLink'
+import CheckoutButton from '@/components/CheckoutButton'
 
 export default function TechPage() {
   return (
@@ -15,7 +16,7 @@ export default function TechPage() {
               This is not your father&apos;s GPT. Granted&apos;s purpose-built AI was designed to do one thing: get your proposal funded.
             </p>
             <div className="mt-10">
-              <ButtonLink href="https://app.grantedai.com">Start Writing</ButtonLink>
+              <CheckoutButton label="Start Writing" />
             </div>
           </Container>
         </section>
@@ -51,7 +52,7 @@ export default function TechPage() {
               Securing funding for your project is too important to use general purpose AI writing tools. Granted combines state-of-the-art AI technology, the world&apos;s largest corpus of successful grant proposals, and the expertise of fundraising specialists to ensure your ideas get the funding they deserve.
             </p>
             <div className="mt-10">
-              <ButtonLink href="https://app.grantedai.com">Start Writing</ButtonLink>
+              <CheckoutButton label="Start Writing" />
             </div>
           </Container>
         </section>

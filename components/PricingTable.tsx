@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ButtonLink } from '@/components/ButtonLink'
+import CheckoutButton from '@/components/CheckoutButton'
 
 const PLANS = [
   {
@@ -107,9 +107,11 @@ export function PricingTable() {
                     <li key={feature}>{feature}</li>
                   ))}
                 </ul>
-                <ButtonLink href="https://app.grantedai.com" className="mt-auto w-full">
-                  Try for free
-                </ButtonLink>
+                <CheckoutButton
+                  plan={billing === 'annual' ? 'yearly' : 'monthly'}
+                  label="Start free trial"
+                  className="mt-auto w-full"
+                />
               </div>
             </div>
           )

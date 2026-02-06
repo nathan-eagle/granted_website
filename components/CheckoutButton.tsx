@@ -1,8 +1,20 @@
-"use client"
+'use client'
 
 import { useState } from 'react'
 
-export default function CheckoutButton({ plan = 'monthly', label = 'Start Writing' }: { plan?: 'monthly'|'yearly', label?: string }) {
+type CheckoutPlan = 'monthly' | 'yearly'
+
+interface CheckoutButtonProps {
+  plan?: CheckoutPlan
+  label?: string
+  className?: string
+}
+
+export default function CheckoutButton({
+  plan = 'monthly',
+  label = 'Start Writing',
+  className = '',
+}: CheckoutButtonProps) {
   const [loading, setLoading] = useState(false)
   async function go() {
     setLoading(true)
@@ -12,12 +24,22 @@ export default function CheckoutButton({ plan = 'monthly', label = 'Start Writin
     if (url) {
       window.location.href = url
     } else {
-      console.warn('Stripe Checkout URL not configured')
-      setLoading(false)
+      // Fallback to Google OAuth sign-in when Stripe URLs aren't configured
+      window.location.href = 'https://app.grantedai.com/api/auth/signin?callbackUrl=/overview'
     }
   }
+  const baseStyles =
+    'inline-flex items-center justify-center rounded-md border border-yellow-500 bg-yellow-400 px-6 py-3 font-semibold text-black shadow transition hover:bg-yellow-300 disabled:opacity-60'
+  const buttonClassName = `${baseStyles} ${className}`.trim()
+
   return (
-    <button onClick={go} disabled={loading} className="px-6 py-3 rounded-md bg-yellow-400 text-black font-semibold hover:bg-yellow-300 border border-yellow-500 shadow disabled:opacity-60">
+    <button
+      type="button"
+      onClick={go}
+      disabled={loading}
+      className={buttonClassName}
+      aria-busy={loading}
+    >
       {loading ? 'Redirecting…' : label}
     </button>
   )

@@ -2,6 +2,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
 import { ButtonLink } from '@/components/ButtonLink'
+import CheckoutButton from '@/components/CheckoutButton'
 import Image from 'next/image'
 
 const checkMarks = [
@@ -99,7 +100,7 @@ export default function FeaturesPage() {
               fundraising experience from Bubble directly to your native Next.js site.
             </p>
             <div className="mt-10 flex justify-center gap-4">
-              <ButtonLink href="https://app.grantedai.com">Start Writing</ButtonLink>
+              <CheckoutButton label="Start Writing" />
               <ButtonLink href="/tech" variant="ghost">Learn about the technology</ButtonLink>
             </div>
           </Container>
@@ -191,7 +192,7 @@ export default function FeaturesPage() {
               Save time. Stop frustration. Get inspired. Start your free trial today.
             </p>
             <div className="mt-10 flex justify-center gap-4">
-              <ButtonLink href="https://app.grantedai.com">Start Writing</ButtonLink>
+              <CheckoutButton label="Start Writing" />
               <ButtonLink href="/contact" variant="ghost" className="text-white">
                 Talk to sales
               </ButtonLink>

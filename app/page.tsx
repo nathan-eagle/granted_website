@@ -2,6 +2,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
 import { ButtonLink } from '@/components/ButtonLink'
+import CheckoutButton from '@/components/CheckoutButton'
 import Image from 'next/image'
 
 export default function HomePage() {
@@ -21,7 +22,7 @@ export default function HomePage() {
                 Granted&apos;s specialized AI is trained on over half a million successful grant proposals. Say hello to your fundraising copilot.
               </p>
               <div className="mt-10">
-                <ButtonLink href="https://app.grantedai.com">Start Writing</ButtonLink>
+                <CheckoutButton label="Start Writing" />
               </div>
             </div>
           </Container>
@@ -78,7 +79,7 @@ export default function HomePage() {
                 See what Granted can do for you in just a few minutes and leave with the content you need.
               </p>
               <div className="mt-8">
-                <ButtonLink href="https://app.grantedai.com">Start a 7-day free trial</ButtonLink>
+                <CheckoutButton label="Start a 7-day free trial" />
               </div>
             </div>
           </Container>
@@ -136,7 +137,7 @@ export default function HomePage() {
               Save time. Stop frustration. Get inspired. Start your free trial today.
             </p>
             <div className="mt-10">
-              <ButtonLink href="https://app.grantedai.com">Start Writing</ButtonLink>
+              <CheckoutButton label="Start Writing" />
             </div>
           </Container>
         </section>

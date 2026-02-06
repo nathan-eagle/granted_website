@@ -2,6 +2,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
 import { ButtonLink } from '@/components/ButtonLink'
+import CheckoutButton from '@/components/CheckoutButton'
 
 export default function ContactPage() {
   return (
@@ -63,7 +64,9 @@ export default function ContactPage() {
             <p className="body-lg mx-auto mt-4 max-w-2xl text-slate-300">
               Save time. Stop frustration. Get inspired. Start your free trial today.
             </p>
-            <div className="mt-10"><ButtonLink href="https://app.grantedai.com">Start Writing</ButtonLink></div>
+            <div className="mt-10">
+              <CheckoutButton label="Start Writing" />
+            </div>
           </Container>
         </section>
       </main>

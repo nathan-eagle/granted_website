@@ -1,8 +1,8 @@
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
-import { ButtonLink } from '@/components/ButtonLink'
 import { PricingTable } from '@/components/PricingTable'
+import CheckoutButton from '@/components/CheckoutButton'
 
 export default function PricingPage() {
   return (
@@ -16,7 +16,7 @@ export default function PricingPage() {
               Experience grant writing at the speed of thought. Unlock unlimited writing and ideas with our Professional plan.
             </p>
             <div className="mt-10">
-              <ButtonLink href="https://app.grantedai.com">Try for Free</ButtonLink>
+              <CheckoutButton label="Try for Free" />
             </div>
           </Container>
         </section>
