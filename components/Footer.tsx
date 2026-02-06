@@ -23,6 +23,15 @@ export default function Footer() {
                 <li><Link href="/contact" className="hover:text-navy">Contact</Link></li>
               </ul>
             </div>
+            <div>
+              <p className="font-semibold text-navy mb-4 tracking-tight">Free Tools</p>
+              <ul className="space-y-2">
+                <li><Link href="/tools/readiness-quiz" className="hover:text-navy">Grant Readiness Quiz</Link></li>
+                <li><Link href="/tools/deadlines" className="hover:text-navy">Deadline Calendar</Link></li>
+                <li><Link href="/tools/cost-calculator" className="hover:text-navy">Cost Calculator</Link></li>
+                <li><Link href="/blog" className="hover:text-navy">Blog</Link></li>
+              </ul>
+            </div>
           </nav>
         </div>
         <div className="mt-12 flex flex-col gap-4 text-xs text-navy-light/60 sm:flex-row sm:items-center sm:justify-between sm:text-sm">

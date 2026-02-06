@@ -1,8 +1,16 @@
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
 import { ButtonLink } from '@/components/ButtonLink'
 import CheckoutButton from '@/components/CheckoutButton'
+
+export const metadata: Metadata = {
+  title: 'Contact Granted AI — Support, Partnerships & Nonprofit Pricing',
+  description:
+    'Get in touch with the Granted AI team for support, partnership inquiries, or nonprofit/education pricing.',
+  alternates: { canonical: 'https://grantedai.com/contact' },
+}
 
 export default function ContactPage() {
   return (

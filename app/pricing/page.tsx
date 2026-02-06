@@ -1,13 +1,49 @@
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
 import { PricingTable } from '@/components/PricingTable'
 import CheckoutButton from '@/components/CheckoutButton'
 
+export const metadata: Metadata = {
+  title: 'Pricing — Granted AI Grant Writing Tool, Plans from $29/mo',
+  description:
+    'Compare Granted AI pricing plans. Basic ($29/mo) and Professional ($89/mo) with 7-day free trial. Cheaper than hiring a grant writer.',
+  alternates: { canonical: 'https://grantedai.com/pricing' },
+}
+
+const softwareSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Granted AI',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  offers: [
+    {
+      '@type': 'Offer',
+      name: 'Basic',
+      price: '29',
+      priceCurrency: 'USD',
+      priceValidUntil: '2027-01-01',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Professional',
+      price: '89',
+      priceCurrency: 'USD',
+      priceValidUntil: '2027-01-01',
+    },
+  ],
+}
+
 export default function PricingPage() {
   return (
     <>
       <Header />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+      />
       <main>
         <section className="bg-navy text-white">
           <Container className="py-28 text-center md:py-36">

@@ -1,8 +1,16 @@
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
 import { ButtonLink } from '@/components/ButtonLink'
 import CheckoutButton from '@/components/CheckoutButton'
+
+export const metadata: Metadata = {
+  title: 'FAQ — Granted AI Grant Writing Tool',
+  description:
+    'Common questions about Granted AI: how it works, pricing, data security, originality, and which grants it supports.',
+  alternates: { canonical: 'https://grantedai.com/faq' },
+}
 
 const faqs = [
   {
@@ -64,9 +72,26 @@ const faqs = [
 ]
 
 export default function FAQPage() {
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.a.replace(/<[^>]*>/g, ''),
+      },
+    })),
+  }
+
   return (
     <>
       <Header />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <main>
         <section className="bg-navy text-white">
           <Container className="py-28 text-center md:py-36">

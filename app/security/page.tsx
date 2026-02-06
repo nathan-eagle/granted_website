@@ -5,9 +5,10 @@ import Container from '@/components/Container'
 import { ButtonLink } from '@/components/ButtonLink'
 
 export const metadata: Metadata = {
-  title: 'Security & Data Privacy',
+  title: 'Security — How Granted AI Protects Your Grant Data',
   description:
-    'Learn how Granted protects your grant proposals, research data, and organizational information. Your data is encrypted, never used for AI training, and deletable anytime.',
+    'Granted AI security practices: AES-256 encryption, TLS 1.2+, no AI training on your data, SOC 2 compliance details.',
+  alternates: { canonical: 'https://grantedai.com/security' },
 }
 
 const sections = [

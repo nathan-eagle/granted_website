@@ -11,6 +11,7 @@ import AnimatedGoldRule from '@/components/AnimatedGoldRule'
 import StepCards from '@/components/StepCards'
 import RevealOnScroll from '@/components/RevealOnScroll'
 import HeroIllustrationB from '@/components/HeroIllustrationB'
+import EmailCapture from '@/components/EmailCapture'
 import { StatsCounter, Testimonials, OrgLogos } from '@/components/SocialProof'
 
 export default function HomePage() {
@@ -122,6 +123,27 @@ export default function HomePage() {
 
         {/* ── Testimonials ── */}
         <Testimonials />
+
+        {/* ── Email capture ── */}
+        <section className="bg-navy text-white noise-overlay overflow-hidden">
+          <Container className="py-20 md:py-24">
+            <RevealOnScroll className="text-center">
+              <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow/80 mb-4">
+                Stay in the loop
+              </p>
+              <h2 className="heading-lg text-white">Not ready to start? No pressure.</h2>
+              <p className="body-lg mt-4 text-white/60 max-w-xl mx-auto">
+                Get free grant writing tips, deadline alerts, and strategy guides every week.
+              </p>
+              <div className="mt-8 relative">
+                <EmailCapture />
+              </div>
+              <p className="mt-4 text-xs text-white/30">
+                Join 500+ grant writers. No spam, unsubscribe anytime.
+              </p>
+            </RevealOnScroll>
+          </Container>
+        </section>
 
         {/* ── Yellow banner CTA ── */}
         <section>

@@ -1,15 +1,22 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { DM_Sans } from 'next/font/google'
+import ExitIntentPopup from '@/components/ExitIntentPopup'
 import './globals.css'
+
+// ── Analytics IDs ──
+// Replace these with your real IDs once created (see MARKETING_PLAN.md prerequisites)
+const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID || ''
+const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_ID || ''
 
 const dmSans = DM_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-body' })
 
 export const metadata: Metadata = {
   title: {
-    default: 'Granted AI - Get Funded Faster.',
+    default: 'Granted AI — AI Grant Writing Tool | Draft Proposals in Hours',
     template: '%s | Granted AI',
   },
-  description: 'Get your projects funded faster with AI. Granted is trained on over half a million successful grant proposals.',
+  description: 'Upload your RFP and get a complete grant proposal draft. Granted AI analyzes requirements, coaches you through targeted questions, and writes every section. Free trial.',
   metadataBase: new URL('https://grantedai.com'),
   icons: { icon: '/favicon.ico' },
   openGraph: {
@@ -17,8 +24,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://grantedai.com',
-    title: 'Granted AI - Get Funded Faster.',
-    description: 'Get your projects funded faster with AI. Granted is trained on over half a million successful grant proposals.',
+    title: 'Granted AI — AI Grant Writing Tool | Draft Proposals in Hours',
+    description: 'Upload your RFP and get a complete grant proposal draft. Granted AI analyzes requirements, coaches you through targeted questions, and writes every section. Free trial.',
   },
   twitter: {
     card: 'summary_large_image',
@@ -43,7 +50,50 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={`${dmSans.variable} font-sans`}>
+        {/* ── Google Analytics 4 ── */}
+        {GA4_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="gtag-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA4_ID}', { send_page_view: true });
+              `}
+            </Script>
+          </>
+        )}
+        {/* ── Microsoft Clarity ── */}
+        {CLARITY_ID && (
+          <Script id="clarity-init" strategy="afterInteractive">
+            {`
+              (function(c,l,a,r,i,t,y){
+                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/${CLARITY_ID}";
+                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+              })(window, document, "clarity", "script");
+            `}
+          </Script>
+        )}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'Granted AI',
+              url: 'https://grantedai.com',
+              logo: 'https://grantedai.com/favicon.ico',
+              sameAs: ['https://twitter.com/GrantedAI'],
+            }),
+          }}
+        />
         {children}
+        <ExitIntentPopup />
       </body>
     </html>
   )

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { trackEvent } from '@/lib/analytics'
 
 type CheckoutPlan = 'monthly' | 'yearly'
 
@@ -8,16 +9,23 @@ interface CheckoutButtonProps {
   plan?: CheckoutPlan
   label?: string
   className?: string
+  eventName?: string
 }
 
 export default function CheckoutButton({
   plan = 'monthly',
   label = 'Start Writing',
   className = '',
+  eventName,
 }: CheckoutButtonProps) {
   const [loading, setLoading] = useState(false)
   async function go() {
     setLoading(true)
+    trackEvent(eventName || 'trial_signup_intent', {
+      plan,
+      label,
+      page: typeof window !== 'undefined' ? window.location.pathname : '',
+    })
     const url = plan === 'yearly'
       ? process.env.NEXT_PUBLIC_STRIPE_YEARLY_URL
       : process.env.NEXT_PUBLIC_STRIPE_MONTHLY_URL

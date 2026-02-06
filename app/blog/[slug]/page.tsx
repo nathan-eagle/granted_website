@@ -6,6 +6,7 @@ import remarkGfm from 'remark-gfm'
 import { getPost, hasPost, listPosts, deriveDescription, readingTime } from '@/lib/blog'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import BlogStickyCTA from '@/components/BlogStickyCTA'
 
 type Params = { params: { slug: string } }
 
@@ -66,6 +67,16 @@ export default async function BlogPost({ params }: Params) {
     ...(frontmatter.author ? { author: { '@type': 'Person', name: frontmatter.author } } : {}),
   }
 
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://grantedai.com' },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://grantedai.com/blog' },
+      { '@type': 'ListItem', position: 3, name: title, item: url },
+    ],
+  }
+
   return (
     <>
       <Header />
@@ -73,6 +84,10 @@ export default async function BlogPost({ params }: Params) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
         />
         <article className="prose prose-slate max-w-none">
           <h1>{title}</h1>
@@ -103,6 +118,7 @@ export default async function BlogPost({ params }: Params) {
           </a>
         </div>
       </section>
+      <BlogStickyCTA />
       <Footer />
     </>
   )

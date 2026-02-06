@@ -1,8 +1,16 @@
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
 import { ButtonLink } from '@/components/ButtonLink'
 import CheckoutButton from '@/components/CheckoutButton'
+
+export const metadata: Metadata = {
+  title: 'How It Works — Granted AI Grant Writing Process Explained',
+  description:
+    'Step-by-step walkthrough of Granted AI: upload RFP, answer coaching questions, get tailored proposal drafts for every section.',
+  alternates: { canonical: 'https://grantedai.com/tech' },
+}
 
 const workflowSteps = [
   {
@@ -114,10 +122,28 @@ function XMark() {
   )
 }
 
+const howToSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: 'How to Write a Grant Proposal with Granted AI',
+  description:
+    'Step-by-step guide to using Granted AI to draft a complete grant proposal from your RFP.',
+  step: workflowSteps.map((step, i) => ({
+    '@type': 'HowToStep',
+    position: i + 1,
+    name: step.title,
+    text: step.description,
+  })),
+}
+
 export default function TechPage() {
   return (
     <>
       <Header />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
+      />
       <main>
         {/* ── Hero ── */}
         <section className="bg-navy text-white noise-overlay overflow-hidden">

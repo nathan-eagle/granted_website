@@ -1,9 +1,17 @@
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
 import { ButtonLink } from '@/components/ButtonLink'
 import CheckoutButton from '@/components/CheckoutButton'
 import Image from 'next/image'
+
+export const metadata: Metadata = {
+  title: 'Features — AI Grant Writing Coach, RFP Analysis & Section Drafting',
+  description:
+    'See how Granted AI works: RFP upload and analysis, AI coaching Q&A, section-by-section drafting, and real-time requirement tracking.',
+  alternates: { canonical: 'https://grantedai.com/features' },
+}
 
 const checkMarks = [
   '50+ writing models tuned for fundraising, development, and grant teams',

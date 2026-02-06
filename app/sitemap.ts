@@ -12,7 +12,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/faq`, changeFrequency: 'monthly', lastModified: now },
     { url: `${base}/tech`, changeFrequency: 'monthly', lastModified: now },
     { url: `${base}/contact`, changeFrequency: 'yearly', lastModified: now },
+    { url: `${base}/security`, changeFrequency: 'monthly', lastModified: now },
     { url: `${base}/blog`, priority: 0.9, changeFrequency: 'weekly', lastModified: now },
+    // Audience landing pages
+    { url: `${base}/for/nonprofits`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
+    { url: `${base}/for/researchers`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
+    { url: `${base}/for/sbir`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
+    { url: `${base}/for/scholarships`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
+    // Comparison pages
+    { url: `${base}/compare/grant-writers`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
+    { url: `${base}/compare/grantboost`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
+    { url: `${base}/compare/doing-it-yourself`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
+    // Interactive tools
+    { url: `${base}/tools/readiness-quiz`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
+    { url: `${base}/tools/deadlines`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
+    { url: `${base}/tools/cost-calculator`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
   ]
 
   const posts = await listPosts().catch(() => [])
