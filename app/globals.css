@@ -276,6 +276,21 @@
 .blog-header-sbir {
   background: linear-gradient(135deg, #3a1a5f 0%, #5a2d87 50%, #4a1a72 100%);
 }
+.blog-header-epa {
+  background: linear-gradient(135deg, #0f4a3f 0%, #1a7a65 50%, #0d5a4a 100%);
+}
+.blog-header-noaa {
+  background: linear-gradient(135deg, #0c3547 0%, #155a7a 50%, #0a4560 100%);
+}
+.blog-header-darpa {
+  background: linear-gradient(135deg, #1e2a3a 0%, #2d4055 50%, #1a2840 100%);
+}
+.blog-header-usda {
+  background: linear-gradient(135deg, #2a4a0f 0%, #457a1a 50%, #345a12 100%);
+}
+.blog-header-tribal {
+  background: linear-gradient(135deg, #5a2a0a 0%, #8a4a1a 50%, #6a3510 100%);
+}
 .blog-header-tips {
   background: linear-gradient(135deg, #5f4a1a 0%, #876a2d 50%, #725a1a 100%);
 }

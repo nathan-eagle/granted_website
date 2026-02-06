@@ -9,11 +9,11 @@ export const dynamic = 'force-static'
 
 export const metadata: Metadata = {
   title: 'Grant Writing Blog',
-  description: 'Expert tips on writing NIH, NSF, and SBIR grant proposals. Learn from successful strategies and avoid common mistakes.',
+  description: 'Expert tips on writing NIH, NSF, SBIR, EPA, NOAA, DARPA, USDA, and tribal grant proposals. Learn from successful strategies and avoid common mistakes.',
   alternates: { canonical: 'https://grantedai.com/blog' },
   openGraph: {
     title: 'Grant Writing Blog',
-    description: 'Expert tips on writing NIH, NSF, and SBIR grant proposals.',
+    description: 'Expert tips on writing NIH, NSF, SBIR, EPA, NOAA, DARPA, USDA, and tribal grant proposals.',
     url: 'https://grantedai.com/blog',
     siteName: 'Granted AI',
     type: 'website',
@@ -25,6 +25,11 @@ function detectCategory(title: string): string {
   if (t.includes('sbir')) return 'SBIR'
   if (t.includes('nih')) return 'NIH'
   if (t.includes('nsf')) return 'NSF'
+  if (t.includes('epa') || t.includes('environmental justice')) return 'EPA'
+  if (t.includes('noaa') || t.includes('marine debris') || t.includes('coastal')) return 'NOAA'
+  if (t.includes('darpa') || t.includes('defense') || t.includes('dod')) return 'DARPA'
+  if (t.includes('usda') || t.includes('rural development') || t.includes('community facilit')) return 'USDA'
+  if (t.includes('tribal') || t.includes('indigenous') || t.includes('tcup')) return 'Tribal'
   return 'Tips'
 }
 
@@ -32,6 +37,11 @@ const CATEGORY_COLORS: Record<string, string> = {
   NIH: 'bg-blue-100 text-blue-800',
   NSF: 'bg-emerald-100 text-emerald-800',
   SBIR: 'bg-purple-100 text-purple-800',
+  EPA: 'bg-teal-100 text-teal-800',
+  NOAA: 'bg-cyan-100 text-cyan-800',
+  DARPA: 'bg-slate-100 text-slate-800',
+  USDA: 'bg-lime-100 text-lime-800',
+  Tribal: 'bg-orange-100 text-orange-800',
   Tips: 'bg-amber-100 text-amber-800',
 }
 
@@ -39,6 +49,11 @@ const CATEGORY_HEADERS: Record<string, string> = {
   NIH: 'blog-header-nih',
   NSF: 'blog-header-nsf',
   SBIR: 'blog-header-sbir',
+  EPA: 'blog-header-epa',
+  NOAA: 'blog-header-noaa',
+  DARPA: 'blog-header-darpa',
+  USDA: 'blog-header-usda',
+  Tribal: 'blog-header-tribal',
   Tips: 'blog-header-tips',
 }
 
@@ -61,6 +76,37 @@ const CATEGORY_ICONS: Record<string, JSX.Element> = {
       <rect x="2" y="3" width="20" height="14" rx="2" />
       <line x1="8" y1="21" x2="16" y2="21" />
       <line x1="12" y1="17" x2="12" y2="21" />
+    </svg>
+  ),
+  EPA: (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/60">
+      <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+      <path d="M7 12h10M12 7v10" />
+      <path d="M9 9l6 6M15 9l-6 6" />
+    </svg>
+  ),
+  NOAA: (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/60">
+      <path d="M2 12c2-3 4-4 6-4s4 4 6 4 4-4 6-4" />
+      <path d="M2 17c2-3 4-4 6-4s4 4 6 4 4-4 6-4" />
+      <path d="M2 7c2-3 4-4 6-4s4 4 6 4 4-4 6-4" />
+    </svg>
+  ),
+  DARPA: (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/60">
+      <path d="M12 2l3 7h7l-5.5 4.5 2 7L12 16l-6.5 4.5 2-7L2 9h7z" />
+    </svg>
+  ),
+  USDA: (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/60">
+      <path d="M12 2v8M5 6c0 4 3.5 7 7 7s7-3 7-7" />
+      <path d="M3 22v-4c0-2 2-3 4-3h10c2 0 4 1 4 3v4" />
+      <line x1="3" y1="22" x2="21" y2="22" />
+    </svg>
+  ),
+  Tribal: (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/60">
+      <path d="M12 2L8 10l-6 2 4 5-1 7 7-3 7 3-1-7 4-5-6-2z" />
     </svg>
   ),
   Tips: (
@@ -99,7 +145,7 @@ export default async function BlogIndex() {
             <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow/80 mb-4">
               Grant Writing Blog
             </p>
-            <h1 className="heading-xl text-white max-w-2xl">Expert advice for NIH, NSF, SBIR, and beyond</h1>
+            <h1 className="heading-xl text-white max-w-2xl">Expert advice for every grant — from EPA to DARPA</h1>
             <p className="body-lg mt-4 text-white/50 max-w-xl">
               Strategies, tips, and deep dives on writing winning grant proposals.
             </p>
