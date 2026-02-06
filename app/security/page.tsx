@@ -29,7 +29,7 @@ const sections = [
       </svg>
     ),
     title: 'Third-Party AI Processing',
-    body: 'Granted uses OpenAI&apos;s API to power its grant writing coach. Your data is processed under OpenAI&apos;s data processing agreement, which prohibits use of API inputs for model training.',
+    body: "Granted uses OpenAI\u2019s API to power its grant writing coach. Your data is processed under OpenAI\u2019s data processing agreement, which prohibits use of API inputs for model training.",
   },
   {
     icon: (
@@ -71,7 +71,7 @@ const sections = [
       </svg>
     ),
     title: 'Data Sovereignty',
-    body: 'We understand that some institutions&#8212;including tribal colleges, tribal nations, and Indigenous-serving organizations&#8212;operate under data sovereignty frameworks that require community governance over research data. You retain full ownership of all uploaded content. All data can be permanently deleted at any time. No data is shared with third parties beyond what is necessary for AI processing.',
+    body: 'We understand that some institutions\u2014including tribal colleges, tribal nations, and Indigenous-serving organizations\u2014operate under data sovereignty frameworks that require community governance over research data. You retain full ownership of all uploaded content. All data can be permanently deleted at any time. No data is shared with third parties beyond what is necessary for AI processing.',
   },
   {
     icon: (
@@ -122,10 +122,10 @@ export default function SecurityPage() {
           <Container className="py-28 md:py-32">
             {/* Summary trust banner */}
             <div className="mx-auto max-w-3xl text-center mb-16">
-              <h2 className="heading-lg">Your data belongs to you&#8212;full stop.</h2>
+              <h2 className="heading-lg">Your data belongs to you &mdash; full stop.</h2>
               <p className="body-lg mt-4 text-navy-light">
-                Every piece of information you share with Granted&#8212;RFPs, coach answers,
-                drafts&#8212;is used only to serve you. It&apos;s never sold, never shared, never
+                Every piece of information you share with Granted &mdash; RFPs, coach answers,
+                drafts &mdash; is used only to serve you. It&apos;s never sold, never shared, never
                 used to train models.
               </p>
             </div>

@@ -10,7 +10,7 @@ const faqs = [
     a: 'You start by uploading your RFP or grant guidelines. Our AI reads the full document, identifies every required section, and maps out exactly what the funder is asking for. Then an Grant Writing Coach walks you through targeted questions about your organization, your project, and your goals. As you answer, Granted tracks your coverage of the RFP requirements in real time and drafts each section individually, grounded entirely in your specific responses and the funder&apos;s criteria. The result is a complete, tailored proposal -- not a generic template.',
   },
   {
-    q: 'What&apos;s wrong with the way grant proposals are written today?',
+    q: "What\u2019s wrong with the way grant proposals are written today?",
     a: 'Most organizations spend weeks or months assembling proposals by hand, copying from old submissions, and hoping they&apos;ve addressed every requirement buried in a 40-page RFP. It&apos;s tedious, error-prone, and heavily favors large organizations with dedicated grant writers. Smaller nonprofits, researchers, and community groups often lack the resources to compete, even when their projects are stronger. Granted levels the playing field by handling the structural and analytical heavy lifting so you can focus on the substance of your work.',
   },
   {
