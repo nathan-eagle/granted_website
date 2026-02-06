@@ -47,3 +47,29 @@ export async function hasPost(slug: string) {
   }
 }
 
+/** Strip markdown/MDX syntax to get plain text */
+export function stripMarkdown(md: string): string {
+  return md
+    .replace(/!\[.*?\]\(.*?\)/g, '')       // images
+    .replace(/\[([^\]]+)\]\(.*?\)/g, '$1') // links → text
+    .replace(/#{1,6}\s+/g, '')             // headings
+    .replace(/[*_~`>]/g, '')               // formatting chars
+    .replace(/\n{2,}/g, ' ')              // collapse newlines
+    .replace(/\s+/g, ' ')                 // collapse spaces
+    .trim()
+}
+
+/** Auto-generate description from content if frontmatter is empty */
+export function deriveDescription(frontmatter: PostFrontmatter, content: string): string {
+  if (frontmatter.description) return frontmatter.description
+  const plain = stripMarkdown(content)
+  if (plain.length <= 160) return plain
+  return plain.slice(0, 157).replace(/\s+\S*$/, '') + '...'
+}
+
+/** Estimate reading time in minutes */
+export function readingTime(content: string): number {
+  const words = stripMarkdown(content).split(/\s+/).length
+  return Math.max(1, Math.ceil(words / 250))
+}
+
