@@ -5,11 +5,12 @@ import { ButtonLink } from '@/components/ButtonLink'
 import CheckoutButton from '@/components/CheckoutButton'
 import AgencyLogos from '@/components/AgencyLogos'
 import AudienceSection from '@/components/AudienceSection'
-import { DocumentStack, CoachConversation } from '@/components/AbstractIllustration'
+import DocumentStackC from '@/components/DocumentStackC'
+import CoachConversationC from '@/components/CoachConversationC'
 import AnimatedGoldRule from '@/components/AnimatedGoldRule'
 import StepCards from '@/components/StepCards'
 import RevealOnScroll from '@/components/RevealOnScroll'
-import HeroIllustration from '@/components/HeroIllustration'
+import HeroIllustrationB from '@/components/HeroIllustrationB'
 import { StatsCounter, Testimonials, OrgLogos } from '@/components/SocialProof'
 
 export default function HomePage() {
@@ -53,7 +54,7 @@ export default function HomePage() {
 
               {/* Right: animated proposal illustration */}
               <div className="hidden lg:block">
-                <HeroIllustration />
+                <HeroIllustrationB />
               </div>
             </div>
           </Container>
@@ -89,7 +90,7 @@ export default function HomePage() {
                   </ButtonLink>
                 </div>
               </div>
-              <CoachConversation />
+              <CoachConversationC />
             </RevealOnScroll>
           </Container>
         </section>
@@ -98,7 +99,7 @@ export default function HomePage() {
         <section className="bg-cream-dark section-angle-top">
           <Container className="py-28 md:py-32">
             <RevealOnScroll className="grid items-center gap-12 lg:grid-cols-2">
-              <DocumentStack />
+              <DocumentStackC />
               <div>
                 <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow mb-4">
                   From donor appeals to federal grants
