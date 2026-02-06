@@ -129,7 +129,7 @@ export default function TechPage() {
                 Granted is purpose-built AI for grant writing. It reads your RFP, learns about your organization, tracks every requirement, and drafts each section grounded in your real data.
               </p>
               <div className="mt-10 flex justify-center gap-4">
-                <CheckoutButton label="Start Writing" />
+                <CheckoutButton label="Draft Your First Proposal" />
                 <ButtonLink href="/features" variant="ghost" className="text-white">
                   See all features
                 </ButtonLink>
@@ -223,12 +223,12 @@ export default function TechPage() {
         <section className="bg-navy text-white noise-overlay overflow-hidden">
           <Container className="py-24 md:py-32 text-center">
             <div className="relative z-10">
-              <h2 className="heading-lg text-white">Ready to Get Funded?</h2>
+              <h2 className="heading-lg text-white">Start winning grants today</h2>
               <p className="body-lg mx-auto mt-4 max-w-2xl text-slate-200">
                 Stop wrestling with blank pages and generic AI output. Upload your RFP and let Granted build a proposal that&apos;s grounded in your work.
               </p>
               <div className="mt-10 flex justify-center gap-4">
-                <CheckoutButton label="Start Writing" />
+                <CheckoutButton label="Draft Your First Proposal" />
                 <ButtonLink href="/contact" variant="ghost" className="text-white">
                   Talk to sales
                 </ButtonLink>

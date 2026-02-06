@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { listPosts, getPost, deriveDescription, readingTime } from '@/lib/blog'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import Container from '@/components/Container'
 
 export const dynamic = 'force-static'
 
@@ -19,7 +20,6 @@ export const metadata: Metadata = {
   },
 }
 
-// Simple category detection from title
 function detectCategory(title: string): string {
   const t = title.toLowerCase()
   if (t.includes('sbir')) return 'SBIR'
@@ -35,10 +35,45 @@ const CATEGORY_COLORS: Record<string, string> = {
   Tips: 'bg-amber-100 text-amber-800',
 }
 
+const CATEGORY_HEADERS: Record<string, string> = {
+  NIH: 'blog-header-nih',
+  NSF: 'blog-header-nsf',
+  SBIR: 'blog-header-sbir',
+  Tips: 'blog-header-tips',
+}
+
+const CATEGORY_ICONS: Record<string, JSX.Element> = {
+  NIH: (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/60">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v6l4 2" />
+    </svg>
+  ),
+  NSF: (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/60">
+      <path d="M12 2L2 7l10 5 10-5-10-5z" />
+      <path d="M2 17l10 5 10-5" />
+      <path d="M2 12l10 5 10-5" />
+    </svg>
+  ),
+  SBIR: (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/60">
+      <rect x="2" y="3" width="20" height="14" rx="2" />
+      <line x1="8" y1="21" x2="16" y2="21" />
+      <line x1="12" y1="17" x2="12" y2="21" />
+    </svg>
+  ),
+  Tips: (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/60">
+      <path d="M12 2a7 7 0 0 1 4 12.75V17H8v-2.25A7 7 0 0 1 12 2z" />
+      <line x1="9" y1="21" x2="15" y2="21" />
+    </svg>
+  ),
+}
+
 export default async function BlogIndex() {
   const postList = await listPosts().catch(() => [])
 
-  // Load content for descriptions and reading time
   const posts = await Promise.all(
     postList.map(async (p) => {
       const { content } = await getPost(p.slug)
@@ -51,35 +86,92 @@ export default async function BlogIndex() {
     })
   )
 
+  const featured = posts[0]
+  const rest = posts.slice(1)
+
   return (
     <>
       <Header />
-      <section className="mx-auto max-w-5xl px-4 py-12">
-        <h1 className="text-4xl font-bold mb-2">Blog</h1>
-        <p className="text-slate-600 mb-10">Expert advice on grant proposal writing for NIH, NSF, SBIR, and beyond.</p>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.map(p => (
-            <article key={p.slug} className="group flex flex-col border rounded-xl p-6 transition-shadow hover:shadow-lg">
-              <div className="flex items-center gap-2 mb-3">
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${CATEGORY_COLORS[p.category]}`}>
-                  {p.category}
-                </span>
-                <span className="text-xs text-slate-400">{p.minutes} min read</span>
-              </div>
-              <Link href={`/blog/${p.slug}`} className="text-lg font-semibold text-slate-900 group-hover:text-yellow-600 transition-colors leading-snug">
-                {p.frontmatter.title || p.slug}
-              </Link>
-              <p className="text-sm text-slate-600 mt-2 line-clamp-3 flex-1">{p.description}</p>
-              {p.frontmatter.date && (
-                <div className="text-xs text-slate-400 mt-4">
-                  {new Date(p.frontmatter.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+      <main>
+        {/* ── Hero ── */}
+        <section className="bg-navy noise-overlay overflow-hidden">
+          <Container className="py-20 md:py-28 relative z-10">
+            <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow/80 mb-4">
+              Grant Writing Blog
+            </p>
+            <h1 className="heading-xl text-white max-w-2xl">Expert advice for NIH, NSF, SBIR, and beyond</h1>
+            <p className="body-lg mt-4 text-white/50 max-w-xl">
+              Strategies, tips, and deep dives on writing winning grant proposals.
+            </p>
+          </Container>
+        </section>
+
+        <Container className="py-16 md:py-20">
+          {/* ── Featured post ── */}
+          {featured && (
+            <article className="mb-16">
+              <Link href={`/blog/${featured.slug}`} className="group block">
+                <div className={`${CATEGORY_HEADERS[featured.category]} rounded-2xl p-8 md:p-12 mb-6 relative overflow-hidden`}>
+                  <div className="relative z-10 flex items-end justify-between gap-8">
+                    <div>
+                      <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${CATEGORY_COLORS[featured.category]}`}>
+                        {featured.category}
+                      </span>
+                      <h2 className="heading-lg text-white mt-4 group-hover:text-brand-yellow transition-colors">
+                        {featured.frontmatter.title || featured.slug}
+                      </h2>
+                      <p className="body-lg text-white/60 mt-3 max-w-2xl line-clamp-2">{featured.description}</p>
+                    </div>
+                    <div className="hidden md:block flex-shrink-0 opacity-40">
+                      {CATEGORY_ICONS[featured.category]}
+                    </div>
+                  </div>
+                  {/* Abstract pattern overlay */}
+                  <div className="absolute inset-0 opacity-10 pointer-events-none" style={{
+                    backgroundImage: 'radial-gradient(circle at 80% 20%, rgba(255,255,255,0.3) 0%, transparent 50%), radial-gradient(circle at 20% 80%, rgba(255,255,255,0.2) 0%, transparent 50%)',
+                  }} />
                 </div>
-              )}
+                <div className="flex items-center gap-4 text-sm text-navy-light/60">
+                  <span>{featured.minutes} min read</span>
+                  {featured.frontmatter.date && (
+                    <>
+                      <span className="w-1 h-1 rounded-full bg-navy-light/30" />
+                      <span>{new Date(featured.frontmatter.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                    </>
+                  )}
+                </div>
+              </Link>
             </article>
-          ))}
-          {posts.length === 0 && <div className="text-gray-600 col-span-full">No posts yet.</div>}
-        </div>
-      </section>
+          )}
+
+          {/* ── Post grid ── */}
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {rest.map(p => (
+              <article key={p.slug} className="group flex flex-col card card-hover overflow-hidden">
+                {/* Category header band */}
+                <div className={`${CATEGORY_HEADERS[p.category]} px-6 py-4 flex items-center justify-between`}>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${CATEGORY_COLORS[p.category]}`}>
+                    {p.category}
+                  </span>
+                  <span className="text-xs text-white/40">{p.minutes} min read</span>
+                </div>
+                <div className="p-6 flex flex-col flex-1">
+                  <Link href={`/blog/${p.slug}`} className="text-lg font-semibold text-navy group-hover:text-brand-gold transition-colors leading-snug">
+                    {p.frontmatter.title || p.slug}
+                  </Link>
+                  <p className="text-sm text-navy-light mt-3 line-clamp-3 flex-1">{p.description}</p>
+                  {p.frontmatter.date && (
+                    <div className="text-xs text-navy-light/40 mt-4 pt-4 border-t border-navy/5">
+                      {new Date(p.frontmatter.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                    </div>
+                  )}
+                </div>
+              </article>
+            ))}
+            {posts.length === 0 && <div className="text-navy-light col-span-full text-center py-20">No posts yet.</div>}
+          </div>
+        </Container>
+      </main>
       <Footer />
     </>
   )

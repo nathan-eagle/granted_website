@@ -101,12 +101,12 @@ export default function FAQPage() {
 
         <section className="bg-navy text-white">
           <Container className="py-24 text-center md:py-32">
-            <h3 className="heading-lg text-white">Ready to Get Granted?</h3>
+            <h3 className="heading-lg text-white">Start winning grants today</h3>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-white/60">
-              Save time. Stop frustration. Get inspired. Start your free trial today.
+              Join thousands of researchers and nonprofits drafting stronger proposals with Granted.
             </p>
             <div className="mt-10">
-              <CheckoutButton label="Start Writing" />
+              <CheckoutButton label="Draft Your First Proposal" />
             </div>
           </Container>
         </section>

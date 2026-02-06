@@ -11,12 +11,15 @@ export default function PricingPage() {
       <main>
         <section className="bg-navy text-white">
           <Container className="py-28 text-center md:py-36">
-            <h1 className="heading-xl text-white">Granted | Pricing</h1>
+            <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow/80 mb-4">
+              Pricing
+            </p>
+            <h1 className="heading-xl text-white">A professional grant writer costs $5K+. <br className="hidden md:block" />Granted costs $29/month.</h1>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-white/60">
-              Experience grant writing at the speed of thought. Unlock unlimited writing and ideas with our Professional plan.
+              Every plan includes full RFP analysis, AI grant coaching, and section-by-section drafting. Start with a free 7-day trial.
             </p>
             <div className="mt-10">
-              <CheckoutButton label="Try for Free" />
+              <CheckoutButton label="Start Your Free Trial" />
             </div>
           </Container>
         </section>

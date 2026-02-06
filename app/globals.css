@@ -173,3 +173,153 @@
   transform: translateY(-4px);
   box-shadow: 0 16px 48px rgba(10, 22, 40, 0.12);
 }
+
+/* ── Angled section transitions ── */
+.section-angle-top {
+  clip-path: polygon(0 clamp(32px, 4vw, 64px), 100% 0, 100% 100%, 0 100%);
+  margin-top: calc(-1 * clamp(32px, 4vw, 64px));
+  padding-top: calc(clamp(32px, 4vw, 64px) + 4rem);
+}
+.section-angle-bottom {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - clamp(32px, 4vw, 64px)), 0 100%);
+  padding-bottom: calc(clamp(32px, 4vw, 64px) + 4rem);
+}
+
+/* ── Paper / parchment texture for gold banners ── */
+.paper-texture {
+  position: relative;
+}
+.paper-texture::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.08;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+  background-size: 300px;
+}
+
+/* ── Stat counter ── */
+.stat-number {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: clamp(3rem, 6vw, 5rem);
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  color: #F5CF49;
+}
+.stat-label {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 0.5rem;
+}
+
+/* ── Typewriter cursor blink ── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.typewriter-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background-color: #F5CF49;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink 0.9s step-end infinite;
+}
+
+/* ── Testimonial cards ── */
+.testimonial-card {
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  padding: 2rem;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+.testimonial-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── Animated proposal build lines ── */
+@keyframes buildLine {
+  0% { width: 0; opacity: 0; }
+  10% { opacity: 1; }
+  100% { width: var(--target-width); opacity: 1; }
+}
+.proposal-line {
+  height: 8px;
+  border-radius: 4px;
+  animation: buildLine 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-play-state: paused;
+  opacity: 0;
+  width: 0;
+}
+.proposal-line.animate {
+  animation-play-state: running;
+}
+
+/* ── Blog category header patterns ── */
+.blog-header-nih {
+  background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #1a4a72 100%);
+}
+.blog-header-nsf {
+  background: linear-gradient(135deg, #1a4a3a 0%, #2d7a5a 50%, #1a5a42 100%);
+}
+.blog-header-sbir {
+  background: linear-gradient(135deg, #3a1a5f 0%, #5a2d87 50%, #4a1a72 100%);
+}
+.blog-header-tips {
+  background: linear-gradient(135deg, #5f4a1a 0%, #876a2d 50%, #725a1a 100%);
+}
+
+/* ── Floating card overlap between sections ── */
+.overlap-card {
+  position: relative;
+  z-index: 10;
+  margin-bottom: -6rem;
+}
+
+/* ── Subtle pulse for stats ── */
+@keyframes subtlePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+/* ── Step timeline path ── */
+.timeline-path {
+  position: relative;
+}
+.timeline-path::before {
+  content: '';
+  position: absolute;
+  top: 3.5rem;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #F5CF49 15%, #f2c833 50%, #F5CF49 85%, transparent);
+  z-index: 0;
+  display: none;
+}
+@media (min-width: 768px) {
+  .timeline-path::before {
+    display: block;
+  }
+}
+
+/* ── Step node dots ── */
+.step-node {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #F5CF49;
+  border: 3px solid #FAF7F2;
+  box-shadow: 0 0 0 2px #F5CF49;
+  position: relative;
+  z-index: 1;
+}

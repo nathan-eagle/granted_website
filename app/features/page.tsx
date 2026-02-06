@@ -96,11 +96,11 @@ export default function FeaturesPage() {
             <p className="text-sm uppercase tracking-[0.35em] text-white/70">Features</p>
             <h1 className="heading-xl mt-6 text-white">Funding For All</h1>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-slate-200">
-              Granted ensures it&apos;s the quality of your ideas that counts, not your English. Bring the same polished
-              fundraising experience from Bubble directly to your native Next.js site.
+              Granted ensures it&apos;s the quality of your ideas that counts, not your English. 50+ specialized
+              writing models, AI coaching, and real-time coverage tracking built specifically for grant proposals.
             </p>
             <div className="mt-10 flex justify-center gap-4">
-              <CheckoutButton label="Start Writing" />
+              <CheckoutButton label="Draft Your First Proposal" />
               <ButtonLink href="/tech" variant="ghost">Learn about the technology</ButtonLink>
             </div>
           </Container>
@@ -187,12 +187,12 @@ export default function FeaturesPage() {
 
         <section className="py-24 md:py-32">
           <Container className="rounded-[40px] border border-white/10 bg-gradient-to-r from-[#0F172A] via-black to-[#0F172A] px-10 py-16 text-center shadow-[0_40px_100px_rgba(15,23,42,0.6)] md:px-20 md:py-20">
-            <h3 className="heading-lg text-white">Ready to Get Granted?</h3>
+            <h3 className="heading-lg text-white">Start winning grants today</h3>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-slate-200">
-              Save time. Stop frustration. Get inspired. Start your free trial today.
+              Join thousands of researchers and nonprofits drafting stronger proposals with Granted.
             </p>
             <div className="mt-10 flex justify-center gap-4">
-              <CheckoutButton label="Start Writing" />
+              <CheckoutButton label="Draft Your First Proposal" />
               <ButtonLink href="/contact" variant="ghost" className="text-white">
                 Talk to sales
               </ButtonLink>
