@@ -12,6 +12,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/faq`, changeFrequency: 'monthly', lastModified: now },
     { url: `${base}/tech`, changeFrequency: 'monthly', lastModified: now },
     { url: `${base}/contact`, changeFrequency: 'yearly', lastModified: now },
+    { url: `${base}/privacy`, changeFrequency: 'yearly', lastModified: now },
+    { url: `${base}/terms`, changeFrequency: 'yearly', lastModified: now },
     { url: `${base}/security`, changeFrequency: 'monthly', lastModified: now },
     { url: `${base}/blog`, priority: 0.9, changeFrequency: 'weekly', lastModified: now },
     // Audience landing pages

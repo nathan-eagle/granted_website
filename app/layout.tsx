@@ -19,7 +19,10 @@ export const metadata: Metadata = {
   description: 'Upload your RFP and get a complete grant proposal draft. Granted AI analyzes requirements, coaches you through targeted questions, and writes every section. Free trial.',
   metadataBase: new URL('https://grantedai.com'),
   icons: { icon: '/favicon.ico' },
-  alternates: { canonical: 'https://grantedai.com' },
+  alternates: {
+    canonical: 'https://grantedai.com',
+    types: { 'application/rss+xml': 'https://grantedai.com/feed.xml' },
+  },
   openGraph: {
     siteName: 'Granted AI',
     type: 'website',

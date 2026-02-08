@@ -147,7 +147,17 @@ export function Testimonials() {
   )
 }
 
-/* ── Organization logos bar ── */
+/* ── Federal agency logo marks ── */
+const AGENCIES = [
+  { abbr: 'NIH', name: 'National Institutes of Health', color: '#20558A' },
+  { abbr: 'NSF', name: 'National Science Foundation', color: '#003087' },
+  { abbr: 'EPA', name: 'Environmental Protection Agency', color: '#005EA2' },
+  { abbr: 'USDA', name: 'U.S. Dept. of Agriculture', color: '#205B2E' },
+  { abbr: 'DARPA', name: 'Defense Advanced Research Projects Agency', color: '#003049' },
+  { abbr: 'NOAA', name: 'National Oceanic & Atmospheric Admin.', color: '#003087' },
+]
+
+/* ── Organization names bar ── */
 const ORGS = [
   'Johns Hopkins University',
   'Navajo Technical University',
@@ -160,6 +170,46 @@ const ORGS = [
 export function OrgLogos() {
   return (
     <div className="py-10 md:py-14">
+      {/* Federal agency logos */}
+      <p className="text-center text-xs font-medium uppercase tracking-[0.15em] text-navy-light/40 mb-6">
+        Built for federal &amp; foundation grants
+      </p>
+      <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 px-6 mb-10">
+        {AGENCIES.map((a) => (
+          <div
+            key={a.abbr}
+            title={a.name}
+            className="flex items-center gap-2 rounded-full border px-4 py-2 transition-all hover:shadow-md cursor-default"
+            style={{ borderColor: `${a.color}25` }}
+          >
+            <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden>
+              <circle cx="14" cy="14" r="13" fill={a.color} opacity="0.1" />
+              <circle cx="14" cy="14" r="13" stroke={a.color} strokeWidth="1" fill="none" opacity="0.3" />
+              <text
+                x="14"
+                y="15"
+                textAnchor="middle"
+                dominantBaseline="central"
+                fill={a.color}
+                fontSize={a.abbr.length > 4 ? '6' : '7.5'}
+                fontWeight="700"
+                fontFamily="system-ui, sans-serif"
+                letterSpacing="0.02em"
+              >
+                {a.abbr}
+              </text>
+            </svg>
+            <span
+              className="text-xs font-semibold tracking-wide whitespace-nowrap hidden sm:inline"
+              style={{ color: a.color }}
+            >
+              {a.abbr}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Organization names */}
       <p className="text-center text-xs font-medium uppercase tracking-[0.15em] text-navy-light/40 mb-6">
         Trusted by researchers and organizations at
       </p>

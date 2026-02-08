@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import CheckoutButton from '@/components/CheckoutButton'
+import { trackEvent } from '@/lib/analytics'
 
 const nav = [
   { href: '/pricing', label: 'Pricing' },
@@ -35,12 +36,14 @@ export default function Header() {
           <div className="flex items-center gap-3 md:hidden">
             <Link
               href={SIGN_IN_URL}
+              onClick={() => trackEvent('sign_in_click', { location: 'header_mobile' })}
               className="text-sm font-semibold text-navy-light transition-colors hover:text-navy"
             >
               Sign in
             </Link>
             <CheckoutButton
               label="Sign up"
+              eventName="sign_up_click_header"
               className="px-4 py-2 text-sm font-semibold border-black bg-black text-white hover:bg-black/90"
             />
           </div>
@@ -62,12 +65,14 @@ export default function Header() {
           ))}
           <Link
             href={SIGN_IN_URL}
+            onClick={() => trackEvent('sign_in_click', { location: 'header_desktop' })}
             className="text-sm font-semibold text-navy-light transition-colors hover:text-navy"
           >
             Sign in
           </Link>
           <CheckoutButton
             label="Sign up"
+            eventName="sign_up_click_header"
             className="px-4 py-2 text-sm font-semibold border-black bg-black text-white hover:bg-black/90"
           />
         </nav>
