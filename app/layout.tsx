@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   description: 'Upload your RFP and get a complete grant proposal draft. Granted AI analyzes requirements, coaches you through targeted questions, and writes every section. Free trial.',
   metadataBase: new URL('https://grantedai.com'),
   icons: { icon: '/favicon.ico' },
+  alternates: { canonical: 'https://grantedai.com' },
   openGraph: {
     siteName: 'Granted AI',
     type: 'website',
@@ -26,10 +27,12 @@ export const metadata: Metadata = {
     url: 'https://grantedai.com',
     title: 'Granted AI — AI Grant Writing Tool | Draft Proposals in Hours',
     description: 'Upload your RFP and get a complete grant proposal draft. Granted AI analyzes requirements, coaches you through targeted questions, and writes every section. Free trial.',
+    images: [{ url: 'https://grantedai.com/opengraph-image.png', width: 1200, height: 630, alt: 'Granted AI — Draft Grant Proposals in Hours' }],
   },
   twitter: {
     card: 'summary_large_image',
     site: '@GrantedAI',
+    images: ['https://grantedai.com/opengraph-image.png'],
   },
   robots: {
     index: true,
@@ -88,7 +91,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               name: 'Granted AI',
               url: 'https://grantedai.com',
               logo: 'https://grantedai.com/favicon.ico',
-              sameAs: ['https://twitter.com/GrantedAI'],
+              description: 'AI-powered grant writing tool that drafts NIH, NSF, EPA, USDA, and DARPA proposals in hours.',
+              sameAs: [
+                'https://twitter.com/GrantedAI',
+                'https://www.linkedin.com/company/granted-ai',
+                'https://www.instagram.com/granted.ai/',
+              ],
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'Granted AI',
+              url: 'https://grantedai.com',
+              description: 'AI grant writing tool for researchers, nonprofits, and small businesses.',
+              publisher: { '@type': 'Organization', name: 'Granted AI' },
             }),
           }}
         />

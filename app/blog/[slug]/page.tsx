@@ -33,6 +33,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       url,
       siteName: 'Granted AI',
       type: 'article',
+      images: [{ url: 'https://grantedai.com/opengraph-image.png', width: 1200, height: 630, alt: title }],
       ...(frontmatter.date ? { publishedTime: frontmatter.date } : {}),
     },
     twitter: {

@@ -75,7 +75,7 @@ export default function ResearchersPage() {
                 For Researchers
               </p>
               <h1 className="heading-xl">
-                Your research deserves funding. Your proposal deserves a writing partner.
+                AI grant writing for researchers &mdash; NIH, NSF & federal proposals
               </h1>
               <p className="body-lg mt-6 text-white/70 max-w-2xl mx-auto">
                 Upload your FOA or program solicitation. Answer coaching questions grounded in your

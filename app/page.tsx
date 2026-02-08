@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
@@ -14,9 +15,39 @@ import HeroIllustrationB from '@/components/HeroIllustrationB'
 import EmailCapture from '@/components/EmailCapture'
 import { StatsCounter, Testimonials, OrgLogos } from '@/components/SocialProof'
 
+export const metadata: Metadata = {
+  alternates: { canonical: 'https://grantedai.com' },
+}
+
+const homeBreadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://grantedai.com' },
+  ],
+}
+
+const softwareAppLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Granted AI',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  url: 'https://grantedai.com',
+  description: 'AI grant writing tool that drafts NIH, NSF, EPA, USDA, and DARPA proposals in hours.',
+  offers: {
+    '@type': 'Offer',
+    price: '29',
+    priceCurrency: 'USD',
+    priceValidUntil: '2026-12-31',
+  },
+}
+
 export default function HomePage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeBreadcrumbLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareAppLd) }} />
       <Header />
       <main>
         {/* ── Hero ── */}
@@ -34,7 +65,7 @@ export default function HomePage() {
                   Grant Writing Coach
                 </p>
                 <h1 className="heading-display">
-                  Your research deserves better than fundraising
+                  AI grant writing that puts your research first
                 </h1>
                 <p className="body-lg mt-6 text-white/70 max-w-xl">
                   Upload your RFP. Answer a few questions from a grant writing coach. Get a complete,

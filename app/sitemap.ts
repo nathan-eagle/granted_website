@@ -23,6 +23,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/compare/grant-writers`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
     { url: `${base}/compare/grantboost`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
     { url: `${base}/compare/doing-it-yourself`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
+    { url: `${base}/compare/grantable`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
+    { url: `${base}/compare/instrumentl`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
+    { url: `${base}/compare/chatgpt`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
     // Interactive tools
     { url: `${base}/tools/readiness-quiz`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
     { url: `${base}/tools/deadlines`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
@@ -33,7 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const blogPaths: MetadataRoute.Sitemap = posts.map(p => ({
     url: `${base}/blog/${p.slug}`,
     changeFrequency: 'monthly' as const,
-    lastModified: p.frontmatter.date || now,
+    lastModified: p.frontmatter.date ? new Date(p.frontmatter.date).toISOString() : now,
   }))
 
   return [...staticPaths, ...blogPaths]

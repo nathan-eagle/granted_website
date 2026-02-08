@@ -74,7 +74,7 @@ export default function SbirPage() {
                 For SBIR Applicants
               </p>
               <h1 className="heading-xl">
-                Write your SBIR Phase I proposal in days, not months
+                AI SBIR proposal writer &mdash; Phase I drafts in days, not months
               </h1>
               <p className="body-lg mt-6 text-white/70 max-w-2xl mx-auto">
                 Granted reads your BAA or solicitation topic, coaches you through commercialization

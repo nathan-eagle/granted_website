@@ -68,7 +68,7 @@ export default function NonprofitsPage() {
                 For Nonprofits
               </p>
               <h1 className="heading-xl">
-                Stop losing grants to organizations with bigger budgets
+                AI grant writing for nonprofits &mdash; stop losing to bigger budgets
               </h1>
               <p className="body-lg mt-6 text-white/70 max-w-2xl mx-auto">
                 Your mission matters more than your grant writing budget. Granted AI coaches you

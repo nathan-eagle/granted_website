@@ -102,7 +102,7 @@ export default function FeaturesPage() {
         <section className="border-b border-white/10">
           <Container className="py-28 md:py-36 text-center">
             <p className="text-sm uppercase tracking-[0.35em] text-white/70">Features</p>
-            <h1 className="heading-xl mt-6 text-white">Funding For All</h1>
+            <h1 className="heading-xl mt-6 text-white">AI Grant Writing Features</h1>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-slate-200">
               Granted ensures it&apos;s the quality of your ideas that counts, not your English. 50+ specialized
               writing models, grant writing coaching, and real-time coverage tracking built specifically for grant proposals.

@@ -83,7 +83,7 @@ export default function ScholarshipsPage() {
                 For Scholarship &amp; Fellowship Applicants
               </p>
               <h1 className="heading-xl">
-                Write applications that stand out &mdash; for every fellowship and scholarship
+                AI scholarship &amp; fellowship writer &mdash; applications that stand out
               </h1>
               <p className="body-lg mt-6 text-white/70 max-w-2xl mx-auto">
                 From NSF GRFP to Fulbright to institutional scholarships, Granted coaches you through

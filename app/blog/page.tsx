@@ -8,15 +8,16 @@ import Container from '@/components/Container'
 export const dynamic = 'force-static'
 
 export const metadata: Metadata = {
-  title: 'Grant Writing Blog',
+  title: 'NIH, NSF & Federal Grant Writing Blog',
   description: 'Expert tips on writing NIH, NSF, SBIR, EPA, NOAA, DARPA, USDA, and tribal grant proposals. Learn from successful strategies and avoid common mistakes.',
   alternates: { canonical: 'https://grantedai.com/blog' },
   openGraph: {
-    title: 'Grant Writing Blog',
+    title: 'NIH, NSF & Federal Grant Writing Blog',
     description: 'Expert tips on writing NIH, NSF, SBIR, EPA, NOAA, DARPA, USDA, and tribal grant proposals.',
     url: 'https://grantedai.com/blog',
     siteName: 'Granted AI',
     type: 'website',
+    images: [{ url: 'https://grantedai.com/opengraph-image.png', width: 1200, height: 630, alt: 'Granted AI Grant Writing Blog' }],
   },
 }
 
