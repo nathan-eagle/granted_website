@@ -26,6 +26,7 @@ export default function Footer() {
             <div>
               <p className="font-semibold text-navy mb-4 tracking-tight">Free Tools</p>
               <ul className="space-y-2">
+                <li><Link href="/find-grants" className="hover:text-navy">Find Grants</Link></li>
                 <li><Link href="/tools/readiness-quiz" className="hover:text-navy">Grant Readiness Quiz</Link></li>
                 <li><Link href="/tools/deadlines" className="hover:text-navy">Deadline Calendar</Link></li>
                 <li><Link href="/tools/cost-calculator" className="hover:text-navy">Cost Calculator</Link></li>

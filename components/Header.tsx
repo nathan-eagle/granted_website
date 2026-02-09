@@ -7,6 +7,7 @@ import CheckoutButton from '@/components/CheckoutButton'
 import { trackEvent } from '@/lib/analytics'
 
 const nav = [
+  { href: '/find-grants', label: 'Find Grants' },
   { href: '/grants', label: 'Grants' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/tech', label: 'Technology' },
