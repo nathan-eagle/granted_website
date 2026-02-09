@@ -421,7 +421,7 @@ export default function HeroAnimationCombined() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -16 }}
                   transition={{ duration: 0.35 }}
-                  className="absolute inset-0 p-4 flex flex-col overflow-y-auto"
+                  className="absolute inset-0 p-4 flex flex-col overflow-hidden"
                 >
                   {/* Panel header */}
                   <div className="flex items-center justify-between mb-3">
