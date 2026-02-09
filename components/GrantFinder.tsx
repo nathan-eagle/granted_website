@@ -445,7 +445,18 @@ export default function GrantFinder() {
               {/* Ungated: always visible */}
               <div className="flex items-start justify-between gap-4 mb-3">
                 <div>
-                  <h3 className="text-base font-semibold text-navy leading-snug">{opp.name}</h3>
+                  <h3 className="text-base font-semibold text-navy leading-snug">
+                    {opp.slug ? (
+                      <a
+                        href={`/grants/${opp.slug}`}
+                        className="hover:text-brand-gold hover:underline underline-offset-2 transition-colors"
+                      >
+                        {opp.name}
+                      </a>
+                    ) : (
+                      opp.name
+                    )}
+                  </h3>
                   <p className="text-sm text-navy-light mt-1">{opp.funder}</p>
                 </div>
                 {opp.fit_score > 0 && (
@@ -535,15 +546,6 @@ export default function GrantFinder() {
                   </a>
                 )}
 
-                {unlocked && opp.slug && (
-                  <a
-                    href={`/grants/${opp.slug}`}
-                    className="inline-flex items-center gap-1 text-sm font-medium text-navy-light hover:text-navy transition-colors"
-                  >
-                    View full details
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                  </a>
-                )}
               </div>
             </div>
           ))}
