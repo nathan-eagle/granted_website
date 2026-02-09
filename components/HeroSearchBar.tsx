@@ -13,7 +13,7 @@ const AGENCY_CHIPS = [
   { label: 'NOAA', href: '/grants/noaa' },
 ]
 
-export default function HeroSearchBar() {
+export default function HeroSearchBar({ className }: { className?: string }) {
   const [query, setQuery] = useState('')
   const router = useRouter()
 
@@ -24,7 +24,7 @@ export default function HeroSearchBar() {
   }
 
   return (
-    <div className="mt-10 max-w-2xl">
+    <div className={className ?? "mt-10 max-w-2xl"}>
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
         <input
           type="text"
