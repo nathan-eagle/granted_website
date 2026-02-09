@@ -8,7 +8,7 @@ import AudienceSection from '@/components/AudienceSection'
 import CoachConversationC from '@/components/CoachConversationC'
 import AnimatedGoldRule from '@/components/AnimatedGoldRule'
 import RevealOnScroll from '@/components/RevealOnScroll'
-import HeroIllustrationB from '@/components/HeroIllustrationB'
+import HeroAnimationCombined from '@/components/hero-concepts/HeroAnimationCombined'
 import HeroSearchBar from '@/components/HeroSearchBar'
 import HowGrantedWorks from '@/components/HowGrantedWorks'
 import TrendingGrants from '@/components/TrendingGrants'
@@ -83,9 +83,36 @@ export default async function HomePage() {
                 </p>
               </div>
 
-              {/* Right: animated proposal illustration */}
+              {/* Right: animated discovery illustration */}
               <div className="hidden lg:block">
-                <HeroIllustrationB />
+                <HeroAnimationCombined />
+              </div>
+            </div>
+
+            {/* Centered search bar below hero */}
+            <div className="mt-12 relative z-10">
+              <div className="mx-auto w-full max-w-4xl rounded-2xl border border-white/12 bg-white/[0.04] px-4 py-4 md:px-5">
+                <div className="flex flex-col gap-2.5 sm:flex-row">
+                  <input
+                    type="text"
+                    readOnly
+                    value="Search grants by topic, agency, or keyword..."
+                    className="w-full rounded-full border border-white/15 bg-[#0b1c38] px-5 py-3.5 text-sm text-white/75 outline-none"
+                  />
+                  <a
+                    href="/find-grants"
+                    className="shrink-0 rounded-full bg-brand-yellow px-7 py-3.5 text-sm font-semibold text-navy text-center"
+                  >
+                    Search Grants
+                  </a>
+                </div>
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+                  {['Community Nonprofit', 'Research Lab', 'Tribal College', 'Rural Health', 'Education Program'].map((chip) => (
+                    <span key={chip} className="rounded-full border border-white/12 bg-white/[0.03] px-3 py-1 text-xs text-white/60">
+                      {chip}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </Container>
