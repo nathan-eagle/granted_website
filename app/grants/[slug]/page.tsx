@@ -19,6 +19,13 @@ import {
   type PublicGrant,
   type GrantCategory,
 } from '@/lib/grants'
+import {
+  getPostsByGrantCategory,
+  getPostsByAudienceCategory,
+  getRelatedBlogPosts,
+  type PostFrontmatter,
+} from '@/lib/blog'
+import RelatedBlogPosts from '@/components/RelatedBlogPosts'
 
 export const revalidate = 86400
 
@@ -89,7 +96,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 /* ── Category layout ── */
 
-function CategoryPage({ category, grants }: { category: GrantCategory; grants: PublicGrant[] }) {
+function CategoryPage({ category, grants, blogPosts }: { category: GrantCategory; grants: PublicGrant[]; blogPosts: { slug: string; frontmatter: PostFrontmatter }[] }) {
   return (
     <>
       <Header />
@@ -131,7 +138,16 @@ function CategoryPage({ category, grants }: { category: GrantCategory; grants: P
             </RevealOnScroll>
           )}
 
-          <RevealOnScroll delay={200}>
+          {blogPosts.length > 0 && (
+            <RevealOnScroll delay={200}>
+              <RelatedBlogPosts
+                posts={blogPosts}
+                heading={`${category.name.replace(/^Grants for /, '')} Grant Writing Guides`}
+              />
+            </RevealOnScroll>
+          )}
+
+          <RevealOnScroll delay={300}>
             <div className="mt-16">
               <GrantCTA />
             </div>
@@ -145,7 +161,7 @@ function CategoryPage({ category, grants }: { category: GrantCategory; grants: P
 
 /* ── Grant detail layout ── */
 
-function GrantDetailPage({ grant, related }: { grant: PublicGrant; related: PublicGrant[] }) {
+function GrantDetailPage({ grant, related, blogPosts }: { grant: PublicGrant; related: PublicGrant[]; blogPosts: { slug: string; frontmatter: PostFrontmatter }[] }) {
   const year = grant.deadline ? new Date(grant.deadline).getFullYear() : 2026
   const url = `https://grantedai.com/grants/${grant.slug}`
 
@@ -252,6 +268,15 @@ function GrantDetailPage({ grant, related }: { grant: PublicGrant; related: Publ
               </section>
             </RevealOnScroll>
           )}
+
+          {blogPosts.length > 0 && (
+            <RevealOnScroll delay={560}>
+              <RelatedBlogPosts
+                posts={blogPosts}
+                heading={`${grant.funder} Grant Writing Tips`}
+              />
+            </RevealOnScroll>
+          )}
         </Container>
       </main>
       <Footer />
@@ -265,15 +290,24 @@ export default async function GrantSlugPage({ params }: Props) {
   // 1. Check category
   const category = getCategoryBySlug(params.slug)
   if (category) {
-    const grants = await getGrantsForCategory(category).catch(() => [])
-    return <CategoryPage category={category} grants={grants} />
+    const [grants, blogPosts] = await Promise.all([
+      getGrantsForCategory(category).catch(() => []),
+      (category.type === 'audience'
+        ? getPostsByAudienceCategory(category.slug, 6)
+        : getPostsByGrantCategory(category.slug, 6)
+      ).catch(() => []),
+    ])
+    return <CategoryPage category={category} grants={grants} blogPosts={blogPosts} />
   }
 
   // 2. Check individual grant
   const grant = await getGrantBySlug(params.slug).catch(() => null)
   if (grant) {
-    const related = await getRelatedGrants(grant.funder, grant.slug, 3).catch(() => [])
-    return <GrantDetailPage grant={grant} related={related} />
+    const [related, blogPosts] = await Promise.all([
+      getRelatedGrants(grant.funder, grant.slug, 3).catch(() => []),
+      getRelatedBlogPosts(grant.funder, 3).catch(() => []),
+    ])
+    return <GrantDetailPage grant={grant} related={related} blogPosts={blogPosts} />
   }
 
   // 3. Not found

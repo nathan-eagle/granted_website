@@ -5,6 +5,7 @@ import Container from '@/components/Container'
 import CheckoutButton from '@/components/CheckoutButton'
 import { ButtonLink } from '@/components/ButtonLink'
 import RevealOnScroll from '@/components/RevealOnScroll'
+import GrantFinderCTA from '@/components/GrantFinderCTA'
 
 export const metadata: Metadata = {
   title: 'Writing Grants Yourself vs. Using Granted AI',
@@ -311,6 +312,15 @@ export default function CompareDIYPage() {
                   </a>
                 </div>
               </div>
+            </RevealOnScroll>
+          </Container>
+        </section>
+
+        {/* ── Grant Finder ── */}
+        <section>
+          <Container className="py-16 md:py-20">
+            <RevealOnScroll>
+              <GrantFinderCTA />
             </RevealOnScroll>
           </Container>
         </section>

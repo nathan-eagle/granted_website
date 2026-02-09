@@ -3,10 +3,12 @@ import { notFound } from 'next/navigation'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import rehypeSlug from 'rehype-slug'
 import remarkGfm from 'remark-gfm'
-import { getPost, hasPost, listPosts, deriveDescription, readingTime } from '@/lib/blog'
+import { getPost, hasPost, listPosts, deriveDescription, readingTime, detectCategory, grantSlugForCategory } from '@/lib/blog'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import BlogStickyCTA from '@/components/BlogStickyCTA'
+import RelatedBlogPosts from '@/components/RelatedBlogPosts'
+import GrantFinderCTA from '@/components/GrantFinderCTA'
 
 type Params = { params: { slug: string } }
 
@@ -52,6 +54,15 @@ export default async function BlogPost({ params }: Params) {
   const description = deriveDescription(frontmatter, content)
   const minutes = readingTime(content)
   const url = `https://grantedai.com/blog/${params.slug}`
+
+  const category = detectCategory(title)
+  const grantSlug = grantSlugForCategory(category)
+
+  // Get related posts from same category (excluding current)
+  const allPosts = await listPosts().catch(() => [])
+  const relatedPosts = allPosts
+    .filter((p) => p.slug !== params.slug && detectCategory(p.frontmatter.title || p.slug) === category)
+    .slice(0, 3)
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -108,15 +119,36 @@ export default async function BlogPost({ params }: Params) {
           </div>
           <MDXRemote source={content} options={{ mdxOptions: { remarkPlugins: [remarkGfm], rehypePlugins: [rehypeSlug] } }} />
         </article>
-        <div className="mt-12 border-t pt-8 text-center">
-          <p className="text-lg font-semibold text-slate-900">Ready to write your next grant?</p>
-          <p className="mt-1 text-slate-600">Let Granted AI draft your proposal in minutes.</p>
-          <a
-            href="https://app.grantedai.com/api/auth/signin?callbackUrl=/overview"
-            className="mt-4 inline-block rounded-md bg-yellow-400 px-6 py-3 font-semibold text-black transition hover:bg-yellow-300"
-          >
-            Try Granted Free
-          </a>
+        {/* ── Post bottom section ── */}
+        <div className="mt-12 border-t pt-8 space-y-10">
+          {grantSlug && (
+            <a
+              href={`/grants/${grantSlug}`}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-brand-gold hover:underline"
+            >
+              Browse all {category} grants
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </a>
+          )}
+
+          {relatedPosts.length > 0 && (
+            <RelatedBlogPosts posts={relatedPosts} heading={`More ${category} Articles`} />
+          )}
+
+          <GrantFinderCTA />
+
+          <div className="text-center pt-4">
+            <p className="text-lg font-semibold text-slate-900">Ready to write your next grant?</p>
+            <p className="mt-1 text-slate-600">Let Granted AI draft your proposal in minutes.</p>
+            <a
+              href="https://app.grantedai.com/api/auth/signin?callbackUrl=/overview"
+              className="mt-4 inline-block rounded-md bg-yellow-400 px-6 py-3 font-semibold text-black transition hover:bg-yellow-300"
+            >
+              Try Granted Free
+            </a>
+          </div>
         </div>
       </section>
       <BlogStickyCTA />

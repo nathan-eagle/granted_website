@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { listPosts, getPost, deriveDescription, readingTime } from '@/lib/blog'
+import { listPosts, getPost, deriveDescription, readingTime, detectCategory } from '@/lib/blog'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
@@ -19,19 +19,6 @@ export const metadata: Metadata = {
     type: 'website',
     images: [{ url: 'https://grantedai.com/opengraph-image.png', width: 1200, height: 630, alt: 'Granted AI Grant Writing Blog' }],
   },
-}
-
-function detectCategory(title: string): string {
-  const t = title.toLowerCase()
-  if (t.includes('sbir')) return 'SBIR'
-  if (t.includes('nih')) return 'NIH'
-  if (t.includes('nsf')) return 'NSF'
-  if (t.includes('epa') || t.includes('environmental justice')) return 'EPA'
-  if (t.includes('noaa') || t.includes('marine debris') || t.includes('coastal')) return 'NOAA'
-  if (t.includes('darpa') || t.includes('defense') || t.includes('dod')) return 'DARPA'
-  if (t.includes('usda') || t.includes('rural development') || t.includes('community facilit')) return 'USDA'
-  if (t.includes('tribal') || t.includes('indigenous') || t.includes('tcup')) return 'Tribal'
-  return 'Tips'
 }
 
 const CATEGORY_COLORS: Record<string, string> = {

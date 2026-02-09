@@ -74,3 +74,99 @@ export function readingTime(content: string): number {
   return Math.max(1, Math.ceil(words / 250))
 }
 
+/* ── Category detection (moved from app/blog/page.tsx) ── */
+
+export function detectCategory(title: string): string {
+  const t = title.toLowerCase()
+  if (t.includes('sbir')) return 'SBIR'
+  if (t.includes('nih')) return 'NIH'
+  if (t.includes('nsf')) return 'NSF'
+  if (t.includes('epa') || t.includes('environmental justice')) return 'EPA'
+  if (t.includes('noaa') || t.includes('marine debris') || t.includes('coastal')) return 'NOAA'
+  if (t.includes('darpa') || t.includes('defense') || t.includes('dod')) return 'DARPA'
+  if (t.includes('usda') || t.includes('rural development') || t.includes('community facilit')) return 'USDA'
+  if (t.includes('tribal') || t.includes('indigenous') || t.includes('tcup')) return 'Tribal'
+  return 'Tips'
+}
+
+/* ── Blog ↔ Grant category bridging ── */
+
+/** Maps blog categories to grant category slugs */
+const CATEGORY_TO_GRANT_SLUG: Record<string, string> = {
+  NIH: 'nih',
+  NSF: 'nsf',
+  EPA: 'epa',
+  NOAA: 'noaa',
+  DARPA: 'darpa',
+  USDA: 'usda',
+  SBIR: 'small-business',
+  Tribal: 'tribal',
+}
+
+/** Returns the grant category slug for a blog category, or null */
+export function grantSlugForCategory(blogCategory: string): string | null {
+  return CATEGORY_TO_GRANT_SLUG[blogCategory] ?? null
+}
+
+/** Returns blog posts matching an agency category slug */
+export async function getPostsByGrantCategory(
+  grantSlug: string,
+  limit = 6,
+): Promise<{ slug: string; frontmatter: PostFrontmatter }[]> {
+  // Find the blog category key(s) that map to this grant slug
+  const matchingCategories = Object.entries(CATEGORY_TO_GRANT_SLUG)
+    .filter(([, slug]) => slug === grantSlug)
+    .map(([cat]) => cat)
+
+  if (matchingCategories.length === 0) return []
+
+  const posts = await listPosts()
+  return posts
+    .filter((p) => {
+      const cat = detectCategory(p.frontmatter.title || p.slug)
+      return matchingCategories.includes(cat)
+    })
+    .slice(0, limit)
+}
+
+/** Returns blog posts matching a grant's funder string */
+export async function getRelatedBlogPosts(
+  funder: string,
+  limit = 3,
+): Promise<{ slug: string; frontmatter: PostFrontmatter }[]> {
+  const posts = await listPosts()
+  const funderLower = funder.toLowerCase()
+
+  return posts
+    .filter((p) => {
+      const title = (p.frontmatter.title || p.slug).toLowerCase()
+      return title.includes(funderLower)
+    })
+    .slice(0, limit)
+}
+
+/** Keyword map for audience categories */
+const AUDIENCE_KEYWORDS: Record<string, string[]> = {
+  nonprofits: ['nonprofit', 'nonprofits', 'non-profit', '501(c)', 'community organization'],
+  'small-business': ['small business', 'startup', 'sbir', 'sttr', 'entrepreneur'],
+  researchers: ['researcher', 'academic', 'pi ', 'principal investigator', 'r01', 'fellowship', 'postdoc'],
+  tribal: ['tribal', 'indigenous', 'native american', 'tcup', 'indian'],
+}
+
+/** Returns blog posts matching audience category keywords */
+export async function getPostsByAudienceCategory(
+  audienceSlug: string,
+  limit = 6,
+): Promise<{ slug: string; frontmatter: PostFrontmatter }[]> {
+  const keywords = AUDIENCE_KEYWORDS[audienceSlug]
+  if (!keywords) return []
+
+  const posts = await listPosts()
+  return posts
+    .filter((p) => {
+      const title = (p.frontmatter.title || p.slug).toLowerCase()
+      return keywords.some((kw) => title.includes(kw))
+    })
+    .slice(0, limit)
+}
+

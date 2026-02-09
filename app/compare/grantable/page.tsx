@@ -5,6 +5,7 @@ import Container from '@/components/Container'
 import CheckoutButton from '@/components/CheckoutButton'
 import { ButtonLink } from '@/components/ButtonLink'
 import RevealOnScroll from '@/components/RevealOnScroll'
+import GrantFinderCTA from '@/components/GrantFinderCTA'
 
 export const metadata: Metadata = {
   title: 'Granted AI vs. Grantable — Honest Feature Comparison (2026)',
@@ -209,6 +210,15 @@ export default function CompareGrantablePage() {
                   in your real data, Granted is worth a try.
                 </p>
               </div>
+            </RevealOnScroll>
+          </Container>
+        </section>
+
+        {/* Grant Finder */}
+        <section>
+          <Container className="py-16 md:py-20">
+            <RevealOnScroll>
+              <GrantFinderCTA />
             </RevealOnScroll>
           </Container>
         </section>
