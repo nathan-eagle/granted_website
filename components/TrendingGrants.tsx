@@ -19,7 +19,7 @@ export default function TrendingGrants({ grants }: { grants: PublicGrant[] }) {
           </h2>
         </RevealOnScroll>
 
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className={`mt-10 grid gap-6 sm:grid-cols-2 ${grants.length >= 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3 max-w-5xl mx-auto'}`}>
           {grants.map((grant, i) => (
             <RevealOnScroll key={grant.id} delay={i * 80}>
               <GrantCard grant={grant} />
