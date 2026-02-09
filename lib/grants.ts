@@ -10,6 +10,7 @@ export type PublicGrant = {
   deadline: string | null
   amount: string | null
   summary: string | null
+  source_text: string | null
   eligibility: string | null
   rfp_url: string | null
   status: 'active' | 'closed' | 'upcoming'

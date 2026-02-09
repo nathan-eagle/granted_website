@@ -40,6 +40,27 @@ function formatDeadline(deadline: string | null): string {
   return new Date(deadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 }
 
+function splitIntoParagraphs(value: string): string[] {
+  const normalized = value
+    .replace(/\r\n/g, '\n')
+    .replace(/\u00a0/g, ' ')
+    .trim()
+
+  if (!normalized) return []
+
+  const byBlankLine = normalized
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0)
+
+  if (byBlankLine.length > 1) return byBlankLine
+
+  return normalized
+    .split(/\n+/)
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0)
+}
+
 function buildGrantFaq(grant: PublicGrant): GrantFaq[] {
   const deadlineText = formatDeadline(grant.deadline)
   const amountText = grant.amount ?? 'Funding amounts vary based on project scope and sponsor guidance.'
@@ -283,6 +304,24 @@ function GrantDetailPage({ grant, related, blogPosts }: { grant: PublicGrant; re
                     </svg>
                   </a>
                 )}
+              </section>
+            </RevealOnScroll>
+          )}
+
+          {grant.source_text && (
+            <RevealOnScroll delay={280}>
+              <section className="mt-12">
+                <h2 className="heading-md text-navy text-2xl font-bold mb-4">Official Opportunity Details</h2>
+                <p className="text-sm text-navy-light/70 mb-4">
+                  Extracted from the official opportunity page/RFP to help you evaluate fit faster.
+                </p>
+                <div className="space-y-4">
+                  {splitIntoParagraphs(grant.source_text).map((paragraph, index) => (
+                    <p key={`${grant.id}-source-${index}`} className="body-lg text-navy-light leading-relaxed">
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
               </section>
             </RevealOnScroll>
           )}
