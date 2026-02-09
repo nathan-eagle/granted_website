@@ -63,7 +63,7 @@ export default async function HomePage() {
             <div className="hero-accent-circle w-[180px] h-[180px] bottom-10 -left-16 hidden lg:block" />
             <div className="hero-accent-grid w-[200px] h-[200px] top-16 -left-8 hidden lg:block" />
 
-            <div className="grid items-center gap-12 lg:grid-cols-2 relative z-10">
+            <div className="grid items-center gap-12 lg:grid-cols-[3fr_2fr] relative z-10">
               {/* Left: copy + search */}
               <div>
                 <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow/80 mb-6">
