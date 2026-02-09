@@ -177,6 +177,9 @@ export default function GrantFinder() {
         }
       }
 
+      // Sort by fit score descending
+      results.sort((a, b) => (b.fit_score || 0) - (a.fit_score || 0))
+
       setOpportunities(results)
       incrementSearchCount()
       setPhase('results')
@@ -251,27 +254,67 @@ export default function GrantFinder() {
     // Empty state — no results even after broadening
     if (opportunities.length === 0) {
       return (
-        <div className="max-w-2xl mx-auto text-center">
-          <div className="card p-10">
-            <svg className="mx-auto mb-4 text-navy-light/30" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <h3 className="text-lg font-semibold text-navy mb-2" style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}>
-              No grants found for that search
-            </h3>
-            <p className="text-sm text-navy-light mb-6 max-w-md mx-auto">
-              Try broadening your focus area or removing the state filter. Shorter, more general terms work best — e.g. &ldquo;clean energy&rdquo; instead of &ldquo;residential solar panel installation programs.&rdquo;
-            </p>
-            <button
-              onClick={() => { setPhase('form'); setOpportunities([]) }}
-              className="inline-flex items-center gap-2 rounded-pill px-6 py-3 text-sm font-semibold bg-brand-yellow text-navy hover:bg-brand-gold transition-colors"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7" />
+        <div className="max-w-3xl mx-auto">
+          {/* Compact search bar */}
+          <form onSubmit={handleSearch} className="card p-4 mb-6">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1 flex flex-col sm:flex-row gap-2">
+                <select
+                  value={orgType}
+                  onChange={e => setOrgType(e.target.value)}
+                  className="sm:w-36 rounded-md border border-navy/10 bg-white px-3 py-2 text-sm text-navy outline-none focus:border-brand-yellow/60 transition appearance-none"
+                >
+                  <option value="">Any org type</option>
+                  {ORG_TYPES.map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  required
+                  minLength={3}
+                  value={focusArea}
+                  onChange={e => setFocusArea(e.target.value)}
+                  placeholder="Focus area..."
+                  className="flex-1 rounded-md border border-navy/10 bg-white px-3 py-2 text-sm text-navy placeholder:text-navy-light/40 outline-none focus:border-brand-yellow/60 transition"
+                />
+                <select
+                  value={state}
+                  onChange={e => setState(e.target.value)}
+                  className="sm:w-36 rounded-md border border-navy/10 bg-white px-3 py-2 text-sm text-navy outline-none focus:border-brand-yellow/60 transition appearance-none"
+                >
+                  <option value="">Any state</option>
+                  {US_STATES.map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+              <button
+                type="submit"
+                className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-md px-4 py-2 text-sm font-semibold bg-brand-yellow text-navy hover:bg-brand-gold transition-colors"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                Search
+              </button>
+            </div>
+          </form>
+
+          <div className="text-center">
+            <div className="card p-10">
+              <svg className="mx-auto mb-4 text-navy-light/30" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
-              Try a different search
-            </button>
+              <h3 className="text-lg font-semibold text-navy mb-2" style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}>
+                No grants found for that search
+              </h3>
+              <p className="text-sm text-navy-light max-w-md mx-auto">
+                Try broadening your focus area or removing the state filter. Shorter, more general terms work best — e.g. &ldquo;clean energy&rdquo; instead of &ldquo;residential solar panel installation programs.&rdquo;
+              </p>
+            </div>
           </div>
         </div>
       )
@@ -279,27 +322,63 @@ export default function GrantFinder() {
 
     return (
       <div className="max-w-3xl mx-auto">
-        {/* Result count */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <p className="text-sm font-medium text-navy-light">
-              Found <span className="font-semibold text-navy">{opportunities.length}</span> matching grants
-            </p>
-            {broadened && (
-              <p className="text-xs text-navy-light/60 mt-1">
-                We broadened your search to find more results.
-              </p>
-            )}
+        {/* Compact search bar (Google-style) */}
+        <form onSubmit={handleSearch} className="card p-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 flex flex-col sm:flex-row gap-2">
+              <select
+                value={orgType}
+                onChange={e => setOrgType(e.target.value)}
+                className="sm:w-36 rounded-md border border-navy/10 bg-white px-3 py-2 text-sm text-navy outline-none focus:border-brand-yellow/60 transition appearance-none"
+              >
+                <option value="">Any org type</option>
+                {ORG_TYPES.map(t => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+              <input
+                type="text"
+                required
+                minLength={3}
+                value={focusArea}
+                onChange={e => setFocusArea(e.target.value)}
+                placeholder="Focus area..."
+                className="flex-1 rounded-md border border-navy/10 bg-white px-3 py-2 text-sm text-navy placeholder:text-navy-light/40 outline-none focus:border-brand-yellow/60 transition"
+              />
+              <select
+                value={state}
+                onChange={e => setState(e.target.value)}
+                className="sm:w-36 rounded-md border border-navy/10 bg-white px-3 py-2 text-sm text-navy outline-none focus:border-brand-yellow/60 transition appearance-none"
+              >
+                <option value="">Any state</option>
+                {US_STATES.map(s => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+            <button
+              type="submit"
+              className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-md px-4 py-2 text-sm font-semibold bg-brand-yellow text-navy hover:bg-brand-gold transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              Search
+            </button>
           </div>
-          <button
-            onClick={() => { setPhase('form'); setOpportunities([]) }}
-            className="text-sm font-medium text-brand-yellow hover:text-brand-gold transition-colors flex items-center gap-1"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-            New search
-          </button>
+        </form>
+
+        {/* Result count */}
+        <div className="mb-4">
+          <p className="text-sm font-medium text-navy-light">
+            Found <span className="font-semibold text-navy">{opportunities.length}</span> matching grants
+          </p>
+          {broadened && (
+            <p className="text-xs text-navy-light/60 mt-1">
+              We broadened your search to find more results.
+            </p>
+          )}
         </div>
 
         {/* Opportunity cards */}
