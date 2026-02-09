@@ -336,7 +336,13 @@ function GrantDetailPage({ grant, related, blogPosts }: { grant: PublicGrant; re
             <RevealOnScroll delay={240}>
               <section className="mt-12">
                 <h2 className="heading-md text-navy text-2xl font-bold mb-4">About This Grant</h2>
-                <p className="body-lg text-navy-light leading-relaxed">{grant.summary}</p>
+                <div className="space-y-4">
+                  {splitIntoParagraphs(grant.summary).map((paragraph, index) => (
+                    <p key={`${grant.id}-summary-${index}`} className="body-lg text-navy-light leading-relaxed">
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
                 {grant.rfp_url && (
                   <a
                     href={grant.rfp_url}
