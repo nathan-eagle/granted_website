@@ -9,7 +9,6 @@ import CoachConversationC from '@/components/CoachConversationC'
 import AnimatedGoldRule from '@/components/AnimatedGoldRule'
 import RevealOnScroll from '@/components/RevealOnScroll'
 import HeroAnimationCombined from '@/components/hero-concepts/HeroAnimationCombined'
-import HeroSearchBar from '@/components/HeroSearchBar'
 import HowGrantedWorks from '@/components/HowGrantedWorks'
 import TrendingGrants from '@/components/TrendingGrants'
 import EmailCapture from '@/components/EmailCapture'
@@ -76,15 +75,14 @@ export default async function HomePage() {
                   Search thousands of grants, discover the best fit for your organization,
                   and draft a complete proposal with an AI writing coach &mdash; all in one place.
                 </p>
-                <HeroSearchBar />
-                <p className="mt-6 text-sm text-white/40">
+                <p className="mt-8 text-sm text-white/40">
                   7-day free trial. Your data is never used to train AI.{' '}
                   <a href="/security" className="underline hover:text-white/60">Security details &rarr;</a>
                 </p>
               </div>
 
               {/* Right: animated discovery illustration */}
-              <div className="hidden lg:block">
+              <div className="hidden lg:block overflow-hidden">
                 <HeroAnimationCombined />
               </div>
             </div>

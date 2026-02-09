@@ -224,7 +224,7 @@ export default function HeroAnimationCombined() {
 
   return (
     <div
-      className="relative w-full max-w-[660px] mx-auto select-none"
+      className="relative w-full max-w-[660px] mx-auto select-none overflow-hidden"
       style={{ fontFamily: 'var(--font-body), DM Sans, system-ui, sans-serif' }}
     >
       {/* Ambient glow */}
