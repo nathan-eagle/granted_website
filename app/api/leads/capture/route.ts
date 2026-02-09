@@ -21,7 +21,7 @@ export async function POST(req: Request) {
         auth: { persistSession: false },
       })
 
-      await supabase.from('leads').upsert(
+      const { error } = await supabase.from('leads').upsert(
         {
           email: email.toLowerCase().trim(),
           source: 'grant_finder',
@@ -29,6 +29,11 @@ export async function POST(req: Request) {
         },
         { onConflict: 'email' }
       )
+
+      if (error) {
+        console.error('[leads/capture] Supabase upsert error:', error)
+        return NextResponse.json({ error: 'Failed to save lead' }, { status: 500 })
+      }
     }
 
     // Send welcome email via Resend
