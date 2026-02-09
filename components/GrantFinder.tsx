@@ -93,10 +93,28 @@ export default function GrantFinder() {
 
   const searchParams = useSearchParams()
   const autoSearchedQueryRef = useRef<string | null>(null)
+  const profileFetched = useRef(false)
 
   useEffect(() => {
     setUnlocked(isUnlocked())
   }, [])
+
+  // Prepopulate from app profile if logged in (cross-origin, may fail silently on Safari ITP)
+  useEffect(() => {
+    if (profileFetched.current) return
+    profileFetched.current = true
+
+    fetch(`${API_URL}/api/public/profile-summary`, { credentials: 'include' })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!data?.authenticated || !data.profile) return
+        if (data.profile.org_type && !orgType) setOrgType(data.profile.org_type)
+        if (data.profile.state && !state) setState(data.profile.state)
+      })
+      .catch(() => {
+        // Expected to fail silently (ITP, no cookies, network)
+      })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const doSearch = useCallback(async (searchOrgType: string, searchFocusArea: string, searchState: string, isRetry = false): Promise<Opportunity[]> => {
     const res = await fetch(`${API_URL}/api/public/discover`, {
