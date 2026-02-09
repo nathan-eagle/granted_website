@@ -67,7 +67,7 @@ export default async function HomePage() {
               {/* Left: copy + search */}
               <div>
                 <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow/80 mb-6">
-                  Grant Discovery + AI Writing
+                  From Grant Discovery to Grant Submission
                 </p>
                 <h1 className="heading-display">
                   Find the right funding.
