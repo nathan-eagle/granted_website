@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 const resendApiKey = process.env.RESEND_API_KEY
 const fromEmail = process.env.CONTACT_FROM_EMAIL || 'hello@grantedai.com'
 
@@ -15,9 +15,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Valid email required' }, { status: 400 })
     }
 
-    // Upsert into leads table (RLS allows anon INSERT)
-    if (supabaseUrl && supabaseAnonKey) {
-      const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    // Upsert into leads table (server-side, uses service_role key if available)
+    if (supabaseUrl && supabaseKey) {
+      const supabase = createClient(supabaseUrl, supabaseKey, {
         auth: { persistSession: false },
       })
 
