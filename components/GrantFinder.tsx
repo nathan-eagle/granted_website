@@ -82,6 +82,7 @@ export default function GrantFinder() {
   const [email, setEmail] = useState('')
   const [emailStatus, setEmailStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [gateRequired, setGateRequired] = useState(false)
+  const [broadened, setBroadened] = useState(false)
 
   const searchParams = useSearchParams()
 
@@ -97,9 +98,37 @@ export default function GrantFinder() {
     }
   }, [searchParams]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const doSearch = useCallback(async (searchOrgType: string, searchFocusArea: string, searchState: string, isRetry = false): Promise<Opportunity[]> => {
+    const res = await fetch(`${API_URL}/api/public/discover`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        org_type: searchOrgType || undefined,
+        focus_area: searchFocusArea,
+        state: searchState || undefined,
+      }),
+    })
+
+    if (res.status === 429) {
+      setError('You have reached the daily search limit. Enter your email below for unlimited access, or try again tomorrow.')
+      setPhase('form')
+      setGateRequired(true)
+      return []
+    }
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      throw new Error(data.error || 'Search failed')
+    }
+
+    const data = await res.json()
+    return data.opportunities || []
+  }, [])
+
   const handleSearch = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setBroadened(false)
 
     if (!unlocked && getSearchCount() >= 3) {
       setGateRequired(true)
@@ -111,30 +140,21 @@ export default function GrantFinder() {
     setPhase('loading')
 
     try {
-      const res = await fetch(`${API_URL}/api/public/discover`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          org_type: orgType || undefined,
-          focus_area: focusArea,
-          state: state || undefined,
-        }),
-      })
+      let results = await doSearch(orgType, focusArea, state)
 
-      if (res.status === 429) {
-        setError('You have reached the daily search limit. Enter your email below for unlimited access, or try again tomorrow.')
-        setPhase('form')
-        setGateRequired(true)
-        return
+      // Auto-retry with fewer filters if no results
+      if (results.length === 0 && (orgType || state)) {
+        // Drop state first, then org type
+        if (state) {
+          results = await doSearch(orgType, focusArea, '')
+        }
+        if (results.length === 0 && orgType) {
+          results = await doSearch('', focusArea, '')
+        }
+        if (results.length > 0) {
+          setBroadened(true)
+        }
       }
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data.error || 'Search failed')
-      }
-
-      const data = await res.json()
-      const results: Opportunity[] = data.opportunities || []
 
       // Match slugs from public_grants table
       if (supabase && results.length > 0) {
@@ -160,12 +180,12 @@ export default function GrantFinder() {
       setOpportunities(results)
       incrementSearchCount()
       setPhase('results')
-      trackEvent('grant_finder_results', { count: String(results.length), cached: String(!!data.cached) })
+      trackEvent('grant_finder_results', { count: String(results.length), broadened: String(broadened) })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
       setPhase('form')
     }
-  }, [orgType, focusArea, state, unlocked])
+  }, [orgType, focusArea, state, unlocked, doSearch])
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -228,13 +248,49 @@ export default function GrantFinder() {
 
   /* ── Results ── */
   if (phase === 'results') {
+    // Empty state — no results even after broadening
+    if (opportunities.length === 0) {
+      return (
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="card p-10">
+            <svg className="mx-auto mb-4 text-navy-light/30" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <h3 className="text-lg font-semibold text-navy mb-2" style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}>
+              No grants found for that search
+            </h3>
+            <p className="text-sm text-navy-light mb-6 max-w-md mx-auto">
+              Try broadening your focus area or removing the state filter. Shorter, more general terms work best — e.g. &ldquo;clean energy&rdquo; instead of &ldquo;residential solar panel installation programs.&rdquo;
+            </p>
+            <button
+              onClick={() => { setPhase('form'); setOpportunities([]) }}
+              className="inline-flex items-center gap-2 rounded-pill px-6 py-3 text-sm font-semibold bg-brand-yellow text-navy hover:bg-brand-gold transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              Try a different search
+            </button>
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div className="max-w-3xl mx-auto">
         {/* Result count */}
         <div className="flex items-center justify-between mb-6">
-          <p className="text-sm font-medium text-navy-light">
-            Found <span className="font-semibold text-navy">{opportunities.length}</span> matching grants
-          </p>
+          <div>
+            <p className="text-sm font-medium text-navy-light">
+              Found <span className="font-semibold text-navy">{opportunities.length}</span> matching grants
+            </p>
+            {broadened && (
+              <p className="text-xs text-navy-light/60 mt-1">
+                We broadened your search to find more results.
+              </p>
+            )}
+          </div>
           <button
             onClick={() => { setPhase('form'); setOpportunities([]) }}
             className="text-sm font-medium text-brand-yellow hover:text-brand-gold transition-colors flex items-center gap-1"
@@ -320,18 +376,22 @@ export default function GrantFinder() {
                   </div>
                 </div>
               ) : (
-                <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('email-gate')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                  className="relative w-full text-left cursor-pointer group"
+                >
                   <div className="select-none blur-[6px] pointer-events-none" aria-hidden="true">
                     <p className="text-sm text-navy-light leading-relaxed mb-2">This grant supports organizations working in community development and environmental justice initiatives across the United States.</p>
                     <p className="text-xs text-navy-light/70">Eligible: 501(c)(3) nonprofits with annual budget under $5M</p>
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-navy/5 text-navy-light border border-navy/10">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-navy/5 text-navy-light border border-navy/10 group-hover:bg-brand-yellow/10 group-hover:border-brand-yellow/30 group-hover:text-navy transition-colors">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
                       Enter email to unlock details
                     </span>
                   </div>
-                </div>
+                </button>
               )}
             </div>
           ))}
@@ -339,7 +399,7 @@ export default function GrantFinder() {
 
         {/* Email gate (shown below results if not unlocked) */}
         {!unlocked && (
-          <div className="card overflow-hidden mt-8">
+          <div id="email-gate" className="card overflow-hidden mt-8">
             <div className="bg-navy p-8 text-center noise-overlay">
               <div className="relative z-10">
                 <h3 className="text-xl font-semibold text-white" style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}>

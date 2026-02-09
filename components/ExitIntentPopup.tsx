@@ -29,6 +29,9 @@ export default function ExitIntentPopup() {
       if (sessionStorage.getItem('exit_popup_dismissed')) return
     } catch { return }
 
+    // Already captured email via grant finder
+    if (document.cookie.includes('gf_unlocked=1')) return
+
     // Desktop: mouse leaves viewport toward top
     function onMouseLeave(e: MouseEvent) {
       if (e.clientY <= 0) show()
