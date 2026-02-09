@@ -47,6 +47,7 @@ interface Opportunity {
 }
 
 type Phase = 'form' | 'loading' | 'results'
+const APPLY_CALLBACK_PATH = '/opportunities'
 
 function getSearchCount(): number {
   if (typeof window === 'undefined') return 0
@@ -69,6 +70,12 @@ function isUnlocked(): boolean {
 
 function setUnlockedCookie() {
   document.cookie = 'gf_unlocked=1; max-age=2592000; path=/; SameSite=Lax'
+}
+
+function buildApplyUrl(opportunity: Opportunity): string {
+  const grantName = encodeURIComponent(opportunity.name)
+  const callback = encodeURIComponent(`${APPLY_CALLBACK_PATH}?source=public-grant-finder&grant=${grantName}`)
+  return `${API_URL}/api/auth/signin?callbackUrl=${callback}`
 }
 
 export default function GrantFinder() {
@@ -452,7 +459,7 @@ export default function GrantFinder() {
                 )}
               </div>
 
-              {/* Gated: summary, eligibility, link */}
+              {/* Gated: summary and eligibility */}
               {unlocked ? (
                 <div>
                   {opp.summary && (
@@ -463,28 +470,6 @@ export default function GrantFinder() {
                       <span className="font-semibold text-navy-light">Eligible:</span> {opp.eligibility}
                     </p>
                   )}
-                  <div className="flex flex-wrap gap-3">
-                    {opp.rfp_url && (
-                      <a
-                        href={opp.rfp_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-sm font-medium text-brand-yellow hover:text-brand-gold transition-colors"
-                      >
-                        View opportunity
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
-                      </a>
-                    )}
-                    {opp.slug && (
-                      <a
-                        href={`/grants/${opp.slug}`}
-                        className="inline-flex items-center gap-1 text-sm font-medium text-navy-light hover:text-navy transition-colors"
-                      >
-                        View full details
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                      </a>
-                    )}
-                  </div>
                 </div>
               ) : (
                 <button
@@ -504,6 +489,44 @@ export default function GrantFinder() {
                   </div>
                 </button>
               )}
+
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <a
+                  href={buildApplyUrl(opp)}
+                  onClick={() => {
+                    trackEvent('grant_finder_apply_click', {
+                      grant_name: opp.name.slice(0, 120),
+                      source: 'result_card',
+                    })
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-brand-yellow px-4 py-2 text-sm font-semibold text-navy hover:bg-brand-gold transition-colors"
+                >
+                  Apply with Granted
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                </a>
+
+                {unlocked && opp.rfp_url && (
+                  <a
+                    href={opp.rfp_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-brand-yellow hover:text-brand-gold transition-colors"
+                  >
+                    View opportunity
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+                  </a>
+                )}
+
+                {unlocked && opp.slug && (
+                  <a
+                    href={`/grants/${opp.slug}`}
+                    className="inline-flex items-center gap-1 text-sm font-medium text-navy-light hover:text-navy transition-colors"
+                  >
+                    View full details
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  </a>
+                )}
+              </div>
             </div>
           ))}
         </div>
