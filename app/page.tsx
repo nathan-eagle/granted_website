@@ -64,19 +64,16 @@ export default async function HomePage() {
             <div className="hero-accent-grid w-[200px] h-[200px] top-16 -left-8 hidden lg:block" />
 
             <div className="grid items-center gap-12 lg:grid-cols-2 relative z-10">
-              {/* Left: copy */}
+              {/* Left: copy + search */}
               <div>
                 <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow/80 mb-6">
                   Grant Discovery + AI Writing
                 </p>
                 <h1 className="heading-display">
-                  Find the right funding. Apply with confidence.
+                  Find the right funding.
                 </h1>
-                <p className="body-lg mt-6 text-white/70 max-w-xl">
-                  Search thousands of grants, discover the best fit for your organization,
-                  and draft a complete proposal with an AI writing coach &mdash; all in one place.
-                </p>
-                <p className="mt-8 text-sm text-white/40">
+                <HeroSearchBar className="mt-8" />
+                <p className="mt-5 text-sm text-white/40">
                   7-day free trial. Your data is never used to train AI.{' '}
                   <a href="/security" className="underline hover:text-white/60">Security details &rarr;</a>
                 </p>
@@ -86,11 +83,6 @@ export default async function HomePage() {
               <div className="hidden lg:block overflow-hidden">
                 <HeroAnimationCombined />
               </div>
-            </div>
-
-            {/* Centered search bar below hero */}
-            <div className="mt-12 relative z-10 mx-auto max-w-3xl">
-              <HeroSearchBar className="w-full" />
             </div>
           </Container>
         </section>
