@@ -47,7 +47,15 @@ export async function POST(req: Request) {
       })
     }
 
-    return NextResponse.json({ ok: true, unlocked: true })
+    return NextResponse.json({
+      ok: true,
+      unlocked: true,
+      _debug: {
+        hasUrl: !!supabaseUrl,
+        hasKey: !!supabaseKey,
+        keySource: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'service_role' : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'anon' : 'none',
+      },
+    })
   } catch (e) {
     console.error('[leads/capture]', e)
     return NextResponse.json({ error: 'Failed to process' }, { status: 500 })
