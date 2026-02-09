@@ -7,7 +7,15 @@ export default function Footer() {
       <div className="container py-16">
         <div className="flex flex-wrap items-start justify-between gap-12">
           <div className="flex flex-col gap-3">
-            <Image src="/images/logo-wordmark.png" alt="Granted" width={180} height={64} className="h-auto w-[160px] md:w-[180px]" />
+            <div className="relative w-fit">
+              <Image src="/images/logo-wordmark-text.png" alt="Granted" width={180} height={64} className="h-auto w-[160px] md:w-[180px]" />
+              <img
+                src="/fav.ico"
+                alt=""
+                aria-hidden
+                className="absolute right-[-12px] top-[2px] h-[16px] w-[16px] md:right-[-16px] md:top-[1px] md:h-[22px] md:w-[22px]"
+              />
+            </div>
             <p className="text-sm text-navy-light max-w-xs leading-relaxed">
               Granted is making fundraising less tedious, more accessible, and more successful for everyone.
             </p>

@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   },
   description: 'Search thousands of federal grants, find matching opportunities, and draft proposals with AI. Free grant finder for nonprofits, researchers, and small businesses.',
   metadataBase: new URL('https://grantedai.com'),
-  icons: { icon: '/favicon.ico' },
+  icons: { icon: '/fav.ico' },
   alternates: {
     canonical: 'https://grantedai.com',
     types: { 'application/rss+xml': 'https://grantedai.com/feed.xml' },
@@ -93,7 +93,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               '@type': 'Organization',
               name: 'Granted AI',
               url: 'https://grantedai.com',
-              logo: 'https://grantedai.com/favicon.ico',
+              logo: 'https://grantedai.com/fav.ico',
               description: 'AI-powered grant writing tool that drafts NIH, NSF, EPA, USDA, and DARPA proposals in hours.',
               sameAs: [
                 'https://twitter.com/GrantedAI',

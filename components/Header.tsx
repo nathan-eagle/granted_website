@@ -31,14 +31,20 @@ export default function Header() {
     <header className="w-full">
       <div className="container flex flex-col gap-4 py-6 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="relative flex items-center">
             <Image
-              src="/images/logo-wordmark.png"
+              src="/images/logo-wordmark-text.png"
               alt="Granted"
-              width={150}
+              width={170}
               height={53}
               priority
               className="h-auto w-[140px] md:w-[170px]"
+            />
+            <img
+              src="/fav.ico"
+              alt=""
+              aria-hidden
+              className="absolute right-[-14px] top-[2px] h-[16px] w-[16px] md:right-[-18px] md:top-[1px] md:h-[20px] md:w-[20px]"
             />
           </Link>
 
