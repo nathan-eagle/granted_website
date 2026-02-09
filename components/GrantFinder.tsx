@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { trackEvent } from '@/lib/analytics'
 import { supabase } from '@/lib/supabase'
 import CheckoutButton from '@/components/CheckoutButton'
@@ -82,9 +83,19 @@ export default function GrantFinder() {
   const [emailStatus, setEmailStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [gateRequired, setGateRequired] = useState(false)
 
+  const searchParams = useSearchParams()
+
   useEffect(() => {
     setUnlocked(isUnlocked())
   }, [])
+
+  // Pre-fill focus area from URL query param (from homepage hero search)
+  useEffect(() => {
+    const q = searchParams.get('q')
+    if (q && !focusArea) {
+      setFocusArea(q)
+    }
+  }, [searchParams]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSearch = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()

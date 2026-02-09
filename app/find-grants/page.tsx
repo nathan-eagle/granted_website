@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
@@ -72,7 +73,9 @@ export default function FindGrantsPage() {
         <section>
           <Container className="py-16 md:py-20">
             <RevealOnScroll>
-              <GrantFinder />
+              <Suspense fallback={<div className="max-w-2xl mx-auto"><div className="card p-8 md:p-10 animate-pulse"><div className="h-6 bg-navy/8 rounded w-1/3 mb-6" /><div className="h-12 bg-navy/5 rounded mb-6" /><div className="h-6 bg-navy/8 rounded w-1/3 mb-6" /><div className="h-12 bg-navy/5 rounded mb-6" /><div className="h-12 bg-navy/8 rounded-pill mt-8" /></div></div>}>
+                <GrantFinder />
+              </Suspense>
             </RevealOnScroll>
           </Container>
         </section>

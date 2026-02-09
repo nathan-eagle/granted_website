@@ -13,10 +13,10 @@ const dmSans = DM_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Granted AI — AI Grant Writing Tool | Draft Proposals in Hours',
+    default: 'Granted AI — Find Grants & Draft Proposals with AI',
     template: '%s | Granted AI',
   },
-  description: 'Upload your RFP and get a complete grant proposal draft. Granted AI analyzes requirements, coaches you through targeted questions, and writes every section. Free trial.',
+  description: 'Search thousands of federal grants, find matching opportunities, and draft proposals with AI. Free grant finder for nonprofits, researchers, and small businesses.',
   metadataBase: new URL('https://grantedai.com'),
   icons: { icon: '/favicon.ico' },
   alternates: {
@@ -28,8 +28,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://grantedai.com',
-    title: 'Granted AI — AI Grant Writing Tool | Draft Proposals in Hours',
-    description: 'Upload your RFP and get a complete grant proposal draft. Granted AI analyzes requirements, coaches you through targeted questions, and writes every section. Free trial.',
+    title: 'Granted AI — Find Grants & Draft Proposals with AI',
+    description: 'Search thousands of federal grants, find matching opportunities, and draft proposals with AI. Free grant finder for nonprofits, researchers, and small businesses.',
     images: [{ url: 'https://grantedai.com/opengraph-image.png', width: 1200, height: 630, alt: 'Granted AI — Draft Grant Proposals in Hours' }],
   },
   twitter: {

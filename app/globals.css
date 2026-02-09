@@ -340,3 +340,29 @@
   position: relative;
   z-index: 1;
 }
+
+/* ── Hero search input ── */
+.hero-search-input {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+}
+.hero-search-input:focus {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #F5CF49;
+  box-shadow: 0 0 0 3px rgba(245, 207, 73, 0.2), 0 0 20px rgba(245, 207, 73, 0.1);
+}
+
+/* ── Nav dropdown ── */
+.nav-dropdown {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+.nav-dropdown-trigger:hover .nav-dropdown,
+.nav-dropdown-trigger:focus-within .nav-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
