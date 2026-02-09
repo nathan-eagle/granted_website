@@ -258,7 +258,7 @@ export default function HeroAnimationCombined() {
           </div>
         </div>
 
-        <div className="flex min-h-[400px]">
+        <div className="flex h-[400px]">
           {/* ── Left: Profile sidebar ── */}
           <AnimatePresence mode="wait">
             <motion.aside
