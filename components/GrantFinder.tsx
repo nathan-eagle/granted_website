@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { trackEvent } from '@/lib/analytics'
 import { supabase } from '@/lib/supabase'
@@ -85,18 +85,11 @@ export default function GrantFinder() {
   const [broadened, setBroadened] = useState(false)
 
   const searchParams = useSearchParams()
+  const autoSearchedQueryRef = useRef<string | null>(null)
 
   useEffect(() => {
     setUnlocked(isUnlocked())
   }, [])
-
-  // Pre-fill focus area from URL query param (from homepage hero search)
-  useEffect(() => {
-    const q = searchParams.get('q')
-    if (q && !focusArea) {
-      setFocusArea(q)
-    }
-  }, [searchParams]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const doSearch = useCallback(async (searchOrgType: string, searchFocusArea: string, searchState: string, isRetry = false): Promise<Opportunity[]> => {
     const res = await fetch(`${API_URL}/api/public/discover`, {
@@ -125,33 +118,46 @@ export default function GrantFinder() {
     return data.opportunities || []
   }, [])
 
-  const handleSearch = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault()
+  const runSearch = useCallback(async (
+    searchOrgType: string,
+    searchFocusArea: string,
+    searchState: string,
+    source: 'manual' | 'url' = 'manual',
+  ) => {
+    const normalizedFocus = searchFocusArea.trim()
+    if (!normalizedFocus) return
+
     setError('')
     setBroadened(false)
+    setGateRequired(false)
 
-    if (!unlocked && getSearchCount() >= 3) {
+    const currentlyUnlocked = isUnlocked()
+    setUnlocked(currentlyUnlocked)
+
+    if (!currentlyUnlocked && getSearchCount() >= 3) {
       setGateRequired(true)
-      trackEvent('grant_finder_gate', { reason: 'search_limit' })
+      trackEvent('grant_finder_gate', { reason: source === 'url' ? 'search_limit_url' : 'search_limit' })
       return
     }
 
-    trackEvent('grant_finder_search', { org_type: orgType, state })
+    trackEvent('grant_finder_search', { org_type: searchOrgType, state: searchState, source })
     setPhase('loading')
 
     try {
-      let results = await doSearch(orgType, focusArea, state)
+      let results = await doSearch(searchOrgType, normalizedFocus, searchState)
+      let broadenedSearch = false
 
       // Auto-retry with fewer filters if no results
-      if (results.length === 0 && (orgType || state)) {
+      if (results.length === 0 && (searchOrgType || searchState)) {
         // Drop state first, then org type
-        if (state) {
-          results = await doSearch(orgType, focusArea, '')
+        if (searchState) {
+          results = await doSearch(searchOrgType, normalizedFocus, '')
         }
-        if (results.length === 0 && orgType) {
-          results = await doSearch('', focusArea, '')
+        if (results.length === 0 && searchOrgType) {
+          results = await doSearch('', normalizedFocus, '')
         }
         if (results.length > 0) {
+          broadenedSearch = true
           setBroadened(true)
         }
       }
@@ -183,12 +189,38 @@ export default function GrantFinder() {
       setOpportunities(results)
       incrementSearchCount()
       setPhase('results')
-      trackEvent('grant_finder_results', { count: String(results.length), broadened: String(broadened) })
+      trackEvent('grant_finder_results', { count: String(results.length), broadened: String(broadenedSearch), source })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
       setPhase('form')
     }
-  }, [orgType, focusArea, state, unlocked, doSearch])
+  }, [doSearch])
+
+  const handleSearch = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault()
+    await runSearch(orgType, focusArea, state, 'manual')
+  }, [orgType, focusArea, state, runSearch])
+
+  // Auto-run search when arriving from homepage with a query string.
+  useEffect(() => {
+    const q = searchParams.get('q')?.trim() ?? ''
+
+    if (!q) {
+      autoSearchedQueryRef.current = null
+      return
+    }
+
+    if (!focusArea) {
+      setFocusArea(q)
+    }
+
+    if (autoSearchedQueryRef.current === q) {
+      return
+    }
+
+    autoSearchedQueryRef.current = q
+    void runSearch(orgType, q, state, 'url')
+  }, [searchParams, focusArea, orgType, state, runSearch])
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
