@@ -35,6 +35,7 @@ export const metadata: Metadata = {
 
 const agencyCategories = GRANT_CATEGORIES.filter((c) => c.type === 'agency')
 const audienceCategories = GRANT_CATEGORIES.filter((c) => c.type === 'audience')
+const topicCategories = GRANT_CATEGORIES.filter((c) => c.type === 'topic')
 
 export default async function GrantsIndex() {
   const grants = await getAllGrants().catch(() => [])
@@ -92,6 +93,20 @@ export default async function GrantsIndex() {
                     className="px-4 py-2 rounded-full text-sm font-medium bg-white border border-navy/10 text-navy hover:border-brand-yellow hover:bg-brand-yellow/5 transition-colors"
                   >
                     {c.name}
+                  </Link>
+                ))}
+              </div>
+              <h2 className="text-xs font-semibold uppercase tracking-[0.15em] text-navy-light/50 mb-4 mt-6">
+                By Topic
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {topicCategories.map((c) => (
+                  <Link
+                    key={c.slug}
+                    href={`/grants/${c.slug}`}
+                    className="px-4 py-2 rounded-full text-sm font-medium bg-white border border-navy/10 text-navy hover:border-brand-yellow hover:bg-brand-yellow/5 transition-colors"
+                  >
+                    {c.name.replace(' Grants', '')}
                   </Link>
                 ))}
               </div>
