@@ -1,4 +1,5 @@
 import Container from '@/components/Container'
+import { ButtonLink } from '@/components/ButtonLink'
 
 const AUDIENCES = [
   {
@@ -49,22 +50,30 @@ const AUDIENCES = [
 
 export default function AudienceSection() {
   return (
-    <section className="bg-cream-dark">
-      <Container className="py-28 md:py-32">
-        <h2 className="heading-lg text-center">Who is Granted for?</h2>
-        <p className="body-lg text-center text-navy-light mt-4 mx-auto max-w-2xl">
-          Granted is the grants office you can&apos;t afford to hire.
+    <section className="bg-navy noise-overlay overflow-hidden">
+      <Container className="py-20 md:py-24 relative z-10">
+        <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow/80 text-center mb-4">
+          Who it&apos;s for
         </p>
-        <div className="mt-14 grid gap-6 sm:grid-cols-2">
+        <h2 className="heading-lg text-center text-white">Built for organizations like yours</h2>
+        <p className="body-lg text-center text-white/60 mt-4 mx-auto max-w-2xl">
+          The grants office you can&apos;t afford to hire.
+        </p>
+        <div className="mt-10 grid gap-5 sm:grid-cols-2">
           {AUDIENCES.map((audience) => (
-            <div key={audience.heading} className="card flex flex-col gap-4 p-8">
-              <div className="w-12 h-12 rounded-xl bg-navy/5 flex items-center justify-center">
+            <div key={audience.heading} className="flex flex-col gap-4 p-7 rounded-2xl bg-white/[0.06] border border-white/[0.08] backdrop-blur-sm hover:bg-white/[0.1] transition-colors">
+              <div className="w-12 h-12 rounded-xl bg-brand-yellow/10 border border-brand-yellow/20 flex items-center justify-center">
                 {audience.icon}
               </div>
-              <h3 className="text-lg font-semibold text-navy">{audience.heading}</h3>
-              <p className="text-base text-navy-light leading-relaxed">{audience.body}</p>
+              <h3 className="text-lg font-semibold text-white">{audience.heading}</h3>
+              <p className="text-base text-white/60 leading-relaxed">{audience.body}</p>
             </div>
           ))}
+        </div>
+        <div className="mt-10 text-center">
+          <ButtonLink href="/find-grants" className="button button-primary cta-shimmer">
+            Find Your Grants &rarr;
+          </ButtonLink>
         </div>
       </Container>
     </section>

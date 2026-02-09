@@ -73,7 +73,7 @@ export default async function HomePage() {
                   Find the right funding. Apply with confidence.
                 </h1>
                 <p className="body-lg mt-6 text-white/70 max-w-xl">
-                  Search thousands of federal grants, discover the best fit for your organization,
+                  Search thousands of grants, discover the best fit for your organization,
                   and draft a complete proposal with an AI writing coach &mdash; all in one place.
                 </p>
                 <HeroSearchBar />
@@ -111,19 +111,19 @@ export default async function HomePage() {
 
         {/* ── Quality / Coach section ── */}
         <section>
-          <Container className="py-28 md:py-32">
+          <Container className="py-20 md:py-24">
             <RevealOnScroll className="grid items-center gap-12 lg:grid-cols-2">
               <div>
                 <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow mb-4">
                   From donor appeals to federal grants
                 </p>
-                <h2 className="heading-xl">AI drafting that grounds every paragraph in your real data</h2>
+                <h2 className="heading-xl text-navy">AI drafting that grounds every paragraph in your real data</h2>
                 <p className="body-lg mt-6 text-navy-light">
                   Upload any RFP or grant guidelines. Granted&apos;s AI reads the full document, identifies every required section, and coaches you through the details it needs to draft a grounded, complete proposal.
                 </p>
                 <div className="mt-8">
-                  <ButtonLink href="/tech" variant="ghost" className="px-6">
-                    See all 50+ writing models &rarr;
+                  <ButtonLink href="/tech" variant="primary" className="cta-shimmer">
+                    See All 50+ Writing Models &rarr;
                   </ButtonLink>
                 </div>
               </div>
@@ -140,13 +140,13 @@ export default async function HomePage() {
 
         {/* ── Email capture ── */}
         <section className="bg-navy text-white noise-overlay overflow-hidden">
-          <Container className="py-20 md:py-24">
+          <Container className="py-16 md:py-20">
             <RevealOnScroll className="text-center">
               <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow/80 mb-4">
                 Stay in the loop
               </p>
               <h2 className="heading-lg text-white">Not ready to start? No pressure.</h2>
-              <p className="body-lg mt-4 text-white/60 max-w-xl mx-auto">
+              <p className="body-lg mt-4 text-white/70 max-w-xl mx-auto">
                 Get free grant writing tips, deadline alerts, and strategy guides every week.
               </p>
               <div className="mt-8 relative">
@@ -161,7 +161,7 @@ export default async function HomePage() {
 
         {/* ── Equity section ── */}
         <section>
-          <Container className="py-28 md:py-32">
+          <Container className="py-20 md:py-24">
             <RevealOnScroll className="mx-auto max-w-3xl text-center">
               <AnimatedGoldRule />
               <div className="mt-12">
@@ -187,7 +187,7 @@ export default async function HomePage() {
         <section className="bg-navy text-white noise-overlay overflow-hidden section-angle-top">
           <Container className="py-24 text-center md:py-32 relative z-10">
             <h3 className="heading-lg text-white">Find your next grant in 30 seconds.</h3>
-            <p className="body-lg mx-auto mt-4 max-w-2xl text-white/60">
+            <p className="body-lg mx-auto mt-4 max-w-2xl text-white/70">
               Join thousands of researchers, nonprofits, and community organizations
               discovering grants and drafting stronger proposals with Granted.
             </p>

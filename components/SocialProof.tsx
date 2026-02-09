@@ -40,7 +40,7 @@ export function StatsCounter() {
 
   return (
     <section className="bg-navy noise-overlay overflow-hidden">
-      <Container className="py-20 md:py-28 relative z-10">
+      <Container className="py-16 md:py-20 relative z-10">
         <div ref={ref} className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-12">
           {STATS.map((stat, i) => (
             <StatItem key={stat.label} stat={stat} index={i} animate={isInView} />
@@ -103,8 +103,8 @@ export function Testimonials() {
 
   return (
     <section className="bg-navy noise-overlay overflow-hidden section-angle-top">
-      <Container className="py-28 md:py-36 relative z-10">
-        <div className="text-center mb-16">
+      <Container className="py-20 md:py-28 relative z-10">
+        <div className="text-center mb-12">
           <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow/80 mb-4">
             From the community
           </p>
@@ -136,7 +136,7 @@ export function Testimonials() {
                 </div>
                 <div>
                   <p className="text-white text-sm font-semibold">{t.name}</p>
-                  <p className="text-white/40 text-xs">{t.title}</p>
+                  <p className="text-white/55 text-xs">{t.title}</p>
                 </div>
               </div>
             </div>
@@ -159,15 +159,15 @@ const ORGS = [
 
 export function OrgLogos() {
   return (
-    <div className="py-10 md:py-14">
-      <p className="text-center text-xs font-medium uppercase tracking-[0.15em] text-navy-light/40 mb-6">
+    <div className="py-8 md:py-10">
+      <p className="text-center text-xs font-medium uppercase tracking-[0.15em] text-navy-light/60 mb-5">
         Trusted by researchers and organizations at
       </p>
       <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 md:gap-x-12 px-6">
         {ORGS.map((org) => (
           <span
             key={org}
-            className="text-xs md:text-sm font-semibold tracking-wide text-navy/25 hover:text-navy/50 transition-colors cursor-default whitespace-nowrap"
+            className="text-xs md:text-sm font-semibold tracking-wide text-navy/55 hover:text-navy/75 transition-colors cursor-default whitespace-nowrap"
           >
             {org}
           </span>

@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
 import { useInView } from '@/hooks/useInView'
+import { ButtonLink } from '@/components/ButtonLink'
 
 const PILLARS = [
   {
@@ -50,7 +50,7 @@ export default function HowGrantedWorks() {
 
   return (
     <section id="how-it-works" className="bg-cream-dark">
-      <div className="container py-28 md:py-36">
+      <div className="container py-20 md:py-24">
         <div
           ref={ref}
           style={{
@@ -62,7 +62,7 @@ export default function HowGrantedWorks() {
           <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow text-center mb-4">
             How it works
           </p>
-          <h2 className="heading-lg text-center">Discover, draft, and win &mdash; in one platform</h2>
+          <h2 className="heading-lg text-center text-navy">Discover, draft, and win &mdash; in one platform</h2>
         </div>
 
         <div className="mt-14 relative">
@@ -105,13 +105,14 @@ export default function HowGrantedWorks() {
                     </div>
                     <h3 className="text-lg font-semibold text-navy">{pillar.heading}</h3>
                     <p className="text-base text-navy-light leading-relaxed">{pillar.body}</p>
-                    <div className="mt-2">
-                      <Link
+                    <div className="mt-4">
+                      <ButtonLink
                         href={pillar.cta.href}
-                        className="text-sm font-semibold text-brand-yellow hover:text-brand-gold transition-colors"
+                        variant="ghost"
+                        className="text-sm px-5 min-h-[2.5rem]"
                       >
                         {pillar.cta.label} &rarr;
-                      </Link>
+                      </ButtonLink>
                     </div>
                   </div>
                 </div>

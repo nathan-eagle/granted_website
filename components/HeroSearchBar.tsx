@@ -24,13 +24,13 @@ export default function HeroSearchBar() {
   }
 
   return (
-    <div className="mt-10 max-w-xl">
-      <form onSubmit={handleSubmit} className="flex gap-2">
+    <div className="mt-10 max-w-2xl">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
         <input
           type="text"
           value={query}
           onChange={e => setQuery(e.target.value)}
-          placeholder="e.g. marine conservation, youth mental health, clean energy"
+          placeholder="Search grants by topic, agency, or keyword..."
           className="hero-search-input flex-1 rounded-pill px-5 py-3.5 text-sm text-white placeholder:text-white/40 outline-none transition-all"
         />
         <button

@@ -108,8 +108,8 @@ function SealInterior({ type, color }: { type: string; color: string }) {
 export default function AgencyLogos() {
   return (
     <section>
-      <div className="container py-14 md:py-20">
-        <p className="text-center text-sm font-medium uppercase tracking-[0.12em] text-navy-light/50 mb-10">
+      <div className="container py-10 md:py-14">
+        <p className="text-center text-sm font-medium uppercase tracking-[0.12em] text-navy-light/70 mb-8">
           Built for applications to
         </p>
         <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8">
@@ -135,12 +135,12 @@ export default function AgencyLogos() {
                 {/* Inner decorative ring */}
                 <circle cx="24" cy="24" r="14" fill="none" stroke={agency.color} strokeWidth="0.6" opacity="0.18" />
                 {/* Agency symbol */}
-                <g opacity="0.5">
+                <g opacity="0.7">
                   <SealInterior type={agency.sealType} color={agency.color} />
                 </g>
               </svg>
               <span
-                className="block text-center text-[11px] font-bold tracking-[0.08em] uppercase mt-1.5 transition-opacity duration-300 opacity-60 group-hover:opacity-100"
+                className="block text-center text-[11px] font-bold tracking-[0.08em] uppercase mt-1.5 transition-opacity duration-300 opacity-80 group-hover:opacity-100"
                 style={{ color: agency.color }}
               >
                 {agency.name}
