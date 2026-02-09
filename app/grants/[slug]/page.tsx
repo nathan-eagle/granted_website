@@ -55,10 +55,56 @@ function splitIntoParagraphs(value: string): string[] {
 
   if (byBlankLine.length > 1) return byBlankLine
 
-  return normalized
+  const bySingleLine = normalized
     .split(/\n+/)
     .map((p) => p.trim())
     .filter((p) => p.length > 0)
+
+  if (bySingleLine.length > 1) return bySingleLine
+
+  const sentences = normalized
+    .match(/[^.!?]+[.!?]+(?:["')\]]+)?|[^.!?]+$/g)
+    ?.map((s) => s.trim())
+    .filter(Boolean) ?? []
+
+  if (sentences.length >= 3) {
+    const grouped: string[] = []
+    let current = ''
+    let sentenceCount = 0
+
+    for (const sentence of sentences) {
+      if (!current) {
+        current = sentence
+        sentenceCount = 1
+        continue
+      }
+
+      const next = `${current} ${sentence}`
+      if (sentenceCount < 3 && next.length <= 440) {
+        current = next
+        sentenceCount += 1
+        continue
+      }
+
+      grouped.push(current)
+      current = sentence
+      sentenceCount = 1
+    }
+
+    if (current) grouped.push(current)
+    if (grouped.length > 1) return grouped
+  }
+
+  const words = normalized.split(/\s+/).filter(Boolean)
+  if (words.length > 100) {
+    const grouped: string[] = []
+    for (let i = 0; i < words.length; i += 60) {
+      grouped.push(words.slice(i, i + 60).join(' '))
+    }
+    return grouped
+  }
+
+  return [normalized]
 }
 
 function buildGrantFaq(grant: PublicGrant): GrantFaq[] {
