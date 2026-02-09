@@ -30,6 +30,7 @@ export default function Footer() {
                 <li><Link href="/tools/deadlines" className="hover:text-navy">Deadline Calendar</Link></li>
                 <li><Link href="/tools/cost-calculator" className="hover:text-navy">Cost Calculator</Link></li>
                 <li><Link href="/blog" className="hover:text-navy">Blog</Link></li>
+                <li><Link href="/grants" className="hover:text-navy">Browse Grants</Link></li>
               </ul>
             </div>
           </nav>
