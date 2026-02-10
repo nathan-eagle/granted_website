@@ -61,6 +61,16 @@ Vercel auto-deploys from pushes to `main`. Do **not** use GitHub Actions (stale/
 
 These env vars must be set **both** in `.env.local` (local dev) and on the **`site`** Vercel project (production). The Vercel project `site` is what serves grantedai.com — setting env vars on any other Vercel project will have no effect.
 
+**CRITICAL — Avoid trailing newlines:** When piping values to `vercel env add`, **always use `printf '%s'`** instead of `echo`. `echo` appends a trailing `\n` that gets stored as part of the value and silently breaks things.
+
+```bash
+# CORRECT
+printf '%s' 'my-value' | npx vercel env add VAR_NAME production
+
+# WRONG — adds trailing \n
+echo 'my-value' | npx vercel env add VAR_NAME production
+```
+
 ## Architecture
 
 ### Routes
