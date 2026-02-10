@@ -78,6 +78,12 @@ function buildApplyUrl(opportunity: Opportunity): string {
   return `${API_URL}/api/auth/signin?callbackUrl=${callback}`
 }
 
+function summarizeTerm(input: string): string {
+  const normalized = input.trim().replace(/\s+/g, ' ')
+  if (!normalized) return ''
+  return normalized.length > 140 ? `${normalized.slice(0, 140)}...` : normalized
+}
+
 export default function GrantFinder() {
   const [phase, setPhase] = useState<Phase>('form')
   const [orgType, setOrgType] = useState('')
@@ -165,7 +171,13 @@ export default function GrantFinder() {
       return
     }
 
-    trackEvent('grant_finder_search', { org_type: searchOrgType, state: searchState, source })
+    trackEvent('grant_finder_search', {
+      org_type: searchOrgType || 'any',
+      state: searchState || 'any',
+      focus_area: summarizeTerm(normalizedFocus),
+      focus_area_length: normalizedFocus.length,
+      source,
+    })
     setPhase('loading')
 
     try {
@@ -214,8 +226,18 @@ export default function GrantFinder() {
       setOpportunities(results)
       incrementSearchCount()
       setPhase('results')
-      trackEvent('grant_finder_results', { count: String(results.length), broadened: String(broadenedSearch), source })
+      trackEvent('grant_finder_results', {
+        count: String(results.length),
+        broadened: String(broadenedSearch),
+        source,
+        focus_area: summarizeTerm(normalizedFocus),
+        top_grant: results[0]?.name ?? '',
+      })
     } catch (err) {
+      trackEvent('grant_finder_search_error', {
+        source,
+        message: err instanceof Error ? err.message : 'unknown_error',
+      })
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
       setPhase('form')
     }
@@ -251,7 +273,12 @@ export default function GrantFinder() {
     e.preventDefault()
     if (!email) return
     setEmailStatus('loading')
-    trackEvent('grant_finder_email_submit', {})
+    trackEvent('grant_finder_email_submit', {
+      org_type: orgType || 'any',
+      state: state || 'any',
+      focus_area: summarizeTerm(focusArea),
+      result_count: opportunities.length,
+    })
 
     try {
       const res = await fetch('/api/leads/capture', {
@@ -268,12 +295,19 @@ export default function GrantFinder() {
         setUnlocked(true)
         setUnlockedCookie()
         setGateRequired(false)
-        trackEvent('grant_finder_email_success', {})
+        trackEvent('grant_finder_email_success', {
+          org_type: orgType || 'any',
+          state: state || 'any',
+          focus_area: summarizeTerm(focusArea),
+          result_count: opportunities.length,
+        })
       } else {
         setEmailStatus('error')
+        trackEvent('grant_finder_email_error', { status: String(res.status) })
       }
     } catch {
       setEmailStatus('error')
+      trackEvent('grant_finder_email_error', { status: 'network_error' })
     }
   }
 
@@ -318,7 +352,15 @@ export default function GrantFinder() {
               <div className="flex-1 flex flex-col sm:flex-row gap-2">
                 <select
                   value={orgType}
-                  onChange={e => setOrgType(e.target.value)}
+                  onChange={e => {
+                    const value = e.target.value
+                    setOrgType(value)
+                    trackEvent('grant_finder_filter_change', {
+                      filter: 'org_type',
+                      value: value || 'any',
+                      surface: 'results_empty',
+                    })
+                  }}
                   className="sm:w-36 rounded-md border border-navy/10 bg-white px-3 py-2 text-sm text-navy outline-none focus:border-brand-yellow/60 transition appearance-none"
                 >
                   <option value="">Any org type</option>
@@ -332,12 +374,26 @@ export default function GrantFinder() {
                   minLength={3}
                   value={focusArea}
                   onChange={e => setFocusArea(e.target.value)}
+                  onBlur={() =>
+                    trackEvent('grant_finder_focus_blur', {
+                      focus_area: summarizeTerm(focusArea),
+                      surface: 'results_empty',
+                    })
+                  }
                   placeholder="Focus area..."
                   className="flex-1 rounded-md border border-navy/10 bg-white px-3 py-2 text-sm text-navy placeholder:text-navy-light/40 outline-none focus:border-brand-yellow/60 transition"
                 />
                 <select
                   value={state}
-                  onChange={e => setState(e.target.value)}
+                  onChange={e => {
+                    const value = e.target.value
+                    setState(value)
+                    trackEvent('grant_finder_filter_change', {
+                      filter: 'state',
+                      value: value || 'any',
+                      surface: 'results_empty',
+                    })
+                  }}
                   className="sm:w-36 rounded-md border border-navy/10 bg-white px-3 py-2 text-sm text-navy outline-none focus:border-brand-yellow/60 transition appearance-none"
                 >
                   <option value="">Any state</option>
@@ -385,7 +441,15 @@ export default function GrantFinder() {
             <div className="flex-1 flex flex-col sm:flex-row gap-2">
               <select
                 value={orgType}
-                onChange={e => setOrgType(e.target.value)}
+                onChange={e => {
+                  const value = e.target.value
+                  setOrgType(value)
+                  trackEvent('grant_finder_filter_change', {
+                    filter: 'org_type',
+                    value: value || 'any',
+                    surface: 'results',
+                  })
+                }}
                 className="sm:w-36 rounded-md border border-navy/10 bg-white px-3 py-2 text-sm text-navy outline-none focus:border-brand-yellow/60 transition appearance-none"
               >
                 <option value="">Any org type</option>
@@ -399,12 +463,26 @@ export default function GrantFinder() {
                 minLength={3}
                 value={focusArea}
                 onChange={e => setFocusArea(e.target.value)}
+                onBlur={() =>
+                  trackEvent('grant_finder_focus_blur', {
+                    focus_area: summarizeTerm(focusArea),
+                    surface: 'results',
+                  })
+                }
                 placeholder="Focus area..."
                 className="flex-1 rounded-md border border-navy/10 bg-white px-3 py-2 text-sm text-navy placeholder:text-navy-light/40 outline-none focus:border-brand-yellow/60 transition"
               />
               <select
                 value={state}
-                onChange={e => setState(e.target.value)}
+                onChange={e => {
+                  const value = e.target.value
+                  setState(value)
+                  trackEvent('grant_finder_filter_change', {
+                    filter: 'state',
+                    value: value || 'any',
+                    surface: 'results',
+                  })
+                }}
                 className="sm:w-36 rounded-md border border-navy/10 bg-white px-3 py-2 text-sm text-navy outline-none focus:border-brand-yellow/60 transition appearance-none"
               >
                 <option value="">Any state</option>
@@ -449,6 +527,13 @@ export default function GrantFinder() {
                     {opp.slug ? (
                       <a
                         href={`/grants/${opp.slug}`}
+                        onClick={() => {
+                          trackEvent('grant_finder_result_grant_click', {
+                            grant_name: opp.name.slice(0, 120),
+                            grant_slug: opp.slug,
+                            source: 'result_card_title',
+                          })
+                        }}
                         className="hover:text-brand-gold hover:underline underline-offset-2 transition-colors"
                       >
                         {opp.name}
@@ -503,7 +588,12 @@ export default function GrantFinder() {
               ) : (
                 <button
                   type="button"
-                  onClick={() => document.getElementById('email-gate')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                  onClick={() => {
+                    trackEvent('grant_finder_locked_details_click', {
+                      grant_name: opp.name.slice(0, 120),
+                    })
+                    document.getElementById('email-gate')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                  }}
                   className="relative w-full text-left cursor-pointer group"
                 >
                   <div className="select-none blur-[6px] pointer-events-none" aria-hidden="true">
@@ -525,7 +615,11 @@ export default function GrantFinder() {
                   onClick={() => {
                     trackEvent('grant_finder_apply_click', {
                       grant_name: opp.name.slice(0, 120),
+                      grant_slug: opp.slug || '',
                       source: 'result_card',
+                      focus_area: summarizeTerm(focusArea),
+                      org_type: orgType || 'any',
+                      state: state || 'any',
                     })
                   }}
                   className="inline-flex items-center gap-1.5 rounded-md bg-brand-yellow px-4 py-2 text-sm font-semibold text-navy hover:bg-brand-gold transition-colors"
@@ -539,6 +633,14 @@ export default function GrantFinder() {
                     href={opp.rfp_url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => {
+                      trackEvent('grant_finder_view_opportunity_click', {
+                        grant_name: opp.name.slice(0, 120),
+                        grant_slug: opp.slug || '',
+                        funder: opp.funder,
+                        source: 'result_card',
+                      })
+                    }}
                     className="inline-flex items-center gap-1 text-sm font-medium text-brand-yellow hover:text-brand-gold transition-colors"
                   >
                     View opportunity
@@ -651,7 +753,15 @@ export default function GrantFinder() {
             <select
               id="gf-org-type"
               value={orgType}
-              onChange={e => setOrgType(e.target.value)}
+              onChange={e => {
+                const value = e.target.value
+                setOrgType(value)
+                trackEvent('grant_finder_filter_change', {
+                  filter: 'org_type',
+                  value: value || 'any',
+                  surface: 'form',
+                })
+              }}
               className="w-full rounded-lg border border-navy/15 bg-white px-4 py-3 text-sm text-navy outline-none focus:border-brand-yellow/60 focus:ring-2 focus:ring-brand-yellow/20 transition appearance-none"
             >
               <option value="">Select type (optional)</option>
@@ -673,6 +783,12 @@ export default function GrantFinder() {
               minLength={3}
               value={focusArea}
               onChange={e => setFocusArea(e.target.value)}
+              onBlur={() =>
+                trackEvent('grant_finder_focus_blur', {
+                  focus_area: summarizeTerm(focusArea),
+                  surface: 'form',
+                })
+              }
               placeholder="e.g. youth mental health, clean energy, marine conservation"
               className="w-full rounded-lg border border-navy/15 bg-white px-4 py-3 text-sm text-navy placeholder:text-navy-light/40 outline-none focus:border-brand-yellow/60 focus:ring-2 focus:ring-brand-yellow/20 transition"
             />
@@ -686,7 +802,15 @@ export default function GrantFinder() {
             <select
               id="gf-state"
               value={state}
-              onChange={e => setState(e.target.value)}
+              onChange={e => {
+                const value = e.target.value
+                setState(value)
+                trackEvent('grant_finder_filter_change', {
+                  filter: 'state',
+                  value: value || 'any',
+                  surface: 'form',
+                })
+              }}
               className="w-full rounded-lg border border-navy/15 bg-white px-4 py-3 text-sm text-navy outline-none focus:border-brand-yellow/60 focus:ring-2 focus:ring-brand-yellow/20 transition appearance-none"
             >
               <option value="">Select state (optional)</option>

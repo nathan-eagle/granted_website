@@ -1,6 +1,9 @@
+'use client'
+
 import Link from 'next/link'
 import type { PublicGrant } from '@/lib/grants'
 import GrantStatusBadge from './GrantStatusBadge'
+import { trackEvent } from '@/lib/analytics'
 
 function formatDeadline(deadline: string | null): string {
   if (!deadline) return 'Rolling'
@@ -24,6 +27,14 @@ export default function TrendingGrantCard({ grant }: { grant: PublicGrant }) {
   return (
     <Link
       href={`/grants/${grant.slug}`}
+      onClick={() =>
+        trackEvent('trending_grant_click', {
+          grant_slug: grant.slug,
+          grant_name: grant.name,
+          funder: grant.funder,
+          source_page: typeof window !== 'undefined' ? window.location.pathname : '',
+        })
+      }
       className="group card card-hover h-full min-h-[270px] p-6 flex flex-col"
     >
       <div className="flex items-start justify-between gap-3 mb-4">

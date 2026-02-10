@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { trackEvent } from '@/lib/analytics'
 
 type Props = {
   heading?: string
@@ -19,6 +22,12 @@ export default function GrantFinderCTA({
         <div className="flex items-center gap-3 flex-shrink-0">
           <Link
             href="/find-grants"
+            onClick={() =>
+              trackEvent('grant_finder_cta_click', {
+                cta_type: 'find_grants',
+                page: typeof window !== 'undefined' ? window.location.pathname : '',
+              })
+            }
             className="inline-flex items-center gap-2 rounded-lg bg-brand-yellow px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-brand-yellow/90"
           >
             Find Grants
@@ -28,6 +37,12 @@ export default function GrantFinderCTA({
           </Link>
           <Link
             href="/grants"
+            onClick={() =>
+              trackEvent('grant_finder_cta_click', {
+                cta_type: 'browse_all',
+                page: typeof window !== 'undefined' ? window.location.pathname : '',
+              })
+            }
             className="inline-flex items-center gap-2 rounded-lg border border-navy/15 px-5 py-2.5 text-sm font-semibold text-navy transition hover:border-navy/30 hover:bg-white"
           >
             Browse All

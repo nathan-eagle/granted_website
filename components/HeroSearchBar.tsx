@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { trackEvent } from '@/lib/analytics'
 
 const AGENCY_CHIPS = [
   { label: 'NIH', href: '/grants/nih' },
@@ -19,8 +20,16 @@ export default function HeroSearchBar({ className }: { className?: string }) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!query.trim()) return
-    router.push(`/find-grants?q=${encodeURIComponent(query.trim())}`)
+    const normalizedQuery = query.trim()
+    if (!normalizedQuery) return
+
+    trackEvent('hero_search_submit', {
+      query: normalizedQuery,
+      query_length: normalizedQuery.length,
+      page: typeof window !== 'undefined' ? window.location.pathname : '/',
+    })
+
+    router.push(`/find-grants?q=${encodeURIComponent(normalizedQuery)}`)
   }
 
   return (
@@ -48,6 +57,12 @@ export default function HeroSearchBar({ className }: { className?: string }) {
           <Link
             key={chip.label}
             href={chip.href}
+            onClick={() =>
+              trackEvent('hero_search_chip_click', {
+                chip_label: chip.label,
+                chip_href: chip.href,
+              })
+            }
             className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/8 text-white/70 border border-white/10 hover:bg-white/15 hover:text-white hover:border-white/20 transition-all"
           >
             {chip.label}
@@ -55,6 +70,12 @@ export default function HeroSearchBar({ className }: { className?: string }) {
         ))}
         <Link
           href="/grants"
+          onClick={() =>
+            trackEvent('hero_search_chip_click', {
+              chip_label: 'More',
+              chip_href: '/grants',
+            })
+          }
           className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-brand-yellow/70 hover:text-brand-yellow transition-colors"
         >
           More &rarr;

@@ -21,10 +21,16 @@ export default function CheckoutButton({
   const [loading, setLoading] = useState(false)
   async function go() {
     setLoading(true)
-    trackEvent(eventName || 'trial_signup_intent', {
+    const params = {
       plan,
       label,
       page: typeof window !== 'undefined' ? window.location.pathname : '',
+    }
+    trackEvent(eventName || 'trial_signup_intent', params)
+    trackEvent('conversion_intent', {
+      ...params,
+      conversion_type: 'trial_signup',
+      trigger_event: eventName || 'trial_signup_intent',
     })
     const url = plan === 'yearly'
       ? process.env.NEXT_PUBLIC_STRIPE_YEARLY_URL

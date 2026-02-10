@@ -31,7 +31,11 @@ export default function Header() {
     <header className="w-full">
       <div className="container flex flex-col gap-4 py-6 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center justify-between gap-4">
-          <Link href="/" className="relative flex items-center">
+          <Link
+            href="/"
+            onClick={() => trackEvent('header_logo_click', { location: pathname })}
+            className="relative flex items-center"
+          >
             <Image
               src="/images/logo-wordmark-text.png"
               alt="Granted"
@@ -69,6 +73,13 @@ export default function Header() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() =>
+                trackEvent('header_nav_click', {
+                  label: item.label,
+                  href: item.href,
+                  location: pathname,
+                })
+              }
               className={`text-sm tracking-[0.02em] transition-colors ${
                 pathname === item.href
                   ? 'font-semibold text-navy'
@@ -95,6 +106,13 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={() =>
+                    trackEvent('header_resources_click', {
+                      label: item.label,
+                      href: item.href,
+                      location: pathname,
+                    })
+                  }
                   className="block px-4 py-2.5 text-sm text-slate-600 hover:bg-cream hover:text-navy transition-colors"
                 >
                   {item.label}

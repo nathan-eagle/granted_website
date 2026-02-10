@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import GrantCard from '@/components/GrantCard'
 import type { GrantCategory, PublicGrant } from '@/lib/grants'
+import { trackEvent } from '@/lib/analytics'
 
 type Props = {
   category: GrantCategory
@@ -33,6 +34,17 @@ export default function CategoryGrantList({ category, grants }: Props) {
   useEffect(() => {
     setUnlocked(hasUnlockCookie())
   }, [])
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      trackEvent('grant_category_filter_change', {
+        category_slug: category.slug,
+        query: query.trim() || undefined,
+        status_filter: statusFilter,
+      })
+    }, 400)
+    return () => window.clearTimeout(timeout)
+  }, [category.slug, query, statusFilter])
 
   const filtered = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -65,6 +77,12 @@ export default function CategoryGrantList({ category, grants }: Props) {
     if (!email.trim()) return
 
     setEmailStatus('loading')
+    trackEvent('grant_category_unlock_submit', {
+      category_slug: category.slug,
+      query: query.trim() || undefined,
+      status_filter: statusFilter,
+      hidden_count: hiddenCount,
+    })
     try {
       const res = await fetch('/api/leads/capture', {
         method: 'POST',
@@ -82,14 +100,27 @@ export default function CategoryGrantList({ category, grants }: Props) {
 
       if (!res.ok) {
         setEmailStatus('error')
+        trackEvent('grant_category_unlock_error', {
+          category_slug: category.slug,
+          status: String(res.status),
+        })
         return
       }
 
       setUnlockCookie()
       setUnlocked(true)
       setEmailStatus('success')
+      trackEvent('grant_category_unlock_success', {
+        category_slug: category.slug,
+        query: query.trim() || undefined,
+        status_filter: statusFilter,
+      })
     } catch {
       setEmailStatus('error')
+      trackEvent('grant_category_unlock_error', {
+        category_slug: category.slug,
+        status: 'network_error',
+      })
     }
   }
 

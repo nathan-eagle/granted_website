@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import { DM_Sans } from 'next/font/google'
 import ExitIntentPopup from '@/components/ExitIntentPopup'
+import AnalyticsTracker from '@/components/AnalyticsTracker'
 import './globals.css'
 
 // ── Analytics IDs ──
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={`${dmSans.variable} font-sans`}>
+        <AnalyticsTracker />
         {/* ── Google Analytics 4 ── */}
         {GA4_ID && (
           <>
@@ -68,7 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
-                gtag('config', '${GA4_ID}', { send_page_view: true });
+                gtag('config', '${GA4_ID}', { send_page_view: false });
               `}
             </Script>
           </>

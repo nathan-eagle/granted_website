@@ -11,6 +11,7 @@ import GrantBreadcrumbs from '@/components/GrantBreadcrumbs'
 import GrantCTA from '@/components/GrantCTA'
 import GrantFinderCTA from '@/components/GrantFinderCTA'
 import CategoryGrantList from '@/components/CategoryGrantList'
+import TrackedExternalLink from '@/components/TrackedExternalLink'
 import {
   getAllGrants,
   getGrantBySlug,
@@ -226,12 +227,14 @@ function CategoryPage({ category, grants, blogPosts }: { category: GrantCategory
                   We&apos;re adding new {category.name.toLowerCase()} regularly. Check back or start your
                   search with Granted AI.
                 </p>
-                <a
+                <TrackedExternalLink
                   href="https://app.grantedai.com/api/auth/signin?callbackUrl=/overview"
+                  eventName="grant_category_empty_try_free_click"
+                  eventParams={{ category_slug: category.slug }}
                   className="button button-primary mt-8"
                 >
                   Try Granted Free
-                </a>
+                </TrackedExternalLink>
               </div>
             </RevealOnScroll>
           )}
@@ -344,17 +347,21 @@ function GrantDetailPage({ grant, related, blogPosts }: { grant: PublicGrant; re
                   ))}
                 </div>
                 {grant.rfp_url && (
-                  <a
+                  <TrackedExternalLink
                     href={grant.rfp_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    eventName="grant_detail_rfp_click"
+                    eventParams={{
+                      grant_slug: grant.slug,
+                      grant_name: grant.name,
+                      funder: grant.funder,
+                    }}
                     className="inline-flex items-center gap-2 mt-4 text-sm font-semibold text-brand-gold hover:underline"
                   >
                     View Original RFP
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline">
                       <path d="M7 17L17 7M17 7H7M17 7v10" />
                     </svg>
-                  </a>
+                  </TrackedExternalLink>
                 )}
               </section>
             </RevealOnScroll>
