@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import Script from 'next/script'
 import { DM_Sans } from 'next/font/google'
 import ExitIntentPopup from '@/components/ExitIntentPopup'
@@ -57,7 +58,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={`${dmSans.variable} font-sans`}>
-        <AnalyticsTracker />
+        <Suspense fallback={null}>
+          <AnalyticsTracker />
+        </Suspense>
         {/* ── Google Analytics 4 ── */}
         {GA4_ID && (
           <>
