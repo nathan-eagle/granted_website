@@ -15,10 +15,10 @@ const dmSans = DM_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Granted AI — Find Grants & Draft Proposals with AI',
+    default: 'Granted AI — Largest Grants + Funders Database',
     template: '%s | Granted AI',
   },
-  description: 'Search thousands of federal grants, find matching opportunities, and draft proposals with AI. Free grant finder for nonprofits, researchers, and small businesses.',
+  description: 'Search the world\'s largest grants and funders database, find best-fit opportunities, and draft proposals with AI in one platform.',
   metadataBase: new URL('https://grantedai.com'),
   icons: { icon: '/fav.ico' },
   alternates: {
@@ -30,8 +30,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://grantedai.com',
-    title: 'Granted AI — Find Grants & Draft Proposals with AI',
-    description: 'Search thousands of federal grants, find matching opportunities, and draft proposals with AI. Free grant finder for nonprofits, researchers, and small businesses.',
+    title: 'Granted AI — Largest Grants + Funders Database',
+    description: 'Search the world\'s largest grants and funders database, find best-fit opportunities, and draft proposals with AI in one platform.',
     images: [{ url: 'https://grantedai.com/opengraph-image.png', width: 1200, height: 630, alt: 'Granted AI — Draft Grant Proposals in Hours' }],
   },
   twitter: {
@@ -99,7 +99,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               name: 'Granted AI',
               url: 'https://grantedai.com',
               logo: 'https://grantedai.com/fav.ico',
-              description: 'AI-powered grant writing tool that drafts NIH, NSF, EPA, USDA, and DARPA proposals in hours.',
+              description: 'AI platform with the world\'s largest grants and funders database plus proposal drafting workflows.',
               sameAs: [
                 'https://twitter.com/GrantedAI',
                 'https://www.linkedin.com/company/granted-ai',
@@ -116,7 +116,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               '@type': 'WebSite',
               name: 'Granted AI',
               url: 'https://grantedai.com',
-              description: 'AI grant writing tool for researchers, nonprofits, and small businesses.',
+              description: 'Largest grants and funders database with AI-powered proposal drafting for researchers, nonprofits, and small businesses.',
               publisher: { '@type': 'Organization', name: 'Granted AI' },
             }),
           }}

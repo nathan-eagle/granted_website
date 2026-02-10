@@ -9,7 +9,7 @@ import RevealOnScroll from '@/components/RevealOnScroll'
 export const metadata: Metadata = {
   title: 'AI Grant Writing for Researchers — NIH, NSF & Federal Proposals',
   description:
-    'Draft NIH R01, NSF CAREER, and federal research proposals faster with Granted AI. Upload your FOA, get coached through Specific Aims and Research Strategy, and produce a complete first draft.',
+    'Find best-fit research opportunities in the world\'s largest grants and funders database, then draft NIH, NSF, and federal proposals faster with Granted AI.',
   alternates: { canonical: 'https://grantedai.com/for/researchers' },
 }
 
@@ -78,8 +78,8 @@ export default function ResearchersPage() {
                 AI grant writing for researchers &mdash; NIH, NSF & federal proposals
               </h1>
               <p className="body-lg mt-6 text-white/70 max-w-2xl mx-auto">
-                Upload your FOA or program solicitation. Answer coaching questions grounded in your
-                science. Get a complete first draft &mdash; Specific Aims, Research Strategy, and all.
+                Find the right opportunities in the world&apos;s largest grants + funders database,
+                then upload your FOA or solicitation and draft every required section with AI coaching.
               </p>
               <div className="mt-10 flex flex-wrap justify-center gap-4">
                 <CheckoutButton label="Draft Your R01 Free" />
@@ -243,8 +243,8 @@ export default function ResearchersPage() {
           <Container className="py-24 text-center md:py-32 relative z-10">
             <h3 className="heading-lg text-white">Get back to your research</h3>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-white/60">
-              Join thousands of researchers drafting stronger NIH, NSF, and federal proposals
-              with Granted &mdash; and spending less time at the keyboard.
+              Move from opportunity discovery to stronger NIH, NSF, and federal proposals
+              with less time at the keyboard.
             </p>
             <div className="mt-10 flex justify-center gap-4">
               <CheckoutButton label="Draft Your R01 Free" />

@@ -38,8 +38,8 @@ const comparisonRows = [
   },
   {
     feature: 'Grant discovery',
-    granted: 'AI-powered funder and opportunity search',
-    competitor: 'Comprehensive database with smart matching',
+    granted: 'Largest growing grants + funders database with AI fit matching',
+    competitor: 'Strong discovery database with matching and tracking workflows',
   },
   {
     feature: 'Proposal writing',
@@ -71,7 +71,7 @@ const grantedExcels = [
 ]
 
 const competitorExcels = [
-  'Best-in-class grant discovery with a massive funding database',
+  'Strong grant tracking workflows for teams managing many deadlines',
   'Advanced pipeline management for teams tracking dozens of grants',
   'Funder insights and 990 data for foundation research',
   'Team collaboration and deadline management features',
@@ -92,9 +92,8 @@ export default function CompareInstrumentlPage() {
               Granted AI vs. Instrumentl
             </h1>
             <p className="body-lg mx-auto mt-5 max-w-2xl text-slate-200">
-              Two different tools for two different problems. One writes your
-              proposal. The other helps you find the right grant. Many teams use
-              both.
+              Both platforms help with discovery. Granted combines the world&apos;s
+              largest grants + funders database with full AI proposal drafting.
             </p>
           </Container>
         </section>
@@ -200,15 +199,14 @@ export default function CompareInstrumentlPage() {
                   Bottom Line
                 </p>
                 <h2 className="heading-lg text-navy">
-                  Different tools, complementary strengths
+                  Discovery plus drafting, all in one workflow
                 </h2>
                 <p className="body-lg mt-6 text-navy-light">
-                  Instrumentl is the best grant discovery and tracking platform
-                  on the market. But it does not write your proposal for you.
-                  Granted is the best AI grant writing tool available. Many
-                  organizations use Instrumentl to find the right grants, then
-                  use Granted to draft the proposals. The two tools complement
-                  each other.
+                  Instrumentl is strong for grant tracking workflows. Granted
+                  gives teams a larger discovery layer plus full drafting,
+                  coaching, and requirement coverage in one place, so you can
+                  move from opportunity search to submission-ready narrative
+                  without switching tools.
                 </p>
               </div>
             </RevealOnScroll>

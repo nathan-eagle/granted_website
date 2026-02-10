@@ -29,7 +29,7 @@ function useCounter(target: number, duration = 2000, start = false) {
 
 /* ── Stats block ── */
 const STATS = [
-  { value: 500000, suffix: '+', label: 'Successful proposals\nlearned from' },
+  { value: 24, suffix: '/7', label: 'Database updates\nacross grants + funders' },
   { value: 50, suffix: '+', label: 'Specialized writing\nmodels' },
   { value: 12000, suffix: '+', label: 'Proposals drafted\nwith Granted' },
   { value: 40, suffix: '%', label: 'Time saved on\naverage per proposal' },

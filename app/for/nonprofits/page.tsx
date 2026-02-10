@@ -9,7 +9,7 @@ import RevealOnScroll from '@/components/RevealOnScroll'
 export const metadata: Metadata = {
   title: 'AI Grant Writing for Nonprofits — Draft Proposals in Hours',
   description:
-    'Granted AI is the grant writing tool built for nonprofits. Upload your RFP, get coached through every section, and draft federal and foundation proposals in hours instead of weeks.',
+    'Granted helps nonprofits find opportunities in the world\'s largest grants and funders database, then draft stronger proposals with AI coaching.',
   alternates: { canonical: 'https://grantedai.com/for/nonprofits' },
 }
 
@@ -71,8 +71,8 @@ export default function NonprofitsPage() {
                 AI grant writing for nonprofits &mdash; stop losing to bigger budgets
               </h1>
               <p className="body-lg mt-6 text-white/70 max-w-2xl mx-auto">
-                Your mission matters more than your grant writing budget. Granted AI coaches you
-                through every section &mdash; from needs statements to evaluation plans.
+                Your mission matters more than your grant writing budget. Find high-fit funders in
+                the world&apos;s largest grants + funders database, then draft every section with AI coaching.
               </p>
               <div className="mt-10 flex flex-wrap justify-center gap-4">
                 <CheckoutButton label="Draft Your First Nonprofit Grant" />
@@ -234,8 +234,7 @@ export default function NonprofitsPage() {
           <Container className="py-24 text-center md:py-32 relative z-10">
             <h3 className="heading-lg text-white">Your mission deserves funded proposals</h3>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-white/60">
-              Join hundreds of nonprofits using Granted to draft stronger applications,
-              win more funding, and spend less time writing.
+              Move from funder discovery to submission-ready applications in one platform.
             </p>
             <div className="mt-10 flex justify-center gap-4">
               <CheckoutButton label="Draft Your First Nonprofit Grant" />

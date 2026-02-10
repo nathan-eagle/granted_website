@@ -15,7 +15,7 @@ const PILLARS = [
     ),
     title: 'Discover',
     heading: 'Find grants matched to your org and research focus',
-    body: 'Search thousands of federal grants from NIH, NSF, EPA, USDA, DARPA, and more. Filter by agency, eligibility, and deadline to find the right fit fast.',
+    body: 'Search the world\'s largest grants and funders database. Filter by agency, eligibility, and deadline to find the right fit fast.',
     cta: { label: 'Browse Grants', href: '/grants' },
   },
   {

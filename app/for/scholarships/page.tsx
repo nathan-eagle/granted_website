@@ -9,7 +9,7 @@ import RevealOnScroll from '@/components/RevealOnScroll'
 export const metadata: Metadata = {
   title: 'AI Scholarship & Fellowship Application Writer',
   description:
-    'Write stronger scholarship essays and fellowship applications with Granted AI. From NSF GRFP to Fulbright to institutional scholarships, get coached through personal statements, research proposals, and impact essays.',
+    'Find scholarships and fellowships in the world\'s largest grants and funders database, then write stronger applications with Granted AI coaching.',
   alternates: { canonical: 'https://grantedai.com/for/scholarships' },
 }
 
@@ -86,8 +86,8 @@ export default function ScholarshipsPage() {
                 AI scholarship &amp; fellowship writer &mdash; applications that stand out
               </h1>
               <p className="body-lg mt-6 text-white/70 max-w-2xl mx-auto">
-                From NSF GRFP to Fulbright to institutional scholarships, Granted coaches you through
-                personal statements, research proposals, and impact essays.
+                Discover fellowships and scholarships in the world&apos;s largest grants + funders
+                database, then draft personal statements, research proposals, and impact essays with AI coaching.
               </p>
               <div className="mt-10 flex flex-wrap justify-center gap-4">
                 <CheckoutButton label="Start Your Application Free" />
@@ -230,7 +230,7 @@ export default function ScholarshipsPage() {
             <h3 className="heading-lg text-white">Your next chapter starts with a strong application</h3>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-white/60">
               Whether you are applying for the NSF GRFP, a Fulbright, or a departmental fellowship,
-              Granted helps you write the application that gets you funded.
+              Granted helps you find the right opportunity and write the application that gets you funded.
             </p>
             <div className="mt-10 flex justify-center gap-4">
               <CheckoutButton label="Start Your Application Free" />

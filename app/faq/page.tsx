@@ -8,14 +8,18 @@ import CheckoutButton from '@/components/CheckoutButton'
 export const metadata: Metadata = {
   title: 'FAQ — Granted AI Grant Writing Tool',
   description:
-    'Common questions about Granted AI: how it works, pricing, data security, originality, and which grants it supports.',
+    'Common questions about Granted: the largest grants + funders database, discovery-to-draft workflow, pricing, security, and data use.',
   alternates: { canonical: 'https://grantedai.com/faq' },
 }
 
 const faqs = [
   {
     q: 'How does Granted work?',
-    a: 'You start by uploading your RFP or grant guidelines. Our AI reads the full document, identifies every required section, and maps out exactly what the funder is asking for. Then an Grant Writing Coach walks you through targeted questions about your organization, your project, and your goals. As you answer, Granted tracks your coverage of the RFP requirements in real time and drafts each section individually, grounded entirely in your specific responses and the funder&apos;s criteria. The result is a complete, tailored proposal -- not a generic template.',
+    a: 'Most teams start in Granted by searching the world&apos;s largest grants and funders database to find best-fit opportunities. Once you choose a target opportunity, upload your RFP or grant guidelines. Our AI reads the full document, identifies every required section, and maps out exactly what the funder is asking for. Then a Grant Writing Coach walks you through targeted questions about your organization, your project, and your goals. As you answer, Granted tracks your coverage of the RFP requirements in real time and drafts each section individually, grounded in your responses and the funder&apos;s criteria. The result is a complete, tailored proposal -- not a generic template.',
+  },
+  {
+    q: 'How large is your grants and funders database?',
+    a: 'Granted is building the world&apos;s largest grants and funders database, and it is continuously updated. We aggregate opportunities across federal, foundation, and corporate sources so you can discover, evaluate, and draft in one workflow.',
   },
   {
     q: "What\u2019s wrong with the way grant proposals are written today?",
@@ -95,7 +99,7 @@ export default function FAQPage() {
       <main>
         <section className="bg-navy text-white">
           <Container className="py-28 text-center md:py-36">
-            <h1 className="heading-xl text-white">Granted | FAQs</h1>
+            <h1 className="heading-xl text-white">Granted FAQs</h1>
           </Container>
         </section>
 
@@ -128,7 +132,7 @@ export default function FAQPage() {
           <Container className="py-24 text-center md:py-32">
             <h3 className="heading-lg text-white">Start winning grants today</h3>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-white/60">
-              Join thousands of researchers and nonprofits drafting stronger proposals with Granted.
+              Find best-fit opportunities and draft stronger proposals in one platform.
             </p>
             <div className="mt-10">
               <CheckoutButton label="Draft Your First Proposal" />

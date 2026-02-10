@@ -37,7 +37,7 @@ const softwareAppLd = {
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web',
   url: 'https://grantedai.com',
-  description: 'Search thousands of federal grants, find matching opportunities, and draft proposals with AI. Free grant finder for nonprofits, researchers, and small businesses.',
+  description: 'Search the world\'s largest grants and funders database, find best-fit opportunities, and draft proposals with AI in one platform.',
   offers: {
     '@type': 'Offer',
     price: '29',
@@ -67,10 +67,10 @@ export default async function HomePage() {
               {/* Left: copy + search */}
               <div>
                 <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow/80 mb-6">
-                  From Grant Discovery to Grant Submission
+                  The World&apos;s Largest Grants + Funders Database
                 </p>
                 <h1 className="heading-display">
-                  Find the right funding.
+                  Find the right funding. Write the winning proposal.
                 </h1>
                 <HeroSearchBar className="mt-8" />
                 <p className="mt-5 text-sm text-white/40">
@@ -182,10 +182,10 @@ export default async function HomePage() {
         {/* ── Final CTA ── */}
         <section className="bg-navy text-white noise-overlay overflow-hidden section-angle-top">
           <Container className="py-24 text-center md:py-32 relative z-10">
-            <h3 className="heading-lg text-white">Find your next grant in 30 seconds.</h3>
+            <h3 className="heading-lg text-white">From discovery to draft, in one platform.</h3>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-white/70">
-              Join thousands of researchers, nonprofits, and community organizations
-              discovering grants and drafting stronger proposals with Granted.
+              Join researchers, nonprofits, and community organizations moving
+              from search to submission faster.
             </p>
             <div className="mt-10">
               <ButtonLink href="/find-grants" className="button button-primary cta-shimmer">

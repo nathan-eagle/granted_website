@@ -9,18 +9,18 @@ import { ButtonLink } from '@/components/ButtonLink'
 
 export const metadata: Metadata = {
   title: 'Find Grants — Free Grant Search Engine | Granted',
-  description: 'Search thousands of federal, foundation, and corporate grants. Enter your focus area and instantly discover matching funding opportunities for your organization.',
+  description: 'Search the world\'s largest grants and funders database. Enter your focus area and instantly discover best-fit funding opportunities for your organization.',
   alternates: { canonical: 'https://grantedai.com/find-grants' },
   openGraph: {
     title: 'Find Grants — Free Grant Search Engine | Granted',
-    description: 'Search thousands of federal, foundation, and corporate grants. Enter your focus area and instantly discover matching funding opportunities.',
+    description: 'Search the world\'s largest grants and funders database. Enter your focus area and instantly discover best-fit funding opportunities.',
     url: 'https://grantedai.com/find-grants',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Find Grants — Free Grant Search Engine | Granted',
-    description: 'Search thousands of federal, foundation, and corporate grants. Enter your focus area and discover matching funding opportunities.',
+    description: 'Search the world\'s largest grants and funders database. Enter your focus area and discover best-fit funding opportunities.',
   },
 }
 
@@ -56,14 +56,14 @@ export default function FindGrantsPage() {
               <div className="hero-accent-circle w-[140px] h-[140px] bottom-8 -left-20 hidden lg:block" />
 
               <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow/80 mb-4">
-                Free Search Tool
+                Largest Grants + Funders Database
               </p>
               <h1 className="heading-xl text-white">
-                Find grants for your organization
+                Find high-fit grants for your organization
               </h1>
               <p className="body-lg mt-6 text-white/60 max-w-2xl mx-auto">
-                Search federal, foundation, and corporate funding opportunities.
-                Tell us your focus area and we will find the grants that match.
+                Search federal, foundation, and corporate opportunities from the
+                world&apos;s largest grants and funders database.
               </p>
             </div>
           </Container>

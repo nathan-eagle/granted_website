@@ -9,7 +9,7 @@ import Image from 'next/image'
 export const metadata: Metadata = {
   title: 'Features — AI Grant Writing Coach, RFP Analysis & Section Drafting',
   description:
-    'See how Granted AI works: RFP upload and analysis, AI coaching Q&A, section-by-section drafting, and real-time requirement tracking.',
+    'See how Granted works end-to-end: search the largest grants and funders database, run RFP analysis, and draft section-by-section proposals with AI coaching.',
   alternates: { canonical: 'https://grantedai.com/features' },
 }
 
@@ -104,8 +104,8 @@ export default function FeaturesPage() {
             <p className="text-sm uppercase tracking-[0.35em] text-white/70">Features</p>
             <h1 className="heading-xl mt-6 text-white">AI Grant Writing Features</h1>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-slate-200">
-              Granted ensures it&apos;s the quality of your ideas that counts, not your English. 50+ specialized
-              writing models, grant writing coaching, and real-time coverage tracking built specifically for grant proposals.
+              Find opportunities in the world&apos;s largest grants + funders database, then move from RFP analysis
+              to complete drafts with 50+ specialized models and real-time coverage tracking.
             </p>
             <div className="mt-10 flex justify-center gap-4">
               <CheckoutButton label="Draft Your First Proposal" />
@@ -197,7 +197,7 @@ export default function FeaturesPage() {
           <Container className="rounded-[40px] border border-white/10 bg-gradient-to-r from-[#0F172A] via-black to-[#0F172A] px-10 py-16 text-center shadow-[0_40px_100px_rgba(15,23,42,0.6)] md:px-20 md:py-20">
             <h3 className="heading-lg text-white">Start winning grants today</h3>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-slate-200">
-              Join thousands of researchers and nonprofits drafting stronger proposals with Granted.
+              Move from discovery to submission-ready drafts in one platform.
             </p>
             <div className="mt-10 flex justify-center gap-4">
               <CheckoutButton label="Draft Your First Proposal" />

@@ -9,7 +9,7 @@ import RevealOnScroll from '@/components/RevealOnScroll'
 export const metadata: Metadata = {
   title: 'AI SBIR Proposal Writer — Phase I & Phase II Drafting Tool',
   description:
-    'Write SBIR Phase I and Phase II proposals faster with Granted AI. Upload your BAA or solicitation topic, get coached through commercialization and technical objectives, and draft every required section.',
+    'Find high-fit SBIR opportunities in the world\'s largest grants and funders database, then draft Phase I and Phase II proposals faster with Granted AI.',
   alternates: { canonical: 'https://grantedai.com/for/sbir' },
 }
 
@@ -77,8 +77,8 @@ export default function SbirPage() {
                 AI SBIR proposal writer &mdash; Phase I drafts in days, not months
               </h1>
               <p className="body-lg mt-6 text-white/70 max-w-2xl mx-auto">
-                Granted reads your BAA or solicitation topic, coaches you through commercialization
-                and technical objectives, and drafts every required section.
+                Find the right SBIR topics in the world&apos;s largest grants + funders database,
+                then draft every required section with commercialization and technical coaching.
               </p>
               <div className="mt-10 flex flex-wrap justify-center gap-4">
                 <CheckoutButton label="Draft Your SBIR Proposal Free" />
@@ -237,8 +237,8 @@ export default function SbirPage() {
           <Container className="py-24 text-center md:py-32 relative z-10">
             <h3 className="heading-lg text-white">Win non-dilutive funding for your startup</h3>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-white/60">
-              Thousands of startups use SBIR funding to de-risk their technology without giving up
-              equity. Granted helps you write the proposal that gets you there.
+              Move from opportunity search to submission-ready SBIR proposals
+              without switching tools.
             </p>
             <div className="mt-10 flex justify-center gap-4">
               <CheckoutButton label="Draft Your SBIR Proposal Free" />
