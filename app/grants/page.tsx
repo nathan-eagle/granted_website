@@ -6,19 +6,19 @@ import Container from '@/components/Container'
 import RevealOnScroll from '@/components/RevealOnScroll'
 import GrantCard from '@/components/GrantCard'
 import GrantCTA from '@/components/GrantCTA'
-import { getAllGrants, GRANT_CATEGORIES } from '@/lib/grants'
+import { getAllGrants, getClosingSoonGrants, getNewGrants, GRANT_CATEGORIES, GRANT_US_STATES } from '@/lib/grants'
 
 export const revalidate = 86400
 
 export const metadata: Metadata = {
-  title: 'Browse Federal Grants 2026 | Granted',
+  title: 'Grant Database | Granted',
   description:
-    'Find federal grants from NIH, NSF, EPA, USDA, DARPA, NOAA, and more. Browse active grant opportunities and start your AI-powered proposal today.',
+    'Browse the world\'s largest continuously updated grant database. Explore active opportunities and start your AI-powered proposal today.',
   alternates: { canonical: 'https://grantedai.com/grants' },
   openGraph: {
-    title: 'Browse Federal Grants 2026 | Granted',
+    title: 'Grant Database | Granted',
     description:
-      'Find federal grants from NIH, NSF, EPA, USDA, DARPA, NOAA, and more.',
+      'Browse the world\'s largest continuously updated grant database.',
     url: 'https://grantedai.com/grants',
     siteName: 'Granted AI',
     type: 'website',
@@ -38,7 +38,11 @@ const audienceCategories = GRANT_CATEGORIES.filter((c) => c.type === 'audience')
 const topicCategories = GRANT_CATEGORIES.filter((c) => c.type === 'topic')
 
 export default async function GrantsIndex() {
-  const grants = await getAllGrants().catch(() => [])
+  const [grants, closingSoon, newGrants] = await Promise.all([
+    getAllGrants().catch(() => []),
+    getClosingSoonGrants(30).catch(() => []),
+    getNewGrants().catch(() => []),
+  ])
   const activeGrants = grants.filter((g) => g.status === 'active')
   const upcomingGrants = grants.filter((g) => g.status === 'upcoming')
 
@@ -54,11 +58,12 @@ export default async function GrantsIndex() {
                 Grant Discovery
               </p>
               <h1 className="heading-xl text-white max-w-2xl">
-                Browse Federal Grants
+                Grant Database
               </h1>
               <p className="body-lg mt-4 text-white/50 max-w-xl">
-                Explore active funding opportunities from top federal agencies. Find
-                the right grant and start your AI-powered proposal.
+                Explore active funding opportunities from across agencies and
+                funder types. Find the right grant and start your AI-powered
+                proposal.
               </p>
             </RevealOnScroll>
           </Container>
@@ -110,8 +115,60 @@ export default async function GrantsIndex() {
                   </Link>
                 ))}
               </div>
+              <h2 className="text-xs font-semibold uppercase tracking-[0.15em] text-navy-light/50 mb-4 mt-6">
+                By State
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {GRANT_US_STATES.map((s) => (
+                  <Link
+                    key={s.slug}
+                    href={`/grants/state/${s.slug}`}
+                    className="px-3 py-1.5 rounded-full text-xs font-medium bg-white border border-navy/10 text-navy hover:border-brand-yellow hover:bg-brand-yellow/5 transition-colors"
+                  >
+                    {s.abbreviation}
+                  </Link>
+                ))}
+              </div>
             </div>
           </RevealOnScroll>
+
+          {/* ── Closing soon ── */}
+          {closingSoon.length > 0 && (
+            <RevealOnScroll delay={50}>
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="heading-lg text-navy">Closing Soon</h2>
+                  <Link href="/grants/closing-soon" className="text-sm font-semibold text-brand-gold hover:underline">
+                    View all
+                  </Link>
+                </div>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {closingSoon.slice(0, 3).map((g) => (
+                    <GrantCard key={g.id} grant={g} />
+                  ))}
+                </div>
+              </div>
+            </RevealOnScroll>
+          )}
+
+          {/* ── New this month ── */}
+          {newGrants.length > 0 && (
+            <RevealOnScroll delay={75}>
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="heading-lg text-navy">New This Month</h2>
+                  <Link href="/grants/new" className="text-sm font-semibold text-brand-gold hover:underline">
+                    View all
+                  </Link>
+                </div>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {newGrants.slice(0, 3).map((g) => (
+                    <GrantCard key={g.id} grant={g} />
+                  ))}
+                </div>
+              </div>
+            </RevealOnScroll>
+          )}
 
           {/* ── Active grants grid ── */}
           {activeGrants.length > 0 && (
@@ -141,10 +198,10 @@ export default async function GrantsIndex() {
           {grants.length === 0 && (
             <RevealOnScroll>
               <div className="text-center py-20">
-                <p className="heading-md text-navy/60">Grants coming soon</p>
+                <p className="heading-md text-navy/60">No grants matched right now</p>
                 <p className="body-lg text-navy-light/50 mt-3 max-w-md mx-auto">
-                  We&apos;re populating our grant database. In the meantime, start your
-                  proposal with Granted AI.
+                  New grants are added continuously. Try a broader search, or
+                  start drafting your next proposal with Granted AI.
                 </p>
               </div>
             </RevealOnScroll>

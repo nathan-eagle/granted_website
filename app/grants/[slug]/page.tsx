@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
@@ -19,7 +20,9 @@ import {
   getCategoryBySlug,
   getGrantsForCategory,
   isGrantSeoReady,
+  SEO_FRESHNESS_DAYS,
   GRANT_CATEGORIES,
+  GRANT_US_STATES,
   type PublicGrant,
   type GrantCategory,
 } from '@/lib/grants'
@@ -164,9 +167,48 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const grant = await getGrantBySlug(params.slug).catch(() => null)
   if (!grant) return {}
-  if (!isGrantSeoReady(grant)) {
+
+  const seoReady = isGrantSeoReady(grant)
+
+  if (!seoReady) {
+    // Closed with deadline > 90 days in the past → full noindex
+    const isLongClosed =
+      grant.status === 'closed' &&
+      grant.deadline &&
+      Date.now() - Date.parse(grant.deadline) > SEO_FRESHNESS_DAYS * 24 * 60 * 60 * 1000
+
+    if (isLongClosed) {
+      return { robots: { index: false, follow: false } }
+    }
+
+    // Stale but not long-closed → generate metadata, noindex but follow links
+    const year = grant.deadline ? new Date(grant.deadline).getFullYear() : 2026
+    const title = `${grant.name} (${year})`
+    const description = [
+      grant.summary?.slice(0, 120),
+      grant.amount ? `Up to ${grant.amount}.` : null,
+      grant.deadline
+        ? `Deadline: ${new Date(grant.deadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.`
+        : null,
+    ]
+      .filter(Boolean)
+      .join(' ')
+    const url = `https://grantedai.com/grants/${grant.slug}`
+
     return {
-      robots: { index: false, follow: false },
+      title: `${title} | Granted`,
+      description,
+      alternates: { canonical: url },
+      robots: { index: false, follow: true },
+      openGraph: {
+        title,
+        description,
+        url,
+        siteName: 'Granted AI',
+        type: 'article',
+        images: [{ url: 'https://grantedai.com/opengraph-image.png', width: 1200, height: 630, alt: title }],
+      },
+      twitter: { card: 'summary_large_image', title, description },
     }
   }
 
@@ -222,10 +264,10 @@ function CategoryPage({ category, grants, blogPosts }: { category: GrantCategory
           ) : (
             <RevealOnScroll>
               <div className="text-center py-20">
-                <p className="heading-md text-navy/60">More grants coming soon</p>
+                <p className="heading-md text-navy/60">No grants matched this filter yet</p>
                 <p className="body-lg text-navy-light/50 mt-3 max-w-md mx-auto">
-                  We&apos;re adding new {category.name.toLowerCase()} regularly. Check back or start your
-                  search with Granted AI.
+                  New grants are added continuously. Try related filters or
+                  start your search with Granted AI.
                 </p>
                 <TrackedExternalLink
                   href="https://app.grantedai.com/api/auth/signin?callbackUrl=/overview"
@@ -270,7 +312,7 @@ function CategoryPage({ category, grants, blogPosts }: { category: GrantCategory
 
 /* ── Grant detail layout ── */
 
-function GrantDetailPage({ grant, related, blogPosts }: { grant: PublicGrant; related: PublicGrant[]; blogPosts: { slug: string; frontmatter: PostFrontmatter }[] }) {
+function GrantDetailPage({ grant, related, blogPosts, stale }: { grant: PublicGrant; related: PublicGrant[]; blogPosts: { slug: string; frontmatter: PostFrontmatter }[]; stale?: boolean }) {
   const year = grant.deadline ? new Date(grant.deadline).getFullYear() : 2026
   const url = `https://grantedai.com/grants/${grant.slug}`
   const faqs = buildGrantFaq(grant)
@@ -320,6 +362,22 @@ function GrantDetailPage({ grant, related, blogPosts }: { grant: PublicGrant; re
               ]}
             />
           </RevealOnScroll>
+
+          {stale && (
+            <RevealOnScroll delay={40}>
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 mb-6">
+                <p className="text-sm font-medium text-amber-800">
+                  This listing may be outdated. Verify details at the official source before applying.
+                </p>
+                <a
+                  href={`/find-grants?q=${encodeURIComponent(grant.funder + ' ' + grant.name.split(' ').slice(0, 3).join(' '))}`}
+                  className="inline-block mt-2 text-sm font-semibold text-amber-800 underline hover:text-amber-900"
+                >
+                  Find similar grants
+                </a>
+              </div>
+            </RevealOnScroll>
+          )}
 
           <RevealOnScroll delay={80}>
             <div className="flex flex-wrap items-center gap-3 mb-2">
@@ -415,6 +473,30 @@ function GrantDetailPage({ grant, related, blogPosts }: { grant: PublicGrant; re
             </section>
           </RevealOnScroll>
 
+          {/* State and category cross-links */}
+          {(grant.target_states?.length || false) && (
+            <RevealOnScroll delay={380}>
+              <section className="mt-12">
+                <h2 className="text-sm font-semibold text-navy-light/60 mb-3">Browse grants by state</h2>
+                <div className="flex flex-wrap gap-2">
+                  {grant.target_states!.map((stateName) => {
+                    const stateObj = GRANT_US_STATES.find((s) => s.name === stateName)
+                    if (!stateObj) return null
+                    return (
+                      <Link
+                        key={stateObj.slug}
+                        href={`/grants/state/${stateObj.slug}`}
+                        className="px-3 py-1.5 rounded-full text-xs font-medium bg-white border border-navy/10 text-navy hover:border-brand-yellow hover:bg-brand-yellow/5 transition-colors"
+                      >
+                        Grants in {stateName}
+                      </Link>
+                    )
+                  })}
+                </div>
+              </section>
+            </RevealOnScroll>
+          )}
+
           <RevealOnScroll delay={400}>
             <div className="mt-16">
               <GrantCTA />
@@ -469,15 +551,13 @@ export default async function GrantSlugPage({ params }: Props) {
   // 2. Check individual grant
   const grant = await getGrantBySlug(params.slug).catch(() => null)
   if (grant) {
-    if (!isGrantSeoReady(grant)) {
-      return notFound()
-    }
+    const stale = !isGrantSeoReady(grant)
     const [related, blogPosts] = await Promise.all([
       getRelatedGrants(grant.funder, grant.slug, 3).catch(() => []),
       getRelatedBlogPosts(grant.funder, 3).catch(() => []),
     ])
     const readyRelated = related.filter((g) => isGrantSeoReady(g))
-    return <GrantDetailPage grant={grant} related={readyRelated} blogPosts={blogPosts} />
+    return <GrantDetailPage grant={grant} related={readyRelated} blogPosts={blogPosts} stale={stale} />
   }
 
   // 3. Not found

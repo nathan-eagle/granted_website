@@ -19,10 +19,11 @@ export type PublicGrant = {
   last_verified_at: string | null
   created_at: string
   updated_at: string
+  target_states?: string[]
 }
 
 export const SEO_SUMMARY_MIN_WORDS = 300
-export const SEO_FRESHNESS_DAYS = 30
+export const SEO_FRESHNESS_DAYS = 90
 
 function wordCount(value: string | null | undefined): number {
   if (!value) return 0
@@ -105,6 +106,118 @@ export async function getRelatedGrants(
     .neq('slug', excludeSlug)
     .order('deadline', { ascending: true, nullsFirst: false })
     .limit(limit)
+  if (error) throw error
+  return data ?? []
+}
+
+/* ── State config ── */
+
+export type USState = {
+  slug: string
+  name: string
+  abbreviation: string
+}
+
+export const GRANT_US_STATES: USState[] = [
+  { slug: 'alabama', name: 'Alabama', abbreviation: 'AL' },
+  { slug: 'alaska', name: 'Alaska', abbreviation: 'AK' },
+  { slug: 'arizona', name: 'Arizona', abbreviation: 'AZ' },
+  { slug: 'arkansas', name: 'Arkansas', abbreviation: 'AR' },
+  { slug: 'california', name: 'California', abbreviation: 'CA' },
+  { slug: 'colorado', name: 'Colorado', abbreviation: 'CO' },
+  { slug: 'connecticut', name: 'Connecticut', abbreviation: 'CT' },
+  { slug: 'delaware', name: 'Delaware', abbreviation: 'DE' },
+  { slug: 'florida', name: 'Florida', abbreviation: 'FL' },
+  { slug: 'georgia', name: 'Georgia', abbreviation: 'GA' },
+  { slug: 'hawaii', name: 'Hawaii', abbreviation: 'HI' },
+  { slug: 'idaho', name: 'Idaho', abbreviation: 'ID' },
+  { slug: 'illinois', name: 'Illinois', abbreviation: 'IL' },
+  { slug: 'indiana', name: 'Indiana', abbreviation: 'IN' },
+  { slug: 'iowa', name: 'Iowa', abbreviation: 'IA' },
+  { slug: 'kansas', name: 'Kansas', abbreviation: 'KS' },
+  { slug: 'kentucky', name: 'Kentucky', abbreviation: 'KY' },
+  { slug: 'louisiana', name: 'Louisiana', abbreviation: 'LA' },
+  { slug: 'maine', name: 'Maine', abbreviation: 'ME' },
+  { slug: 'maryland', name: 'Maryland', abbreviation: 'MD' },
+  { slug: 'massachusetts', name: 'Massachusetts', abbreviation: 'MA' },
+  { slug: 'michigan', name: 'Michigan', abbreviation: 'MI' },
+  { slug: 'minnesota', name: 'Minnesota', abbreviation: 'MN' },
+  { slug: 'mississippi', name: 'Mississippi', abbreviation: 'MS' },
+  { slug: 'missouri', name: 'Missouri', abbreviation: 'MO' },
+  { slug: 'montana', name: 'Montana', abbreviation: 'MT' },
+  { slug: 'nebraska', name: 'Nebraska', abbreviation: 'NE' },
+  { slug: 'nevada', name: 'Nevada', abbreviation: 'NV' },
+  { slug: 'new-hampshire', name: 'New Hampshire', abbreviation: 'NH' },
+  { slug: 'new-jersey', name: 'New Jersey', abbreviation: 'NJ' },
+  { slug: 'new-mexico', name: 'New Mexico', abbreviation: 'NM' },
+  { slug: 'new-york', name: 'New York', abbreviation: 'NY' },
+  { slug: 'north-carolina', name: 'North Carolina', abbreviation: 'NC' },
+  { slug: 'north-dakota', name: 'North Dakota', abbreviation: 'ND' },
+  { slug: 'ohio', name: 'Ohio', abbreviation: 'OH' },
+  { slug: 'oklahoma', name: 'Oklahoma', abbreviation: 'OK' },
+  { slug: 'oregon', name: 'Oregon', abbreviation: 'OR' },
+  { slug: 'pennsylvania', name: 'Pennsylvania', abbreviation: 'PA' },
+  { slug: 'rhode-island', name: 'Rhode Island', abbreviation: 'RI' },
+  { slug: 'south-carolina', name: 'South Carolina', abbreviation: 'SC' },
+  { slug: 'south-dakota', name: 'South Dakota', abbreviation: 'SD' },
+  { slug: 'tennessee', name: 'Tennessee', abbreviation: 'TN' },
+  { slug: 'texas', name: 'Texas', abbreviation: 'TX' },
+  { slug: 'utah', name: 'Utah', abbreviation: 'UT' },
+  { slug: 'vermont', name: 'Vermont', abbreviation: 'VT' },
+  { slug: 'virginia', name: 'Virginia', abbreviation: 'VA' },
+  { slug: 'washington', name: 'Washington', abbreviation: 'WA' },
+  { slug: 'west-virginia', name: 'West Virginia', abbreviation: 'WV' },
+  { slug: 'wisconsin', name: 'Wisconsin', abbreviation: 'WI' },
+  { slug: 'wyoming', name: 'Wyoming', abbreviation: 'WY' },
+  { slug: 'district-of-columbia', name: 'District of Columbia', abbreviation: 'DC' },
+]
+
+export function getGrantStateBySlug(slug: string): USState | undefined {
+  return GRANT_US_STATES.find((s) => s.slug === slug)
+}
+
+export async function getGrantsByState(stateName: string): Promise<PublicGrant[]> {
+  if (!supabase) return []
+  // Try target_states array first, fall back to eligibility text ILIKE
+  const { data: byArray, error: arrErr } = await supabase
+    .from('public_grants')
+    .select('*')
+    .contains('target_states', [stateName])
+    .order('deadline', { ascending: true, nullsFirst: false })
+  if (!arrErr && byArray && byArray.length > 0) return byArray
+
+  const { data, error } = await supabase
+    .from('public_grants')
+    .select('*')
+    .ilike('eligibility', `%${stateName}%`)
+    .order('deadline', { ascending: true, nullsFirst: false })
+  if (error) throw error
+  return data ?? []
+}
+
+export async function getClosingSoonGrants(days = 30): Promise<PublicGrant[]> {
+  if (!supabase) return []
+  const now = new Date().toISOString()
+  const future = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString()
+  const { data, error } = await supabase
+    .from('public_grants')
+    .select('*')
+    .eq('status', 'active')
+    .gte('deadline', now)
+    .lte('deadline', future)
+    .order('deadline', { ascending: true })
+  if (error) throw error
+  return data ?? []
+}
+
+export async function getNewGrants(sinceDate?: Date): Promise<PublicGrant[]> {
+  if (!supabase) return []
+  const since = sinceDate ?? new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+  const { data, error } = await supabase
+    .from('public_grants')
+    .select('*')
+    .gte('created_at', since.toISOString())
+    .order('created_at', { ascending: false })
   if (error) throw error
   return data ?? []
 }
@@ -237,6 +350,70 @@ export const GRANT_CATEGORIES: GrantCategory[] = [
     type: 'topic',
     topicKeywords: ['clean energy', 'renewable', 'energy efficiency', 'decarbonization', 'climate', 'solar'],
     gradient: 'blog-header-noaa',
+  },
+  {
+    slug: 'health-research',
+    name: 'Health Research Grants',
+    description: 'Federal and foundation grants for biomedical research, public health initiatives, clinical trials, and disease prevention programs advancing health equity.',
+    type: 'topic',
+    topicKeywords: ['health research', 'biomedical', 'public health', 'clinical trial', 'disease prevention', 'health equity'],
+    gradient: 'blog-header-nih',
+  },
+  {
+    slug: 'education',
+    name: 'Education Grants',
+    description: 'Funding for K-12 schools, higher education institutions, and educational nonprofits focused on STEM education, literacy, and student success.',
+    type: 'topic',
+    topicKeywords: ['education', 'K-12', 'higher education', 'STEM education', 'literacy', 'student success', 'educational equity'],
+    gradient: 'blog-header-tips',
+  },
+  {
+    slug: 'workforce-development',
+    name: 'Workforce Development Grants',
+    description: 'Grant opportunities for job training programs, apprenticeships, career pathways, and skills development initiatives that strengthen local employment.',
+    type: 'topic',
+    topicKeywords: ['workforce development', 'job training', 'apprenticeship', 'career pathways', 'skills development', 'employment'],
+    gradient: 'blog-header-sbir',
+  },
+  {
+    slug: 'housing',
+    name: 'Housing Grants',
+    description: 'Federal and state grants supporting affordable housing construction, homelessness prevention, community development, and fair housing enforcement.',
+    type: 'topic',
+    topicKeywords: ['housing', 'affordable housing', 'homelessness', 'community development', 'fair housing', 'housing assistance'],
+    gradient: 'blog-header-darpa',
+  },
+  {
+    slug: 'technology-innovation',
+    name: 'Technology & Innovation Grants',
+    description: 'Grants for technology research and development, including artificial intelligence, cybersecurity, advanced manufacturing, and digital infrastructure.',
+    type: 'topic',
+    topicKeywords: ['technology', 'innovation', 'artificial intelligence', 'cybersecurity', 'advanced manufacturing', 'digital'],
+    gradient: 'blog-header-nsf',
+  },
+  {
+    slug: 'marine-science',
+    name: 'Marine Science Grants',
+    description: 'Funding for ocean and coastal research, fisheries management, marine debris removal, sea grant programs, and marine conservation efforts.',
+    type: 'topic',
+    topicKeywords: ['marine', 'ocean', 'coastal', 'fisheries', 'marine debris', 'sea grant', 'marine conservation'],
+    gradient: 'blog-header-noaa',
+  },
+  {
+    slug: 'rural-development',
+    name: 'Rural Development Grants',
+    description: 'Grants for rural communities, agricultural programs, farm operations, rural health services, and critical infrastructure in underserved areas.',
+    type: 'topic',
+    topicKeywords: ['rural', 'agriculture', 'farm', 'rural community', 'rural health', 'rural infrastructure'],
+    gradient: 'blog-header-usda',
+  },
+  {
+    slug: 'public-safety',
+    name: 'Public Safety Grants',
+    description: 'Federal grants for emergency management, law enforcement programs, fire prevention, disaster preparedness, and homeland security initiatives.',
+    type: 'topic',
+    topicKeywords: ['public safety', 'emergency management', 'law enforcement', 'fire prevention', 'disaster preparedness', 'homeland security'],
+    gradient: 'blog-header-darpa',
   },
 ]
 

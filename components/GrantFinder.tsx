@@ -43,8 +43,31 @@ interface Opportunity {
   rfp_url?: string
   google_url?: string
   verified?: boolean
+  source_provider?: string
   slug?: string
+  match_reasons?: string[]
+  last_verified_at?: string
+  staleness_bucket?: string
+  quality_score?: number
 }
+
+const SOURCE_LABELS: Record<string, string> = {
+  grants_gov: 'Grants.gov',
+  sam_assistance: 'SAM.gov',
+  nih_guide: 'NIH',
+  nsf_funding: 'NSF',
+  nih_weekly_index: 'NIH',
+  nsf_upcoming: 'NSF',
+}
+
+const OFFICIAL_SOURCES = new Set([
+  'grants_gov',
+  'sam_assistance',
+  'nih_guide',
+  'nsf_funding',
+  'nih_weekly_index',
+  'nsf_upcoming',
+])
 
 type Phase = 'form' | 'loading' | 'results'
 const APPLY_CALLBACK_PATH = '/opportunities'
@@ -72,6 +95,16 @@ function setUnlockedCookie() {
   document.cookie = 'gf_unlocked=1; max-age=2592000; path=/; SameSite=Lax'
 }
 
+function relativeTime(isoDate: string): string {
+  const ms = Date.now() - Date.parse(isoDate)
+  const days = Math.floor(ms / (1000 * 60 * 60 * 24))
+  if (days < 1) return 'today'
+  if (days === 1) return 'yesterday'
+  if (days < 7) return `${days} days ago`
+  if (days < 30) return `${Math.floor(days / 7)} weeks ago`
+  return `${Math.floor(days / 30)} months ago`
+}
+
 function buildApplyUrl(opportunity: Opportunity): string {
   const grantName = encodeURIComponent(opportunity.name)
   const callback = encodeURIComponent(`${APPLY_CALLBACK_PATH}?source=public-grant-finder&grant=${grantName}`)
@@ -96,6 +129,7 @@ export default function GrantFinder() {
   const [emailStatus, setEmailStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [gateRequired, setGateRequired] = useState(false)
   const [broadened, setBroadened] = useState(false)
+  const [searchSaved, setSearchSaved] = useState(false)
 
   const searchParams = useSearchParams()
   const autoSearchedQueryRef = useRef<string | null>(null)
@@ -294,6 +328,7 @@ export default function GrantFinder() {
         setEmailStatus('success')
         setUnlocked(true)
         setUnlockedCookie()
+        document.cookie = `gf_email=${encodeURIComponent(email)}; max-age=2592000; path=/; SameSite=Lax`
         setGateRequired(false)
         trackEvent('grant_finder_email_success', {
           org_type: orgType || 'any',
@@ -311,6 +346,32 @@ export default function GrantFinder() {
     }
   }
 
+  const handleSaveSearch = async () => {
+    const emailValue = email || (document.cookie.match(/gf_email=([^;]+)/)?.[1] ?? '')
+    if (!emailValue) {
+      document.getElementById('email-gate')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      return
+    }
+    try {
+      const res = await fetch('/api/searches/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: emailValue,
+          search_params: { org_type: orgType, focus_area: focusArea, state },
+          label: focusArea,
+        }),
+      })
+      if (res.ok) {
+        setSearchSaved(true)
+        trackEvent('grant_finder_search_saved', {
+          focus_area: summarizeTerm(focusArea),
+          org_type: orgType || 'any',
+        })
+      }
+    } catch {}
+  }
+
   /* ── Loading ── */
   if (phase === 'loading') {
     return (
@@ -321,7 +382,7 @@ export default function GrantFinder() {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
-            <span className="text-sm font-medium text-navy">Searching federal, foundation &amp; corporate grants...</span>
+            <span className="text-sm font-medium text-navy">Scanning the largest grants + funders database...</span>
           </div>
         </div>
         <div className="space-y-4">
@@ -507,7 +568,7 @@ export default function GrantFinder() {
         {/* Result count */}
         <div className="mb-4">
           <p className="text-sm font-medium text-navy-light">
-            Found <span className="font-semibold text-navy">{opportunities.length}</span> matching grants
+            Found <span className="font-semibold text-navy">{opportunities.length}</span> high-fit opportunities from across federal, foundation, and corporate sources
           </p>
           {broadened && (
             <p className="text-xs text-navy-light/60 mt-1">
@@ -557,6 +618,35 @@ export default function GrantFinder() {
                 )}
               </div>
 
+              {/* Source + trust badges */}
+              {(opp.source_provider || opp.verified) && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {opp.source_provider && OFFICIAL_SOURCES.has(opp.source_provider) && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium" style={{ backgroundColor: '#1e40af0d', color: '#1e40af' }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                      {SOURCE_LABELS[opp.source_provider] ?? opp.source_provider}
+                    </span>
+                  )}
+                  {opp.verified && opp.rfp_url && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium" style={{ backgroundColor: '#16a34a0d', color: '#15803d' }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                      Verified link
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Match reasons */}
+              {opp.match_reasons && opp.match_reasons.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {opp.match_reasons.slice(0, 3).map((reason, ri) => (
+                    <span key={ri} className="px-2 py-0.5 rounded text-[11px] font-medium text-navy-light/70 bg-navy/[0.04]">
+                      {reason}
+                    </span>
+                  ))}
+                </div>
+              )}
+
               {/* Amount + Deadline: always visible */}
               <div className="flex flex-wrap gap-3 mb-4">
                 {opp.amount && (
@@ -569,6 +659,21 @@ export default function GrantFinder() {
                   <span className="inline-flex items-center gap-1.5 text-sm text-navy-light">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
                     {opp.deadline}
+                  </span>
+                )}
+                {opp.last_verified_at && (
+                  <span className="inline-flex items-center gap-1.5 text-sm text-navy-light/50">
+                    Verified {relativeTime(opp.last_verified_at)}
+                  </span>
+                )}
+                {opp.staleness_bucket === 'aging' && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium" style={{ backgroundColor: '#f59e0b12', color: '#b45309' }}>
+                    Verify at source
+                  </span>
+                )}
+                {opp.staleness_bucket === 'stale' && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium" style={{ backgroundColor: '#6b728012', color: '#6b7280' }}>
+                    Verify at source
                   </span>
                 )}
               </div>
@@ -659,10 +764,10 @@ export default function GrantFinder() {
             <div className="bg-navy p-8 text-center noise-overlay">
               <div className="relative z-10">
                 <h3 className="text-xl font-semibold text-white" style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}>
-                  Unlock full grant details
+                  Unlock full fit analysis + source links
                 </h3>
                 <p className="text-white/60 mt-2 text-sm max-w-md mx-auto">
-                  Enter your email to see summaries, eligibility requirements, and direct links to all {opportunities.length} grants.
+                  Enter your email to see full summaries, eligibility requirements, and direct links for every result.
                 </p>
 
                 <form onSubmit={handleEmailSubmit} className="mt-6 flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
@@ -688,6 +793,27 @@ export default function GrantFinder() {
                 <p className="mt-3 text-xs text-white/30">No spam. Unsubscribe anytime.</p>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Save search CTA */}
+        {unlocked && !searchSaved && (
+          <div className="mt-8 text-center">
+            <button
+              type="button"
+              onClick={handleSaveSearch}
+              className="inline-flex items-center gap-2 rounded-md border border-navy/15 bg-white px-5 py-2.5 text-sm font-medium text-navy hover:bg-navy/5 transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" /></svg>
+              Save this search & get weekly alerts
+            </button>
+          </div>
+        )}
+        {searchSaved && (
+          <div className="mt-8 text-center">
+            <p className="text-sm text-green-700 font-medium">
+              Search saved! We&apos;ll email you weekly when new grants match.
+            </p>
           </div>
         )}
 
@@ -841,7 +967,7 @@ export default function GrantFinder() {
       </form>
 
       <p className="mt-4 text-sm text-navy-light/60 text-center">
-        Free &middot; No account required &middot; Powered by AI
+        Free &middot; No account required &middot; Powered by AI across the world&apos;s largest grants + funders database
       </p>
     </div>
   )
