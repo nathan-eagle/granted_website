@@ -11,19 +11,12 @@ import GrantFinderCTA from '@/components/GrantFinderCTA'
 import {
   getGrantsByState,
   getGrantStateBySlug,
-  GRANT_US_STATES,
   isGrantSeoReady,
 } from '@/lib/grants'
 
 export const revalidate = 86400
 
 type Props = { params: { state: string } }
-
-/* ── Static params ── */
-
-export async function generateStaticParams() {
-  return GRANT_US_STATES.map((s) => ({ state: s.slug }))
-}
 
 /* ── Metadata ── */
 

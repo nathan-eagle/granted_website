@@ -17,7 +17,6 @@ import {
   getSimilarFoundations,
   getFoundationGrantees,
   getFoundationsByCategory,
-  getTopFoundations,
   getCategoryBySlug,
   getFoundationFinancials,
   getFoundationFilings,
@@ -39,16 +38,6 @@ type Props = { params: { slug: string } }
 
 const SIGN_IN_URL =
   'https://app.grantedai.com/api/auth/signin?callbackUrl=/overview'
-
-/* ── Static params ── */
-
-export async function generateStaticParams() {
-  const categoryParams = FOUNDATION_CATEGORIES.map((c) => ({ slug: c.slug }))
-  // Pre-generate top 200 to keep build under Vercel timeout; rest use ISR
-  const topFoundations = await getTopFoundations(200).catch(() => [])
-  const foundationParams = topFoundations.map((f) => ({ slug: f.slug }))
-  return [...categoryParams, ...foundationParams]
-}
 
 /* ── Metadata ── */
 

@@ -14,14 +14,12 @@ import GrantFinderCTA from '@/components/GrantFinderCTA'
 import CategoryGrantList from '@/components/CategoryGrantList'
 import TrackedExternalLink from '@/components/TrackedExternalLink'
 import {
-  getAllGrants,
   getGrantBySlug,
   getRelatedGrants,
   getCategoryBySlug,
   getGrantsForCategory,
   isGrantSeoReady,
   SEO_FRESHNESS_DAYS,
-  GRANT_CATEGORIES,
   GRANT_US_STATES,
   type PublicGrant,
   type GrantCategory,
@@ -132,15 +130,6 @@ function buildGrantFaq(grant: PublicGrant): GrantFaq[] {
       answer: `The current target date is ${deadlineText}. Build your timeline backwards from this date to cover registrations, approvals, attachments, and final submission checks.`,
     },
   ]
-}
-
-/* ── Static params ── */
-
-export async function generateStaticParams() {
-  const categoryParams = GRANT_CATEGORIES.map((c) => ({ slug: c.slug }))
-  const grants = (await getAllGrants().catch(() => [])).filter((g) => isGrantSeoReady(g))
-  const grantParams = grants.map((g) => ({ slug: g.slug }))
-  return [...categoryParams, ...grantParams]
 }
 
 /* ── Metadata ── */
