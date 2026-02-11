@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      { source: '/find-grants', destination: '/grants', permanent: true },
+    ]
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'grantedai.com' },

@@ -5,13 +5,13 @@
 Marketing site and grant discovery pages at **grantedai.com**.
 
 - **Repo:** `nathan-eagle/granted_website` (separate repo from the app)
-- **Vercel project:** **`site`** (NOT `granted_website`) → **grantedai.com**
+- **Vercel project:** **`site`** (different from repo name `granted_website`) → **grantedai.com**
 - **Package manager:** npm
 - **Stack:** Next.js 14.2.5, React 18, TypeScript 5.4, Tailwind CSS 3.4
 
 ## CRITICAL: Vercel Project Name
 
-The Vercel project is named **`site`**, not `granted_website`. Before running any `npx vercel env` commands, verify:
+The Vercel project is named **`site`** (repo name is still `granted_website`). Before running any `npx vercel env` commands, verify:
 
 ```bash
 cat .vercel/project.json
