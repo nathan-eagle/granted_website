@@ -20,6 +20,7 @@ import {
   getCategoryBySlug,
   getFoundationFinancials,
   getFoundationFilings,
+  getFoundationSlugsByPrefixes,
   formatAssets,
   getFoundationLocation,
   getFoundationCategoryLabel,
@@ -33,7 +34,7 @@ import {
   type FoundationFiling,
 } from '@/lib/foundations'
 
-export const revalidate = 86400
+export const revalidate = 3600
 
 type Props = { params: { slug: string } }
 
@@ -188,6 +189,7 @@ function FoundationDetailPage({
   grantees,
   financials,
   filings,
+  granteeSlugMap,
 }: {
   foundation: Foundation
   related: Foundation[]
@@ -195,6 +197,7 @@ function FoundationDetailPage({
   grantees: FoundationGrantee[]
   financials: FoundationFinancial[]
   filings: FoundationFiling[]
+  granteeSlugMap: Map<string, string>
 }) {
   const location = getFoundationLocation(foundation)
   const url = `https://grantedai.com/foundations/${foundation.slug}`
@@ -348,18 +351,6 @@ function FoundationDetailPage({
               <p className="body-lg text-navy-light leading-relaxed">
                 {buildAboutParagraph(foundation)}
               </p>
-              {/* Link to 990 filings on ProPublica */}
-              <a
-                href={`https://projects.propublica.org/nonprofits/organizations/${foundation.ein.replace(/-/g, '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 mt-4 text-sm font-semibold text-brand-gold hover:underline"
-              >
-                View 990 Filings
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline">
-                  <path d="M7 17L17 7M17 7H7M17 7v10" />
-                </svg>
-              </a>
             </section>
           </RevealOnScroll>
 
@@ -390,16 +381,17 @@ function FoundationDetailPage({
                     </thead>
                     <tbody>
                       {grantees.map((g) => {
-                        const granteeSlug = g.recipient_name ? slugifyName(g.recipient_name) : null
+                        const prefix = g.recipient_name ? slugifyName(g.recipient_name) : null
+                        const matchedSlug = prefix ? granteeSlugMap.get(prefix) : undefined
                         return (
                         <tr key={g.id} className="border-b border-navy/5 hover:bg-navy/[0.02]">
                           <td className="py-3 pr-4 text-navy font-medium">
-                            {granteeSlug ? (
-                              <Link href={`/foundations/${granteeSlug}`} className="hover:text-brand-gold transition-colors hover:underline">
+                            {matchedSlug ? (
+                              <Link href={`/foundations/${matchedSlug}`} className="hover:text-brand-gold transition-colors hover:underline">
                                 {g.recipient_name}
                               </Link>
                             ) : (
-                              'Unnamed'
+                              g.recipient_name || 'Unnamed'
                             )}
                             {g.purpose && (
                               <span className="block text-xs text-navy-light/50 mt-0.5 line-clamp-1">{g.purpose}</span>
@@ -522,6 +514,18 @@ export default async function FoundationSlugPage({ params }: Props) {
       getFoundationFinancials(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationFinancials failed:`, err); return [] }),
       getFoundationFilings(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationFilings failed:`, err); return [] }),
     ])
+
+    // Batch-lookup grantee slugs so we can link to real foundation pages
+    const uniquePrefixes = [...new Set(
+      grantees
+        .map((g) => g.recipient_name ? slugifyName(g.recipient_name) : null)
+        .filter((p): p is string => !!p)
+    )]
+    const granteeSlugMap = await getFoundationSlugsByPrefixes(uniquePrefixes).catch((err) => {
+      console.error(`[foundations/${params.slug}] getFoundationSlugsByPrefixes failed:`, err)
+      return new Map<string, string>()
+    })
+
     return (
       <FoundationDetailPage
         foundation={foundation}
@@ -530,6 +534,7 @@ export default async function FoundationSlugPage({ params }: Props) {
         grantees={grantees}
         financials={financials}
         filings={filings}
+        granteeSlugMap={granteeSlugMap}
       />
     )
   }

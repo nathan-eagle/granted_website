@@ -154,7 +154,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   }
 
-  const grant = await getGrantBySlug(params.slug).catch(() => null)
+  const grant = await getGrantBySlug(params.slug).catch((err) => { console.error(`[grants/${params.slug}] metadata getGrantBySlug failed:`, err); return null })
   if (!grant) return {}
 
   const seoReady = isGrantSeoReady(grant)

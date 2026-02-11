@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 }
 
 export default async function FoundationsIndex() {
-  const topFoundations = await getTopFoundations(12).catch(() => [])
+  const topFoundations = await getTopFoundations(12).catch((err) => { console.error('[foundations] getTopFoundations failed:', err); return [] })
 
   return (
     <>

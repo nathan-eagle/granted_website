@@ -35,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/tools/cost-calculator`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
   ]
 
-  const posts = await listPosts().catch(() => [])
+  const posts = await listPosts().catch((err) => { console.error('[sitemap] listPosts failed:', err); return [] })
   const blogPaths: MetadataRoute.Sitemap = posts.map(p => ({
     url: `${base}/blog/${p.slug}`,
     changeFrequency: 'monthly' as const,

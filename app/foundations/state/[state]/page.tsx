@@ -49,7 +49,7 @@ export default async function StateFoundationsPage({ params }: Props) {
   const stateObj = getStateBySlug(params.state)
   if (!stateObj) return notFound()
 
-  const foundations = await getFoundationsByState(stateObj.abbreviation, 500).catch(() => [] as Foundation[])
+  const foundations = await getFoundationsByState(stateObj.abbreviation, 500).catch((err) => { console.error(`[foundations/state/${stateObj.slug}] getFoundationsByState failed:`, err); return [] as Foundation[] })
 
   return (
     <>
