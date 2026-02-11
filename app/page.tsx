@@ -47,7 +47,7 @@ const softwareAppLd = {
 }
 
 export default async function HomePage() {
-  const trendingGrants = await getActiveGrants(8)
+  const trendingGrants = await getActiveGrants(8).catch(() => [])
 
   return (
     <>
