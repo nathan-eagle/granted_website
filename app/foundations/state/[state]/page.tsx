@@ -20,7 +20,10 @@ type Props = { params: { state: string } }
 /* ── Static params ── */
 
 export async function generateStaticParams() {
-  return US_STATES.map((s) => ({ state: s.slug }))
+  // Pre-generate top 10 states; rest use ISR to avoid build timeout
+  const top10 = ['california', 'new-york', 'texas', 'florida', 'pennsylvania',
+    'illinois', 'ohio', 'massachusetts', 'virginia', 'new-jersey']
+  return top10.map((s) => ({ state: s }))
 }
 
 /* ── Metadata ── */

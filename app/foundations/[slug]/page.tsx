@@ -44,7 +44,8 @@ const SIGN_IN_URL =
 
 export async function generateStaticParams() {
   const categoryParams = FOUNDATION_CATEGORIES.map((c) => ({ slug: c.slug }))
-  const topFoundations = await getTopFoundations(1000).catch(() => [])
+  // Pre-generate top 200 to keep build under Vercel timeout; rest use ISR
+  const topFoundations = await getTopFoundations(200).catch(() => [])
   const foundationParams = topFoundations.map((f) => ({ slug: f.slug }))
   return [...categoryParams, ...foundationParams]
 }
