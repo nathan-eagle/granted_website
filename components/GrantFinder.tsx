@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useMemo, useState } from 'react'
 import { trackEvent } from '@/lib/analytics'
 import {
   type Phase,
@@ -11,6 +12,17 @@ import {
 
 export type { Phase, Opportunity }
 export { ORG_TYPES, US_STATES }
+
+function createShuffledIndices(count: number): number[] {
+  const indices = Array.from({ length: count }, (_, i) => i)
+  for (let i = indices.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const temp = indices[i]
+    indices[i] = indices[j]
+    indices[j] = temp
+  }
+  return indices
+}
 
 interface GrantFinderProps {
   // Form state (controlled by parent via hook)
@@ -51,6 +63,68 @@ export default function GrantFinder({
   handleEmailSubmit,
   phase,
 }: GrantFinderProps) {
+  const [loadingRotation, setLoadingRotation] = useState<{ order: number[]; index: number }>({
+    order: [],
+    index: 0,
+  })
+
+  const focusQuery = useMemo(() => summarizeTerm(focusArea).trim(), [focusArea])
+  const audienceContext = useMemo(() => [orgType, state].filter(Boolean).join(', '), [orgType, state])
+  const personalizedQuery = useMemo(() => {
+    if (!focusQuery) return 'your search'
+    return audienceContext ? `"${focusQuery}" (${audienceContext})` : `"${focusQuery}"`
+  }, [focusQuery, audienceContext])
+
+  const rotatingLoadingMessages = useMemo(
+    () => [
+      `Exploring the world's largest private foundation database for ${personalizedQuery}...`,
+      `Combing through our database of millions of grants to find best-fit matches for ${personalizedQuery}...`,
+      `AI agents are evaluating hundreds of thousands of funders daily for opportunities tied to ${personalizedQuery}...`,
+      `Cross-checking newly posted and recently updated opportunities from official feeds and the open web for ${personalizedQuery}...`,
+      `Ranking top opportunities for ${personalizedQuery} by fit, eligibility, deadline, and funding size...`,
+      `Matching ${personalizedQuery} against active grants plus historical award patterns to surface repeat funders...`,
+      `Scanning private, corporate, and public funding channels for programs aligned with ${personalizedQuery}...`,
+      `Prioritizing funders most likely to back ${personalizedQuery} based on mission overlap and award behavior...`,
+      `Verifying eligibility constraints for ${personalizedQuery} across geography, org type, and funding rules...`,
+      `Building a shortlist for ${personalizedQuery} from high-volume feeds and our continuously refreshed grants index...`,
+    ],
+    [personalizedQuery],
+  )
+
+  useEffect(() => {
+    if (phase !== 'loading') {
+      setLoadingRotation({ order: [], index: 0 })
+      return
+    }
+
+    setLoadingRotation({
+      order: createShuffledIndices(rotatingLoadingMessages.length),
+      index: 0,
+    })
+
+    const interval = window.setInterval(() => {
+      setLoadingRotation(current => {
+        if (current.order.length === 0) return current
+        const nextIndex = current.index + 1
+        if (nextIndex < current.order.length) {
+          return { ...current, index: nextIndex }
+        }
+        return {
+          order: createShuffledIndices(current.order.length),
+          index: 0,
+        }
+      })
+    }, 3000)
+
+    return () => window.clearInterval(interval)
+  }, [phase, rotatingLoadingMessages.length])
+
+  const activeLoadingMessage = useMemo(() => {
+    if (loadingRotation.order.length === 0) return rotatingLoadingMessages[0]
+    const activeIndex = loadingRotation.order[loadingRotation.index] ?? 0
+    return rotatingLoadingMessages[activeIndex]
+  }, [loadingRotation, rotatingLoadingMessages])
+
   /* -- Loading -- */
   if (phase === 'loading') {
     return (
@@ -61,7 +135,9 @@ export default function GrantFinder({
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
-            <span className="text-sm font-medium text-navy">Deploying AI agents to scour grants databases and the open web...</span>
+            <span className="text-sm font-medium text-navy">
+              {activeLoadingMessage}
+            </span>
           </div>
         </div>
         <div className="space-y-4">
