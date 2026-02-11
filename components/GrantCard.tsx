@@ -15,13 +15,14 @@ function formatDeadline(deadline: string | null): string {
   })
 }
 
-function isNewGrant(createdAt: string): boolean {
+function isNewGrant(createdAt: string, status: string): boolean {
+  if (status === 'closed') return false
   const ms = Date.now() - Date.parse(createdAt)
   return ms < 14 * 24 * 60 * 60 * 1000
 }
 
 export default function GrantCard({ grant }: { grant: PublicGrant }) {
-  const isNew = isNewGrant(grant.created_at)
+  const isNew = isNewGrant(grant.created_at, grant.status)
 
   return (
     <Link

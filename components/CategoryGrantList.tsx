@@ -26,7 +26,7 @@ function setUnlockCookie() {
 
 export default function CategoryGrantList({ category, grants }: Props) {
   const [query, setQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
   const [unlocked, setUnlocked] = useState(false)
   const [email, setEmail] = useState('')
   const [emailStatus, setEmailStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
