@@ -29,7 +29,7 @@ export function buildWeeklyDigestText({ grants, searchLabel, unsubscribeUrl }: W
   }
 
   lines.push('---')
-  lines.push(`Search for more: https://grantedai.com/find-grants?q=${encodeURIComponent(searchLabel)}`)
+  lines.push(`Search for more: https://grantedai.com/grants?q=${encodeURIComponent(searchLabel)}`)
   lines.push('')
   lines.push('Want AI to help write your next proposal? Try Granted free: https://app.grantedai.com')
   lines.push('')
@@ -69,7 +69,7 @@ export function buildWeeklyDigestHtml({ grants, searchLabel, unsubscribeUrl }: W
           <p style="margin: 0 0 24px; color: #666; font-size: 14px;">${grants.length} grant${grants.length === 1 ? '' : 's'} matched your saved search this week.</p>
           <table width="100%" cellpadding="0" cellspacing="0">${grantCards}</table>
           <div style="margin-top: 24px; text-align: center;">
-            <a href="https://grantedai.com/find-grants?q=${encodeURIComponent(searchLabel)}" style="display: inline-block; background: #F5CF49; color: #1a1a2e; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">Search for More Grants</a>
+            <a href="https://grantedai.com/grants?q=${encodeURIComponent(searchLabel)}" style="display: inline-block; background: #F5CF49; color: #1a1a2e; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">Search for More Grants</a>
           </div>
         </td></tr>
         <tr><td style="padding: 20px 30px; background: #f8f9fa; border-top: 1px solid #eee;">

@@ -188,7 +188,7 @@ export default async function HomePage() {
               from search to submission faster.
             </p>
             <div className="mt-10">
-              <ButtonLink href="/find-grants" className="button button-primary cta-shimmer">
+              <ButtonLink href="/grants" className="button button-primary cta-shimmer">
                 Search Grants &rarr;
               </ButtonLink>
             </div>

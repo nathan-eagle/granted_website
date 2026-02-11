@@ -111,7 +111,7 @@ export default async function StateGrantsPage({ params }: Props) {
                   Try searching for grants in {stateObj.name} with our AI-powered grant finder.
                 </p>
                 <Link
-                  href={`/find-grants?q=${encodeURIComponent(stateObj.name)}`}
+                  href={`/grants?q=${encodeURIComponent(stateObj.name)}`}
                   className="button button-primary mt-8 inline-flex"
                 >
                   Search Grants in {stateObj.name}

@@ -370,7 +370,7 @@ function GrantDetailPage({ grant, related, blogPosts, stale }: { grant: PublicGr
                   This listing may be outdated. Verify details at the official source before applying.
                 </p>
                 <a
-                  href={`/find-grants?q=${encodeURIComponent(grant.funder + ' ' + grant.name.split(' ').slice(0, 3).join(' '))}`}
+                  href={`/grants?q=${encodeURIComponent(grant.funder + ' ' + grant.name.split(' ').slice(0, 3).join(' '))}`}
                   className="inline-block mt-2 text-sm font-semibold text-amber-800 underline hover:text-amber-900"
                 >
                   Find similar grants

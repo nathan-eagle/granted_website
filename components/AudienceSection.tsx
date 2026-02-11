@@ -71,7 +71,7 @@ export default function AudienceSection() {
           ))}
         </div>
         <div className="mt-10 text-center">
-          <ButtonLink href="/find-grants" className="button button-primary cta-shimmer">
+          <ButtonLink href="/grants" className="button button-primary cta-shimmer">
             Find Your Grants &rarr;
           </ButtonLink>
         </div>

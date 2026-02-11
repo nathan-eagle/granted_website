@@ -58,6 +58,8 @@ const SOURCE_LABELS: Record<string, string> = {
   nsf_funding: 'NSF',
   nih_weekly_index: 'NIH',
   nsf_upcoming: 'NSF',
+  ca_grants_portal: 'CA Grants Portal',
+  pnd_rfps: 'PND',
 }
 
 const OFFICIAL_SOURCES = new Set([
@@ -67,9 +69,10 @@ const OFFICIAL_SOURCES = new Set([
   'nsf_funding',
   'nih_weekly_index',
   'nsf_upcoming',
+  'ca_grants_portal',
 ])
 
-type Phase = 'form' | 'loading' | 'results'
+export type Phase = 'form' | 'loading' | 'results'
 const APPLY_CALLBACK_PATH = '/opportunities'
 
 function getSearchCount(): number {
@@ -117,7 +120,7 @@ function summarizeTerm(input: string): string {
   return normalized.length > 140 ? `${normalized.slice(0, 140)}...` : normalized
 }
 
-export default function GrantFinder() {
+export default function GrantFinder({ onPhaseChange }: { onPhaseChange?: (phase: Phase) => void }) {
   const [phase, setPhase] = useState<Phase>('form')
   const [orgType, setOrgType] = useState('')
   const [focusArea, setFocusArea] = useState('')
@@ -138,6 +141,11 @@ export default function GrantFinder() {
   useEffect(() => {
     setUnlocked(isUnlocked())
   }, [])
+
+  // Notify parent of phase changes
+  useEffect(() => {
+    onPhaseChange?.(phase)
+  }, [phase]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Prepopulate from app profile if logged in (cross-origin, may fail silently on Safari ITP)
   useEffect(() => {
@@ -282,6 +290,14 @@ export default function GrantFinder() {
     await runSearch(orgType, focusArea, state, 'manual')
   }, [orgType, focusArea, state, runSearch])
 
+  const handleBackToBrowsing = useCallback(() => {
+    setPhase('form')
+    autoSearchedQueryRef.current = null
+    const url = new URL(window.location.href)
+    url.searchParams.delete('q')
+    window.history.replaceState({}, '', url.pathname + url.search)
+  }, [])
+
   // Auto-run search when arriving from homepage with a query string.
   useEffect(() => {
     const q = searchParams.get('q')?.trim() ?? ''
@@ -407,6 +423,14 @@ export default function GrantFinder() {
     if (opportunities.length === 0) {
       return (
         <div className="max-w-3xl mx-auto">
+          <button
+            type="button"
+            onClick={handleBackToBrowsing}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-navy-light hover:text-navy transition-colors mb-4"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+            Back to browsing
+          </button>
           {/* Compact search bar */}
           <form onSubmit={handleSearch} className="card p-4 mb-6">
             <div className="flex flex-col sm:flex-row gap-3">
@@ -496,6 +520,14 @@ export default function GrantFinder() {
 
     return (
       <div className="max-w-3xl mx-auto">
+        <button
+          type="button"
+          onClick={handleBackToBrowsing}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-navy-light hover:text-navy transition-colors mb-4"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+          Back to browsing
+        </button>
         {/* Compact search bar (Google-style) */}
         <form onSubmit={handleSearch} className="card p-4 mb-6">
           <div className="flex flex-col sm:flex-row gap-3">

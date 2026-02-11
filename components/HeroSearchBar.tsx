@@ -29,7 +29,7 @@ export default function HeroSearchBar({ className }: { className?: string }) {
       page: typeof window !== 'undefined' ? window.location.pathname : '/',
     })
 
-    router.push(`/find-grants?q=${encodeURIComponent(normalizedQuery)}`)
+    router.push(`/grants?q=${encodeURIComponent(normalizedQuery)}`)
   }
 
   return (

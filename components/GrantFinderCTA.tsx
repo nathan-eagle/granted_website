@@ -19,35 +19,21 @@ export default function GrantFinderCTA({
           <h3 className="text-lg font-bold text-navy">{heading}</h3>
           <p className="text-sm text-navy-light mt-1.5">{body}</p>
         </div>
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <Link
-            href="/find-grants"
-            onClick={() =>
-              trackEvent('grant_finder_cta_click', {
-                cta_type: 'find_grants',
-                page: typeof window !== 'undefined' ? window.location.pathname : '',
-              })
-            }
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-yellow px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-brand-yellow/90"
-          >
-            Find Grants
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </Link>
-          <Link
-            href="/grants"
-            onClick={() =>
-              trackEvent('grant_finder_cta_click', {
-                cta_type: 'browse_all',
-                page: typeof window !== 'undefined' ? window.location.pathname : '',
-              })
-            }
-            className="inline-flex items-center gap-2 rounded-lg border border-navy/15 px-5 py-2.5 text-sm font-semibold text-navy transition hover:border-navy/30 hover:bg-white"
-          >
-            Browse All
-          </Link>
-        </div>
+        <Link
+          href="/grants"
+          onClick={() =>
+            trackEvent('grant_finder_cta_click', {
+              cta_type: 'find_grants',
+              page: typeof window !== 'undefined' ? window.location.pathname : '',
+            })
+          }
+          className="inline-flex items-center gap-2 rounded-lg bg-brand-yellow px-5 py-2.5 text-sm font-semibold text-navy transition hover:bg-brand-yellow/90 flex-shrink-0"
+        >
+          Find Grants
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </Link>
       </div>
     </section>
   )

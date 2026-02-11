@@ -60,7 +60,6 @@ function getReferrerContext() {
 
 function getPageType(pathname: string): string {
   if (pathname === '/') return 'home'
-  if (pathname === '/find-grants') return 'grant_finder'
   if (pathname === '/grants') return 'grants_index'
   if (pathname.startsWith('/grants/')) return 'grants_slug'
   if (pathname.startsWith('/blog/')) return 'blog_post'
