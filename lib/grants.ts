@@ -52,12 +52,16 @@ export function isGrantSeoReady(grant: Pick<PublicGrant, 'summary' | 'last_verif
 
 /* ── Data functions ── */
 
-export async function getAllGrants(): Promise<PublicGrant[]> {
+export async function getAllGrants(includeClosedGrants = false): Promise<PublicGrant[]> {
   if (!supabase) return []
-  const { data, error } = await supabase
+  let query = supabase
     .from('public_grants')
     .select(LISTING_COLS)
     .order('deadline', { ascending: true, nullsFirst: false })
+  if (!includeClosedGrants) {
+    query = query.neq('status', 'closed')
+  }
+  const { data, error } = await query
   if (error) throw error
   return (data ?? []) as PublicGrant[]
 }
@@ -79,6 +83,7 @@ export async function getGrantsByFunder(funder: string): Promise<PublicGrant[]> 
     .from('public_grants')
     .select(LISTING_COLS)
     .ilike('funder', `%${funder}%`)
+    .neq('status', 'closed')
     .order('deadline', { ascending: true, nullsFirst: false })
   if (error) throw error
   return (data ?? []) as PublicGrant[]
@@ -108,6 +113,7 @@ export async function getRelatedGrants(
     .select(LISTING_COLS)
     .ilike('funder', `%${funder}%`)
     .neq('slug', excludeSlug)
+    .neq('status', 'closed')
     .order('deadline', { ascending: true, nullsFirst: false })
     .limit(limit)
   if (error) throw error
@@ -187,6 +193,7 @@ export async function getGrantsByState(stateName: string): Promise<PublicGrant[]
     .from('public_grants')
     .select(LISTING_COLS)
     .contains('target_states', [stateName])
+    .neq('status', 'closed')
     .order('deadline', { ascending: true, nullsFirst: false })
   if (!arrErr && byArray && byArray.length > 0) return byArray as PublicGrant[]
 
@@ -194,6 +201,7 @@ export async function getGrantsByState(stateName: string): Promise<PublicGrant[]
     .from('public_grants')
     .select(LISTING_COLS)
     .ilike('eligibility', `%${stateName}%`)
+    .neq('status', 'closed')
     .order('deadline', { ascending: true, nullsFirst: false })
   if (error) throw error
   return (data ?? []) as PublicGrant[]
@@ -221,6 +229,7 @@ export async function getNewGrants(sinceDate?: Date): Promise<PublicGrant[]> {
     .from('public_grants')
     .select(LISTING_COLS)
     .gte('created_at', since.toISOString())
+    .neq('status', 'closed')
     .order('created_at', { ascending: false })
   if (error) throw error
   return (data ?? []) as PublicGrant[]
@@ -454,6 +463,7 @@ export async function getGrantsForCategory(
       .from('public_grants')
       .select(LISTING_COLS)
       .ilike('eligibility', `%${category.eligibilityMatch}%`)
+      .neq('status', 'closed')
       .order('deadline', { ascending: true, nullsFirst: false })
     if (error) throw error
     return (data ?? []) as PublicGrant[]
