@@ -64,13 +64,13 @@ export default async function NewGrantsPage() {
 
         <Container className="py-16 md:py-20">
           {grants.length > 0 ? (
-            <RevealOnScroll>
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {grants.map((g) => (
-                  <GrantCard key={g.id} grant={g} />
-                ))}
-              </div>
-            </RevealOnScroll>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {grants.map((g, i) => (
+                <RevealOnScroll key={g.id} delay={Math.min(i * 30, 300)}>
+                  <GrantCard grant={g} />
+                </RevealOnScroll>
+              ))}
+            </div>
           ) : (
             <RevealOnScroll>
               <div className="text-center py-20">

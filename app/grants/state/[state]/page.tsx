@@ -96,13 +96,13 @@ export default async function StateGrantsPage({ params }: Props) {
 
         <Container className="py-16 md:py-20">
           {activeGrants.length > 0 ? (
-            <RevealOnScroll>
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {activeGrants.map((g) => (
-                  <GrantCard key={g.id} grant={g} />
-                ))}
-              </div>
-            </RevealOnScroll>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {activeGrants.map((g, i) => (
+                <RevealOnScroll key={g.id} delay={Math.min(i * 30, 300)}>
+                  <GrantCard grant={g} />
+                </RevealOnScroll>
+              ))}
+            </div>
           ) : (
             <RevealOnScroll>
               <div className="text-center py-20">
