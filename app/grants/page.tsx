@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -85,13 +86,27 @@ export default async function GrantsIndex() {
         </section>
 
         <Container>
-          <GrantsPageClient
-            closingSoon={closingSoon}
-            newGrants={newGrants}
-            activeGrants={activeGrants}
-            upcomingGrants={upcomingGrants}
-            totalGrantCount={grants.length}
-          />
+          <Suspense fallback={
+            <div className="py-12 md:py-16">
+              <div className="max-w-2xl mx-auto">
+                <div className="card p-8 md:p-10 animate-pulse">
+                  <div className="h-6 bg-navy/8 rounded w-1/3 mb-6" />
+                  <div className="h-12 bg-navy/5 rounded mb-6" />
+                  <div className="h-6 bg-navy/8 rounded w-1/3 mb-6" />
+                  <div className="h-12 bg-navy/5 rounded mb-6" />
+                  <div className="h-12 bg-navy/8 rounded-pill mt-8" />
+                </div>
+              </div>
+            </div>
+          }>
+            <GrantsPageClient
+              closingSoon={closingSoon}
+              newGrants={newGrants}
+              activeGrants={activeGrants}
+              upcomingGrants={upcomingGrants}
+              totalGrantCount={grants.length}
+            />
+          </Suspense>
         </Container>
       </main>
       <Footer />

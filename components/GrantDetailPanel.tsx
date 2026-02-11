@@ -1,0 +1,304 @@
+'use client'
+
+import { useEffect, useCallback } from 'react'
+import { trackEvent } from '@/lib/analytics'
+import {
+  type Opportunity,
+  SOURCE_LABELS,
+  OFFICIAL_SOURCES,
+  relativeTime,
+  buildApplyUrl,
+  summarizeTerm,
+} from '@/hooks/useGrantSearch'
+
+interface Props {
+  opportunity: Opportunity | null
+  onClose: () => void
+  unlocked: boolean
+  onEmailGateClick: () => void
+  focusArea: string
+  orgType: string
+  state: string
+}
+
+export default function GrantDetailPanel({
+  opportunity,
+  onClose,
+  unlocked,
+  onEmailGateClick,
+  focusArea,
+  orgType,
+  state,
+}: Props) {
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    },
+    [onClose],
+  )
+
+  useEffect(() => {
+    if (!opportunity) return
+    document.addEventListener('keydown', handleKeyDown)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = ''
+    }
+  }, [opportunity, handleKeyDown])
+
+  useEffect(() => {
+    if (opportunity) {
+      trackEvent('grant_discovery_detail_open', {
+        grant_name: opportunity.name.slice(0, 120),
+        grant_slug: opportunity.slug || '',
+      })
+    }
+  }, [opportunity])
+
+  if (!opportunity) return null
+
+  const opp = opportunity
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/20 z-40 md:backdrop-blur-[2px]"
+        onClick={onClose}
+        aria-hidden
+      />
+
+      {/* Panel */}
+      <div
+        className="fixed inset-0 md:inset-y-0 md:left-auto md:right-0 md:w-[480px] z-50 bg-white shadow-2xl flex flex-col animate-slide-in-right"
+        role="dialog"
+        aria-label="Grant details"
+      >
+        {/* Header */}
+        <div className="shrink-0 flex items-start justify-between gap-4 p-6 border-b border-navy/8">
+          <div className="min-w-0">
+            <h2 className="text-lg font-bold text-navy leading-snug" style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}>
+              {opp.name}
+            </h2>
+            <p className="text-sm text-navy-light/60 mt-1">{opp.funder}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              trackEvent('grant_discovery_detail_close', {
+                grant_name: opp.name.slice(0, 120),
+                method: 'button',
+              })
+              onClose()
+            }}
+            className="shrink-0 p-2 -m-2 rounded-md text-navy-light/40 hover:text-navy hover:bg-navy/5 transition-colors"
+            aria-label="Close"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          {/* Key facts bar */}
+          <div className="flex flex-wrap gap-3">
+            {opp.amount && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-navy/[0.03] border border-navy/8">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-navy-light/50">
+                  <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                </svg>
+                <span className="text-sm font-semibold text-navy">{opp.amount}</span>
+              </div>
+            )}
+            {opp.deadline && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-navy/[0.03] border border-navy/8">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-navy-light/50">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                <span className="text-sm font-medium text-navy">{opp.deadline}</span>
+              </div>
+            )}
+            {opp.source_provider && OFFICIAL_SOURCES.has(opp.source_provider) && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium" style={{ backgroundColor: '#1e40af0d', color: '#1e40af' }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                {SOURCE_LABELS[opp.source_provider] ?? opp.source_provider}
+              </span>
+            )}
+            {opp.fit_score > 0 && (
+              <span
+                className="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-semibold"
+                style={{
+                  backgroundColor: opp.fit_score >= 70 ? '#22c55e18' : opp.fit_score >= 40 ? '#F5CF4918' : '#6b728018',
+                  color: opp.fit_score >= 70 ? '#16a34a' : opp.fit_score >= 40 ? '#b8941c' : '#6b7280',
+                }}
+              >
+                {opp.fit_score}% match
+              </span>
+            )}
+          </div>
+
+          {/* Match reasons */}
+          {opp.match_reasons && opp.match_reasons.length > 0 && (
+            <div>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-navy-light/40 mb-2">Match Reasons</h4>
+              <div className="flex flex-wrap gap-1.5">
+                {opp.match_reasons.map((reason, i) => (
+                  <span key={i} className="px-2.5 py-1 rounded-full text-xs font-medium text-navy bg-brand-yellow/10 border border-brand-yellow/15">
+                    {reason}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Verified info */}
+          {opp.last_verified_at && (
+            <div className="flex items-center gap-2 text-xs text-navy-light/50">
+              {opp.verified && opp.rfp_url && (
+                <span className="inline-flex items-center gap-1 text-green-700">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                  Verified
+                </span>
+              )}
+              <span>Last checked {relativeTime(opp.last_verified_at)}</span>
+              {opp.staleness_bucket === 'aging' && (
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-medium" style={{ backgroundColor: '#f59e0b12', color: '#b45309' }}>
+                  Verify at source
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Summary */}
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-navy-light/40 mb-2">Summary</h4>
+            {unlocked ? (
+              <p className="text-sm text-navy-light leading-relaxed">
+                {opp.summary || 'No summary available.'}
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={onEmailGateClick}
+                className="relative w-full text-left group"
+              >
+                <div className="select-none blur-[6px] pointer-events-none" aria-hidden="true">
+                  <p className="text-sm text-navy-light leading-relaxed">
+                    This grant supports organizations working in community development and environmental justice initiatives across the United States with substantial funding.
+                  </p>
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-navy/5 text-navy-light border border-navy/10 group-hover:bg-brand-yellow/10 group-hover:border-brand-yellow/30 group-hover:text-navy transition-colors">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                    Enter email to unlock
+                  </span>
+                </div>
+              </button>
+            )}
+          </div>
+
+          {/* Eligibility */}
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-navy-light/40 mb-2">Eligibility</h4>
+            {unlocked ? (
+              <p className="text-sm text-navy-light leading-relaxed">
+                {opp.eligibility || 'No eligibility information available.'}
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={onEmailGateClick}
+                className="relative w-full text-left group"
+              >
+                <div className="select-none blur-[6px] pointer-events-none" aria-hidden="true">
+                  <p className="text-sm text-navy-light leading-relaxed">
+                    Eligible: 501(c)(3) nonprofits with annual budget under $5M focused on community-based programs.
+                  </p>
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-navy/5 text-navy-light border border-navy/10 group-hover:bg-brand-yellow/10 group-hover:border-brand-yellow/30 group-hover:text-navy transition-colors">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                    Enter email to unlock
+                  </span>
+                </div>
+              </button>
+            )}
+          </div>
+
+          {/* Link to SEO page if slug exists */}
+          {opp.slug && (
+            <a
+              href={`/grants/${opp.slug}`}
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-gold hover:underline underline-offset-2"
+              onClick={() => {
+                trackEvent('grant_finder_result_grant_click', {
+                  grant_name: opp.name.slice(0, 120),
+                  grant_slug: opp.slug,
+                  source: 'detail_panel',
+                })
+              }}
+            >
+              View full grant page
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+            </a>
+          )}
+        </div>
+
+        {/* Footer actions */}
+        <div className="shrink-0 p-6 border-t border-navy/8 bg-navy/[0.02] space-y-3">
+          <a
+            href={buildApplyUrl(opp)}
+            onClick={() => {
+              trackEvent('grant_finder_apply_click', {
+                grant_name: opp.name.slice(0, 120),
+                grant_slug: opp.slug || '',
+                source: 'detail_panel',
+                focus_area: summarizeTerm(focusArea),
+                org_type: orgType || 'any',
+                state: state || 'any',
+              })
+            }}
+            className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-brand-yellow px-5 py-3 text-sm font-semibold text-navy hover:bg-brand-gold transition-colors"
+          >
+            Apply with Granted
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+          </a>
+
+          {unlocked && opp.rfp_url && (
+            <a
+              href={opp.rfp_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => {
+                trackEvent('grant_finder_view_opportunity_click', {
+                  grant_name: opp.name.slice(0, 120),
+                  grant_slug: opp.slug || '',
+                  funder: opp.funder,
+                  source: 'detail_panel',
+                })
+              }}
+              className="w-full inline-flex items-center justify-center gap-1.5 rounded-md border border-navy/15 bg-white px-5 py-2.5 text-sm font-medium text-navy hover:bg-navy/5 transition-colors"
+            >
+              View Original RFP
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+            </a>
+          )}
+        </div>
+      </div>
+
+      <style jsx>{`
+        @keyframes slideInRight {
+          from { transform: translateX(100%); }
+          to { transform: translateX(0); }
+        }
+        .animate-slide-in-right {
+          animation: slideInRight 0.25s ease-out;
+        }
+      `}</style>
+    </>
+  )
+}
