@@ -24,6 +24,7 @@ import {
   getFoundationLocation,
   getFoundationCategoryLabel,
   getStateByAbbrev,
+  slugifyName,
   FOUNDATION_CATEGORIES,
   type Foundation,
   type FoundationCategory,
@@ -61,7 +62,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   }
 
-  const foundation = await getFoundationBySlug(params.slug).catch(() => null)
+  const foundation = await getFoundationBySlug(params.slug).catch((err) => { console.error(`[foundations/${params.slug}] metadata getFoundationBySlug failed:`, err); return null })
   if (!foundation) return {}
 
   const title = foundation.name
@@ -388,10 +389,18 @@ function FoundationDetailPage({
                       </tr>
                     </thead>
                     <tbody>
-                      {grantees.map((g) => (
+                      {grantees.map((g) => {
+                        const granteeSlug = g.recipient_name ? slugifyName(g.recipient_name) : null
+                        return (
                         <tr key={g.id} className="border-b border-navy/5 hover:bg-navy/[0.02]">
                           <td className="py-3 pr-4 text-navy font-medium">
-                            {g.recipient_name ?? 'Unnamed'}
+                            {granteeSlug ? (
+                              <Link href={`/foundations/${granteeSlug}`} className="hover:text-brand-gold transition-colors hover:underline">
+                                {g.recipient_name}
+                              </Link>
+                            ) : (
+                              'Unnamed'
+                            )}
                             {g.purpose && (
                               <span className="block text-xs text-navy-light/50 mt-0.5 line-clamp-1">{g.purpose}</span>
                             )}
@@ -406,7 +415,8 @@ function FoundationDetailPage({
                             {g.grant_year ?? '—'}
                           </td>
                         </tr>
-                      ))}
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -498,19 +508,19 @@ export default async function FoundationSlugPage({ params }: Props) {
   // 1. Check category
   const category = getCategoryBySlug(params.slug)
   if (category) {
-    const foundations = await getFoundationsByCategory(category.nteeMajors).catch(() => [])
+    const foundations = await getFoundationsByCategory(category.nteeMajors).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationsByCategory failed:`, err); return [] })
     return <CategoryPage category={category} foundations={foundations} />
   }
 
   // 2. Check individual foundation
-  const foundation = await getFoundationBySlug(params.slug).catch(() => null)
+  const foundation = await getFoundationBySlug(params.slug).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationBySlug failed:`, err); return null })
   if (foundation) {
     const [related, similar, grantees, financials, filings] = await Promise.all([
-      getRelatedFoundations(foundation.state, foundation.ntee_major, foundation.slug, 3).catch(() => []),
-      getSimilarFoundations(foundation.ntee_major, foundation.slug, 6).catch(() => []),
-      getFoundationGrantees(foundation.id, 50).catch(() => []),
-      getFoundationFinancials(foundation.id).catch(() => []),
-      getFoundationFilings(foundation.id).catch(() => []),
+      getRelatedFoundations(foundation.state, foundation.ntee_major, foundation.slug, 3).catch((err) => { console.error(`[foundations/${params.slug}] getRelatedFoundations failed:`, err); return [] }),
+      getSimilarFoundations(foundation.ntee_major, foundation.slug, 6).catch((err) => { console.error(`[foundations/${params.slug}] getSimilarFoundations failed:`, err); return [] }),
+      getFoundationGrantees(foundation.id, 50).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationGrantees failed:`, err); return [] }),
+      getFoundationFinancials(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationFinancials failed:`, err); return [] }),
+      getFoundationFilings(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationFilings failed:`, err); return [] }),
     ])
     return (
       <FoundationDetailPage

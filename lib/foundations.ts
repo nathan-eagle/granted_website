@@ -221,6 +221,14 @@ function nteeMajorLabel(nteeMajor: string | null): string {
   return cat?.name ?? 'General'
 }
 
+export function slugifyName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/['']/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
 export function getFoundationLocation(f: Pick<Foundation, 'city' | 'state'>): string {
   const parts = [f.city, f.state].filter(Boolean)
   return parts.length > 0 ? parts.join(', ') : 'United States'

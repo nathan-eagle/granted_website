@@ -14,11 +14,11 @@ export default function FoundationFinancials({ financials }: Props) {
   const latestYear = financials[financials.length - 1]
   const previousYear = financials.length >= 2 ? financials[financials.length - 2] : null
 
-  // Giving trend data
+  // Giving trend data — exclude years with 0 or null giving
   const givingData = useMemo(
     () =>
       financials
-        .filter((f) => f.total_giving !== null && f.total_giving > 0)
+        .filter((f) => f.total_giving != null && f.total_giving > 0)
         .map((f) => ({
           year: f.fiscal_year,
           giving: f.total_giving!,
@@ -28,6 +28,7 @@ export default function FoundationFinancials({ financials }: Props) {
   )
 
   const maxGiving = Math.max(...givingData.map((d) => d.giving), 1)
+  const hasGivingData = givingData.length >= 2 && givingData.some((d) => d.giving > 0)
 
   // Year-over-year giving change
   const givingChange =
@@ -35,16 +36,17 @@ export default function FoundationFinancials({ financials }: Props) {
       ? ((latestYear.total_giving - previousYear.total_giving) / previousYear.total_giving) * 100
       : null
 
-  // Asset growth data
+  // Asset growth data — exclude years with 0 or null assets
   const assetData = useMemo(
     () =>
       financials
-        .filter((f) => f.total_assets !== null && f.total_assets > 0)
+        .filter((f) => f.total_assets != null && f.total_assets > 0)
         .map((f) => ({ year: f.fiscal_year, assets: f.total_assets! })),
     [financials],
   )
 
   const maxAssets = Math.max(...assetData.map((d) => d.assets), 1)
+  const hasAssetData = assetData.length >= 2 && assetData.some((d) => d.assets > 0)
 
   // Asset growth
   const assetChange =
@@ -162,7 +164,7 @@ export default function FoundationFinancials({ financials }: Props) {
       </div>
 
       {/* Giving Trend Bar Chart */}
-      {givingData.length >= 2 && (
+      {hasGivingData && (
         <div className="card p-6 md:p-8">
           <h3 className="text-sm font-semibold uppercase tracking-[0.1em] text-navy-light/50 mb-6">
             Total Giving by Year
@@ -193,7 +195,7 @@ export default function FoundationFinancials({ financials }: Props) {
       )}
 
       {/* Asset Growth Chart */}
-      {assetData.length >= 2 && (
+      {hasAssetData && (
         <div className="card p-6 md:p-8">
           <h3 className="text-sm font-semibold uppercase tracking-[0.1em] text-navy-light/50 mb-6">
             Asset Growth
@@ -343,19 +345,24 @@ export default function FoundationFinancials({ financials }: Props) {
           <h3 className="text-sm font-semibold uppercase tracking-[0.1em] text-navy-light/50 mb-6">
             Foundation Classification ({latestYear.fiscal_year})
           </h3>
-          <div className="flex flex-wrap gap-3">
+          <div className="space-y-3">
             {flags.map((f, i) => (
-              <span
+              <div
                 key={i}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
-                  f.value
-                    ? 'bg-brand-yellow/15 text-brand-gold border border-brand-yellow/30'
-                    : 'bg-navy/5 text-navy-light/50 border border-navy/10'
-                }`}
+                className="flex items-center justify-between py-2 border-b border-navy/5 last:border-0"
               >
-                <span className={`w-1.5 h-1.5 rounded-full ${f.value ? 'bg-brand-gold' : 'bg-navy/20'}`} />
-                {f.label}
-              </span>
+                <span className="text-sm text-navy-light/70">{f.label}</span>
+                <span
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                    f.value
+                      ? 'bg-green-50 text-green-700 border border-green-200'
+                      : 'bg-navy/5 text-navy-light/40 border border-navy/10'
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${f.value ? 'bg-green-500' : 'bg-navy/20'}`} />
+                  {f.value ? 'Yes' : 'No'}
+                </span>
+              </div>
             ))}
           </div>
         </div>
