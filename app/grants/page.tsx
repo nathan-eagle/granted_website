@@ -66,7 +66,7 @@ export default async function GrantsIndex() {
       <main>
         {/* Hero */}
         <section className="bg-navy noise-overlay overflow-hidden">
-          <Container className="py-20 md:py-28 relative z-10">
+          <Container className="py-8 md:py-12 relative z-10">
             <RevealOnScroll>
               <div className="text-center max-w-3xl mx-auto">
                 {grants.length > 0 && (

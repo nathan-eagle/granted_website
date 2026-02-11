@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useGrantSearch, summarizeTerm } from '@/hooks/useGrantSearch'
 import type { Phase, Opportunity } from '@/hooks/useGrantSearch'
@@ -73,6 +74,14 @@ export default function GrantsPageClient({
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS)
   const [activeTab, setActiveTab] = useState<DiscoveryTab>('grants')
 
+  // Auto-switch to funders tab if URL has tab=funders
+  const tabParam = useSearchParams().get('tab')
+  useEffect(() => {
+    if (tabParam === 'funders' && phase === 'results') {
+      setActiveTab('funders')
+    }
+  }, [tabParam, phase])
+
   // Funder matches state
   const [funders, setFunders] = useState<FunderMatch[]>([])
   const [funderLoading, setFunderLoading] = useState(false)
@@ -104,7 +113,7 @@ export default function GrantsPageClient({
       body: JSON.stringify({
         focus_area: focusArea,
         state: searchState || undefined,
-        limit: 20,
+        limit: 30,
       }),
     })
       .then(res => res.ok ? res.json() : null)

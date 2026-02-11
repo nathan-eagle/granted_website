@@ -74,7 +74,50 @@ function focusAreaToNteeMajors(focusArea: string): string[] {
     'religion': ['X'], 'faith': ['X'], 'church': ['X'], 'spiritual': ['X'],
   }
 
+  // Compound phrases take priority — prevent "environmental justice" from matching civil rights
+  const compoundMap: Record<string, string[]> = {
+    'environmental justice': ['C'],
+    'social justice': ['R'],
+    'criminal justice': ['R'],
+    'racial justice': ['R'],
+    'climate justice': ['C'],
+    'food justice': ['K'],
+    'health equity': ['E', 'F', 'G', 'H'],
+    'arts education': ['A', 'B'],
+    'music education': ['A', 'B'],
+    'stem education': ['B', 'U'],
+    'science education': ['B', 'U'],
+    'environmental education': ['B', 'C'],
+    'community health': ['E', 'S'],
+    'public health': ['E'],
+    'mental health': ['F'],
+    'youth development': ['O'],
+    'workforce development': ['J'],
+    'community development': ['S'],
+    'economic development': ['S', 'W'],
+    'rural development': ['S'],
+    'international development': ['Q'],
+    'marine conservation': ['C'],
+    'ocean conservation': ['C'],
+    'wildlife conservation': ['C', 'D'],
+  }
+
+  const consumedWords = new Set<string>()
+  for (const [phrase, codes] of Object.entries(compoundMap)) {
+    if (lower.includes(phrase)) {
+      for (const code of codes) {
+        if (!matched.includes(code)) matched.push(code)
+      }
+      // Mark words in this phrase as consumed so they don't trigger separate matches
+      for (const word of phrase.split(' ')) {
+        consumedWords.add(word)
+      }
+    }
+  }
+
   for (const [keyword, codes] of Object.entries(keywordMap)) {
+    // Skip single-word keywords that were already consumed by compound phrases
+    if (consumedWords.has(keyword)) continue
     if (lower.includes(keyword)) {
       for (const code of codes) {
         if (!matched.includes(code)) matched.push(code)
@@ -194,20 +237,49 @@ export async function POST(request: Request) {
       }
     }
 
-    const results = (foundations ?? []).map(f => ({
-      id: f.id,
-      slug: f.slug,
-      name: f.name,
-      city: f.city,
-      state: f.state,
-      ntee_category: f.ntee_category,
-      asset_amount: f.asset_amount,
-      total_giving: givingMap.get(f.id) ?? null,
-      grantee_count: granteeCountMap.get(f.id) ?? null,
-      website: f.website,
-    }))
+    // Score relevance based on keyword overlap with category name
+    const searchWords = focus_area.toLowerCase().split(/\s+/).filter((w: string) => w.length >= 3)
 
-    return NextResponse.json({ funders: results })
+    const results = (foundations ?? []).map(f => {
+      let relevance = 0
+      const catLower = (f.ntee_category || '').toLowerCase()
+      const nameLower = (f.name || '').toLowerCase()
+
+      // Category name match
+      for (const word of searchWords) {
+        if (catLower.includes(word)) relevance += 3
+        if (nameLower.includes(word)) relevance += 2
+      }
+
+      // Boost foundations with giving data (more active)
+      if (givingMap.has(f.id)) relevance += 1
+      if (granteeCountMap.has(f.id)) relevance += 1
+
+      return {
+        id: f.id,
+        slug: f.slug,
+        name: f.name,
+        city: f.city,
+        state: f.state,
+        ntee_category: f.ntee_category,
+        asset_amount: f.asset_amount,
+        total_giving: givingMap.get(f.id) ?? null,
+        grantee_count: granteeCountMap.get(f.id) ?? null,
+        website: f.website,
+        _relevance: relevance,
+      }
+    })
+
+    // Sort by relevance first, then by assets as tiebreaker
+    results.sort((a, b) => {
+      if (b._relevance !== a._relevance) return b._relevance - a._relevance
+      return (b.asset_amount ?? 0) - (a.asset_amount ?? 0)
+    })
+
+    // Strip internal _relevance field before returning
+    const cleaned = results.map(({ _relevance, ...rest }) => rest)
+
+    return NextResponse.json({ funders: cleaned })
   } catch (err) {
     console.error('Foundation match error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
