@@ -15,12 +15,16 @@ export type PublicGrant = {
   rfp_url: string | null
   status: 'active' | 'closed' | 'upcoming'
   source: string
+  source_provider?: string
   citations: unknown[]
   last_verified_at: string | null
   created_at: string
   updated_at: string
   target_states?: string[]
 }
+
+/** Columns for listing queries — excludes large source_text column */
+const LISTING_COLS = 'id,slug,name,funder,deadline,amount,summary,status,source,source_provider,eligibility,rfp_url,created_at,last_verified_at,target_states'
 
 export const SEO_SUMMARY_MIN_WORDS = 300
 export const SEO_FRESHNESS_DAYS = 90
@@ -52,10 +56,10 @@ export async function getAllGrants(): Promise<PublicGrant[]> {
   if (!supabase) return []
   const { data, error } = await supabase
     .from('public_grants')
-    .select('*')
+    .select(LISTING_COLS)
     .order('deadline', { ascending: true, nullsFirst: false })
   if (error) throw error
-  return data ?? []
+  return (data ?? []) as PublicGrant[]
 }
 
 export async function getGrantBySlug(slug: string): Promise<PublicGrant | null> {
@@ -73,24 +77,24 @@ export async function getGrantsByFunder(funder: string): Promise<PublicGrant[]> 
   if (!supabase) return []
   const { data, error } = await supabase
     .from('public_grants')
-    .select('*')
+    .select(LISTING_COLS)
     .ilike('funder', `%${funder}%`)
     .order('deadline', { ascending: true, nullsFirst: false })
   if (error) throw error
-  return data ?? []
+  return (data ?? []) as PublicGrant[]
 }
 
 export async function getActiveGrants(limit?: number): Promise<PublicGrant[]> {
   if (!supabase) return []
   let query = supabase
     .from('public_grants')
-    .select('*')
+    .select(LISTING_COLS)
     .eq('status', 'active')
     .order('deadline', { ascending: true, nullsFirst: false })
   if (limit) query = query.limit(limit)
   const { data, error } = await query
   if (error) throw error
-  return data ?? []
+  return (data ?? []) as PublicGrant[]
 }
 
 export async function getRelatedGrants(
@@ -101,13 +105,13 @@ export async function getRelatedGrants(
   if (!supabase) return []
   const { data, error } = await supabase
     .from('public_grants')
-    .select('*')
+    .select(LISTING_COLS)
     .ilike('funder', `%${funder}%`)
     .neq('slug', excludeSlug)
     .order('deadline', { ascending: true, nullsFirst: false })
     .limit(limit)
   if (error) throw error
-  return data ?? []
+  return (data ?? []) as PublicGrant[]
 }
 
 /* ── State config ── */
@@ -181,18 +185,18 @@ export async function getGrantsByState(stateName: string): Promise<PublicGrant[]
   // Try target_states array first, fall back to eligibility text ILIKE
   const { data: byArray, error: arrErr } = await supabase
     .from('public_grants')
-    .select('*')
+    .select(LISTING_COLS)
     .contains('target_states', [stateName])
     .order('deadline', { ascending: true, nullsFirst: false })
-  if (!arrErr && byArray && byArray.length > 0) return byArray
+  if (!arrErr && byArray && byArray.length > 0) return byArray as PublicGrant[]
 
   const { data, error } = await supabase
     .from('public_grants')
-    .select('*')
+    .select(LISTING_COLS)
     .ilike('eligibility', `%${stateName}%`)
     .order('deadline', { ascending: true, nullsFirst: false })
   if (error) throw error
-  return data ?? []
+  return (data ?? []) as PublicGrant[]
 }
 
 export async function getClosingSoonGrants(days = 30): Promise<PublicGrant[]> {
@@ -201,13 +205,13 @@ export async function getClosingSoonGrants(days = 30): Promise<PublicGrant[]> {
   const future = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString()
   const { data, error } = await supabase
     .from('public_grants')
-    .select('*')
+    .select(LISTING_COLS)
     .eq('status', 'active')
     .gte('deadline', now)
     .lte('deadline', future)
     .order('deadline', { ascending: true })
   if (error) throw error
-  return data ?? []
+  return (data ?? []) as PublicGrant[]
 }
 
 export async function getNewGrants(sinceDate?: Date): Promise<PublicGrant[]> {
@@ -215,11 +219,11 @@ export async function getNewGrants(sinceDate?: Date): Promise<PublicGrant[]> {
   const since = sinceDate ?? new Date(new Date().getFullYear(), new Date().getMonth(), 1)
   const { data, error } = await supabase
     .from('public_grants')
-    .select('*')
+    .select(LISTING_COLS)
     .gte('created_at', since.toISOString())
     .order('created_at', { ascending: false })
   if (error) throw error
-  return data ?? []
+  return (data ?? []) as PublicGrant[]
 }
 
 /* ── Category config ── */
@@ -448,11 +452,11 @@ export async function getGrantsForCategory(
   if (category.eligibilityMatch) {
     const { data, error } = await supabase
       .from('public_grants')
-      .select('*')
+      .select(LISTING_COLS)
       .ilike('eligibility', `%${category.eligibilityMatch}%`)
       .order('deadline', { ascending: true, nullsFirst: false })
     if (error) throw error
-    return data ?? []
+    return (data ?? []) as PublicGrant[]
   }
   return []
 }

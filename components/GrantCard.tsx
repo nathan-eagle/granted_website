@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import type { PublicGrant } from '@/lib/grants'
+import { SOURCE_LABELS, OFFICIAL_SOURCES } from '@/lib/source-labels'
 import GrantStatusBadge from './GrantStatusBadge'
 import { trackEvent } from '@/lib/analytics'
 
@@ -41,6 +42,12 @@ export default function GrantCard({ grant }: { grant: PublicGrant }) {
             <span className="text-xs font-semibold uppercase tracking-[0.1em] text-navy-light/50">
               {grant.funder}
             </span>
+            {grant.source_provider && OFFICIAL_SOURCES.has(grant.source_provider) && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium" style={{ backgroundColor: '#1e40af0d', color: '#1e40af' }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                {SOURCE_LABELS[grant.source_provider] ?? grant.source_provider}
+              </span>
+            )}
             {isNew && (
               <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700">
                 New

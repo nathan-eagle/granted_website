@@ -8,7 +8,7 @@ import GrantCTA from '@/components/GrantCTA'
 import GrantFinderCTA from '@/components/GrantFinderCTA'
 import { getNewGrants } from '@/lib/grants'
 
-export const revalidate = 86400
+export const revalidate = 3600
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -35,7 +35,7 @@ export function generateMetadata(): Metadata {
 }
 
 export default async function NewGrantsPage() {
-  const grants = await getNewGrants().catch(() => [])
+  const grants = await getNewGrants().catch((err) => { console.error('[grants/new] getNewGrants failed:', err); return [] })
   const now = new Date()
   const monthName = MONTH_NAMES[now.getMonth()]
   const year = now.getFullYear()

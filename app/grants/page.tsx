@@ -7,7 +7,7 @@ import RevealOnScroll from '@/components/RevealOnScroll'
 import GrantsPageClient from '@/components/GrantsPageClient'
 import { getAllGrants, getClosingSoonGrants, getNewGrants } from '@/lib/grants'
 
-export const revalidate = 86400
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   title: 'Find & Browse Grants — Free Grant Search | Granted',
@@ -49,9 +49,9 @@ const jsonLd = {
 
 export default async function GrantsIndex() {
   const [grants, closingSoon, newGrants] = await Promise.all([
-    getAllGrants().catch(() => []),
-    getClosingSoonGrants(30).catch(() => []),
-    getNewGrants().catch(() => []),
+    getAllGrants().catch((err) => { console.error('[grants/page] getAllGrants failed:', err); return [] }),
+    getClosingSoonGrants(30).catch((err) => { console.error('[grants/page] getClosingSoonGrants failed:', err); return [] }),
+    getNewGrants().catch((err) => { console.error('[grants/page] getNewGrants failed:', err); return [] }),
   ])
   const activeGrants = grants.filter((g) => g.status === 'active')
   const upcomingGrants = grants.filter((g) => g.status === 'upcoming')

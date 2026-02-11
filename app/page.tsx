@@ -14,9 +14,10 @@ import HowGrantedWorks from '@/components/HowGrantedWorks'
 import TrendingGrants from '@/components/TrendingGrants'
 import EmailCapture from '@/components/EmailCapture'
 import { StatsCounter, Testimonials, OrgLogos } from '@/components/SocialProof'
-import { getActiveGrants } from '@/lib/grants'
+import { getClosingSoonGrants } from '@/lib/grants'
+import { safeFetch } from '@/lib/safe-fetch'
 
-export const revalidate = 86400
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   alternates: { canonical: 'https://grantedai.com' },
@@ -47,7 +48,11 @@ const softwareAppLd = {
 }
 
 export default async function HomePage() {
-  const trendingGrants = await getActiveGrants(8).catch(() => [])
+  const trending = await safeFetch(
+    () => getClosingSoonGrants(30).then(g => g.slice(0, 8)),
+    [],
+    'homepage:closingSoonGrants',
+  )
 
   return (
     <>
@@ -100,7 +105,7 @@ export default async function HomePage() {
         <HowGrantedWorks />
 
         {/* ── Trending Grants ── */}
-        <TrendingGrants grants={trendingGrants} />
+        <TrendingGrants grants={trending.data} error={trending.error} />
 
         {/* ── Stats counter ── */}
         <StatsCounter />

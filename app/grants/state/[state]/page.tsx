@@ -14,7 +14,7 @@ import {
   isGrantSeoReady,
 } from '@/lib/grants'
 
-export const revalidate = 86400
+export const revalidate = 3600
 
 type Props = { params: { state: string } }
 
@@ -50,7 +50,7 @@ export default async function StateGrantsPage({ params }: Props) {
   const stateObj = getGrantStateBySlug(params.state)
   if (!stateObj) return notFound()
 
-  const grants = await getGrantsByState(stateObj.name).catch(() => [])
+  const grants = await getGrantsByState(stateObj.name).catch((err) => { console.error(`[grants/state/${stateObj.slug}] getGrantsByState failed:`, err); return [] })
   const activeGrants = grants.filter((g) => g.status === 'active')
 
   const jsonLd = {

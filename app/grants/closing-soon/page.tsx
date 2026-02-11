@@ -8,7 +8,7 @@ import GrantCTA from '@/components/GrantCTA'
 import GrantFinderCTA from '@/components/GrantFinderCTA'
 import { getClosingSoonGrants } from '@/lib/grants'
 
-export const revalidate = 86400
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   title: 'Grants Closing Soon | Granted',
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 }
 
 export default async function ClosingSoonPage() {
-  const grants = await getClosingSoonGrants(30).catch(() => [])
+  const grants = await getClosingSoonGrants(30).catch((err) => { console.error('[grants/closing-soon] getClosingSoonGrants failed:', err); return [] })
 
   return (
     <>

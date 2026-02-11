@@ -14,7 +14,7 @@ const FOUNDATIONS_PER_SITEMAP = 45_000
  * Chunk 1..N = next 45K foundations each
  */
 export async function generateSitemaps() {
-  const total = await getFoundationCount().catch(() => 0)
+  const total = await getFoundationCount().catch((err) => { console.error('[foundations/sitemap] getFoundationCount failed:', err); return 0 })
   const chunks = Math.max(1, Math.ceil(total / FOUNDATIONS_PER_SITEMAP))
   return Array.from({ length: chunks }, (_, i) => ({ id: i }))
 }
@@ -55,7 +55,7 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
 
   // Foundation pages for this chunk
   const offset = id * FOUNDATIONS_PER_SITEMAP
-  const slugs = await getFoundationSlugsPage(offset, FOUNDATIONS_PER_SITEMAP).catch(() => [])
+  const slugs = await getFoundationSlugsPage(offset, FOUNDATIONS_PER_SITEMAP).catch((err) => { console.error(`[foundations/sitemap] getFoundationSlugsPage(${offset}) failed:`, err); return [] })
 
   for (const f of slugs) {
     entries.push({

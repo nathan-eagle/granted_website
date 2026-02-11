@@ -32,7 +32,7 @@ import {
 } from '@/lib/blog'
 import RelatedBlogPosts from '@/components/RelatedBlogPosts'
 
-export const revalidate = 86400
+export const revalidate = 3600
 
 type Props = { params: { slug: string } }
 type GrantFaq = { question: string; answer: string }
@@ -527,23 +527,23 @@ export default async function GrantSlugPage({ params }: Props) {
   const category = getCategoryBySlug(params.slug)
   if (category) {
     const [grants, blogPosts] = await Promise.all([
-      getGrantsForCategory(category).catch(() => []),
+      getGrantsForCategory(category).catch((err) => { console.error(`[grants/${params.slug}] getGrantsForCategory failed:`, err); return [] }),
       (category.type === 'audience'
         ? getPostsByAudienceCategory(category.slug, 6)
         : getPostsByGrantCategory(category.slug, 6)
-      ).catch(() => []),
+      ).catch((err) => { console.error(`[grants/${params.slug}] blog posts failed:`, err); return [] }),
     ])
     const readyGrants = grants.filter((g) => isGrantSeoReady(g))
     return <CategoryPage category={category} grants={readyGrants} blogPosts={blogPosts} />
   }
 
   // 2. Check individual grant
-  const grant = await getGrantBySlug(params.slug).catch(() => null)
+  const grant = await getGrantBySlug(params.slug).catch((err) => { console.error(`[grants/${params.slug}] getGrantBySlug failed:`, err); return null })
   if (grant) {
     const stale = !isGrantSeoReady(grant)
     const [related, blogPosts] = await Promise.all([
-      getRelatedGrants(grant.funder, grant.slug, 3).catch(() => []),
-      getRelatedBlogPosts(grant.funder, 3).catch(() => []),
+      getRelatedGrants(grant.funder, grant.slug, 3).catch((err) => { console.error(`[grants/${params.slug}] getRelatedGrants failed:`, err); return [] }),
+      getRelatedBlogPosts(grant.funder, 3).catch((err) => { console.error(`[grants/${params.slug}] getRelatedBlogPosts failed:`, err); return [] }),
     ])
     const readyRelated = related.filter((g) => isGrantSeoReady(g))
     return <GrantDetailPage grant={grant} related={readyRelated} blogPosts={blogPosts} stale={stale} />
