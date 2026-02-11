@@ -80,6 +80,7 @@ interface Props {
   focusArea: string
   orgType: string
   state: string
+  enrichedNames?: Set<string>
 }
 
 export default function GrantResultsTable({
@@ -92,6 +93,7 @@ export default function GrantResultsTable({
   focusArea,
   orgType,
   state,
+  enrichedNames,
 }: Props) {
   const sorted = sortOpportunities(opportunities, sort)
 
@@ -123,10 +125,15 @@ export default function GrantResultsTable({
 
       {/* Results table */}
       <div className="space-y-2">
-        {sorted.map((opp, i) => (
+        {sorted.map((opp, i) => {
+          const isEnriched = enrichedNames?.has(opp.name) ?? false
+          return (
           <div
             key={i}
-            className="card p-4 md:p-5 transition-all hover:shadow-lg hover:border-brand-yellow/30 cursor-pointer group"
+            className={`card p-4 md:p-5 transition-all hover:shadow-lg hover:border-brand-yellow/30 cursor-pointer group ${
+              isEnriched ? 'border-l-[3px] border-l-green-400 bg-green-50/30' : ''
+            }`}
+            style={isEnriched ? { animation: 'enrichHighlight 2s ease-out' } : undefined}
             onClick={() => onRowClick(opp)}
             role="button"
             tabIndex={0}
@@ -143,6 +150,11 @@ export default function GrantResultsTable({
                   {isNew(opp) && !isPastDeadline(opp.deadline) && (
                     <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700">
                       New
+                    </span>
+                  )}
+                  {isEnriched && (
+                    <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700">
+                      Web result
                     </span>
                   )}
                 </div>
@@ -352,7 +364,8 @@ export default function GrantResultsTable({
               </div>
             </div>
           </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

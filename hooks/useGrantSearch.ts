@@ -141,10 +141,20 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
   const [gateRequired, setGateRequired] = useState(false)
   const [broadened, setBroadened] = useState(false)
   const [searchSaved, setSearchSaved] = useState(false)
+  const [enriching, setEnriching] = useState(false)
+  const [enrichedNames, setEnrichedNames] = useState<Set<string>>(new Set())
 
   const searchParams = useSearchParams()
   const autoSearchedQueryRef = useRef<string | null>(null)
   const profileFetched = useRef(false)
+  const enrichPollRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Cleanup enrichment poll on unmount
+  useEffect(() => {
+    return () => {
+      if (enrichPollRef.current) clearTimeout(enrichPollRef.current)
+    }
+  }, [])
 
   useEffect(() => {
     setUnlocked(isUnlockedCheck())
@@ -169,7 +179,12 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
       .catch(() => {})
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const doSearch = useCallback(async (searchOrgType: string, searchFocusArea: string, searchState: string): Promise<Opportunity[]> => {
+  const doSearch = useCallback(async (
+    searchOrgType: string,
+    searchFocusArea: string,
+    searchState: string,
+    poll = false,
+  ): Promise<{ opportunities: Opportunity[]; dbOnly: boolean }> => {
     const res = await fetch(`${API_URL}/api/public/discover`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -177,6 +192,7 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
         org_type: searchOrgType || undefined,
         focus_area: searchFocusArea,
         state: searchState || undefined,
+        ...(poll ? { poll: true } : {}),
       }),
     })
 
@@ -184,7 +200,7 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
       setError('You have reached the daily search limit. Enter your email below for unlimited access, or try again tomorrow.')
       setPhase('form')
       setGateRequired(true)
-      return []
+      return { opportunities: [], dbOnly: false }
     }
 
     if (!res.ok) {
@@ -193,8 +209,84 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
     }
 
     const data = await res.json()
-    return data.opportunities || []
+    return {
+      opportunities: data.opportunities || [],
+      dbOnly: Boolean(data.db_only),
+    }
   }, [])
+
+  const matchSlugs = useCallback(async (results: Opportunity[]) => {
+    if (!supabase || results.length === 0) return
+    try {
+      const names = results.map(r => r.name)
+      const { data: matches } = await supabase
+        .from('public_grants')
+        .select('name, slug')
+        .in('name', names)
+      if (matches) {
+        const slugMap = new Map(matches.map(m => [m.name, m.slug]))
+        for (const r of results) {
+          const slug = slugMap.get(r.name)
+          if (slug) r.slug = slug
+        }
+      }
+    } catch {}
+  }, [])
+
+  const startEnrichmentPoll = useCallback((
+    searchOrgType: string,
+    searchFocusArea: string,
+    searchState: string,
+    initialNames: Set<string>,
+  ) => {
+    let attempts = 0
+    const maxAttempts = 8 // 8 * 5s = 40s max
+
+    const poll = async () => {
+      attempts++
+      if (attempts > maxAttempts) {
+        setEnriching(false)
+        return
+      }
+
+      try {
+        const result = await doSearch(searchOrgType, searchFocusArea, searchState, true)
+
+        if (!result.dbOnly && result.opportunities.length > 0) {
+          // Identify new grants from LLM enrichment
+          const newNames = new Set<string>()
+          for (const opp of result.opportunities) {
+            if (!initialNames.has(opp.name.toLowerCase())) {
+              newNames.add(opp.name)
+            }
+          }
+
+          await matchSlugs(result.opportunities)
+          result.opportunities.sort((a, b) => (b.fit_score || 0) - (a.fit_score || 0))
+
+          setOpportunities(result.opportunities)
+          setEnrichedNames(newNames)
+          setEnriching(false)
+
+          trackEvent('grant_finder_enriched', {
+            new_count: String(newNames.size),
+            total_count: String(result.opportunities.length),
+            poll_attempts: String(attempts),
+          })
+
+          // Clear highlights after 15 seconds
+          setTimeout(() => setEnrichedNames(new Set()), 15000)
+          return
+        }
+      } catch {
+        // Silently retry on next poll
+      }
+
+      enrichPollRef.current = setTimeout(poll, 5000)
+    }
+
+    enrichPollRef.current = setTimeout(poll, 5000)
+  }, [doSearch, matchSlugs])
 
   const runSearch = useCallback(async (
     searchOrgType: string,
@@ -208,6 +300,14 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
     setError('')
     setBroadened(false)
     setGateRequired(false)
+
+    // Cancel any in-flight enrichment poll from previous search
+    if (enrichPollRef.current) {
+      clearTimeout(enrichPollRef.current)
+      enrichPollRef.current = null
+    }
+    setEnriching(false)
+    setEnrichedNames(new Set())
 
     const currentlyUnlocked = isUnlockedCheck()
     setUnlocked(currentlyUnlocked)
@@ -228,41 +328,28 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
     setPhase('loading')
 
     try {
-      let results = await doSearch(searchOrgType, normalizedFocus, searchState)
+      let result = await doSearch(searchOrgType, normalizedFocus, searchState)
       let broadenedSearch = false
+      let finalSearchOrgType = searchOrgType
+      let finalSearchState = searchState
 
-      if (results.length === 0 && (searchOrgType || searchState)) {
+      if (result.opportunities.length === 0 && (searchOrgType || searchState)) {
         if (searchState) {
-          results = await doSearch(searchOrgType, normalizedFocus, '')
+          result = await doSearch(searchOrgType, normalizedFocus, '')
+          finalSearchState = ''
         }
-        if (results.length === 0 && searchOrgType) {
-          results = await doSearch('', normalizedFocus, '')
+        if (result.opportunities.length === 0 && searchOrgType) {
+          result = await doSearch('', normalizedFocus, '')
+          finalSearchOrgType = ''
         }
-        if (results.length > 0) {
+        if (result.opportunities.length > 0) {
           broadenedSearch = true
           setBroadened(true)
         }
       }
 
-      // Match slugs from public_grants table
-      if (supabase && results.length > 0) {
-        try {
-          const names = results.map(r => r.name)
-          const { data: matches } = await supabase
-            .from('public_grants')
-            .select('name, slug')
-            .in('name', names)
-
-          if (matches) {
-            const slugMap = new Map(matches.map(m => [m.name, m.slug]))
-            for (const r of results) {
-              const slug = slugMap.get(r.name)
-              if (slug) r.slug = slug
-            }
-          }
-        } catch {}
-      }
-
+      const results = result.opportunities
+      await matchSlugs(results)
       results.sort((a, b) => (b.fit_score || 0) - (a.fit_score || 0))
 
       setOpportunities(results)
@@ -271,10 +358,18 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
       trackEvent('grant_finder_results', {
         count: String(results.length),
         broadened: String(broadenedSearch),
+        db_only: String(result.dbOnly),
         source,
         focus_area: summarizeTerm(normalizedFocus),
         top_grant: results[0]?.name ?? '',
       })
+
+      // If response was db_only, poll for LLM-enriched results in background
+      if (result.dbOnly && results.length > 0) {
+        const initialNames = new Set(results.map(r => r.name.toLowerCase()))
+        setEnriching(true)
+        startEnrichmentPoll(finalSearchOrgType, normalizedFocus, finalSearchState, initialNames)
+      }
     } catch (err) {
       trackEvent('grant_finder_search_error', {
         source,
@@ -283,7 +378,7 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
       setPhase('form')
     }
-  }, [doSearch])
+  }, [doSearch, matchSlugs, startEnrichmentPoll])
 
   const handleSearch = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -291,6 +386,12 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
   }, [orgType, focusArea, state, runSearch])
 
   const handleBackToBrowsing = useCallback(() => {
+    if (enrichPollRef.current) {
+      clearTimeout(enrichPollRef.current)
+      enrichPollRef.current = null
+    }
+    setEnriching(false)
+    setEnrichedNames(new Set())
     setPhase('form')
     autoSearchedQueryRef.current = null
     const url = new URL(window.location.href)
@@ -402,6 +503,8 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
     gateRequired,
     broadened,
     searchSaved,
+    enriching,
+    enrichedNames,
     // Setters
     setOrgType,
     setFocusArea,

@@ -58,6 +58,8 @@ export default function GrantsPageClient({
     gateRequired,
     broadened,
     searchSaved,
+    enriching,
+    enrichedNames,
     setOrgType,
     setFocusArea,
     setState,
@@ -259,6 +261,28 @@ export default function GrantsPageClient({
               </p>
             )}
 
+            {/* Enrichment status banner */}
+            {enriching && (
+              <div className="flex items-center gap-2.5 px-4 py-3 rounded-lg bg-brand-yellow/8 border border-brand-yellow/20 mb-4 animate-pulse">
+                <svg className="shrink-0 animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12a9 9 0 11-6.219-8.56" />
+                </svg>
+                <p className="text-xs font-medium text-navy">
+                  Searching the web for additional grants&hellip; new results will appear automatically.
+                </p>
+              </div>
+            )}
+            {!enriching && enrichedNames.size > 0 && (
+              <div className="flex items-center gap-2.5 px-4 py-3 rounded-lg bg-green-50 border border-green-200 mb-4">
+                <svg className="shrink-0 text-green-600" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+                <p className="text-xs font-medium text-green-800">
+                  {enrichedNames.size} new {enrichedNames.size === 1 ? 'grant' : 'grants'} found from web search
+                </p>
+              </div>
+            )}
+
             {/* Empty state */}
             {opportunities.length === 0 ? (
               <div className="text-center">
@@ -307,6 +331,7 @@ export default function GrantsPageClient({
                       focusArea={focusArea}
                       orgType={orgType}
                       state={searchState}
+                      enrichedNames={enrichedNames}
                     />
                   </>
                 )}
