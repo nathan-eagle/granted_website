@@ -119,10 +119,9 @@ export default async function FoundationsIndex() {
           {topFoundations.length === 0 && (
             <RevealOnScroll>
               <div className="text-center py-20">
-                <p className="heading-md text-navy/60">No foundations matched right now</p>
+                <p className="heading-md text-navy/60">Browse foundations above</p>
                 <p className="body-lg text-navy-light/50 mt-3 max-w-md mx-auto">
-                  New funders are added continuously. Try a broader filter set,
-                  or start your proposal with Granted AI.
+                  Select a category or state to explore the world&apos;s largest private foundation database.
                 </p>
               </div>
             </RevealOnScroll>

@@ -132,10 +132,9 @@ function CategoryPage({ category, foundations }: { category: FoundationCategory;
           ) : (
             <RevealOnScroll>
               <div className="text-center py-20">
-                <p className="heading-md text-navy/60">No foundations matched this filter yet</p>
+                <p className="heading-md text-navy/60">No {category.name.toLowerCase()} foundations yet</p>
                 <p className="body-lg text-navy-light/50 mt-3 max-w-md mx-auto">
-                  New funders are added continuously. Try related categories or
-                  location filters.
+                  Our foundation database is growing. Check back soon or try a related category.
                 </p>
               </div>
             </RevealOnScroll>

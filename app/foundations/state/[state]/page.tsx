@@ -88,9 +88,9 @@ export default async function StateFoundationsPage({ params }: Props) {
           ) : (
             <RevealOnScroll>
               <div className="text-center py-20">
-                <p className="heading-md text-navy/60">No foundations found</p>
+                <p className="heading-md text-navy/60">No foundations in {stateObj.name} yet</p>
                 <p className="body-lg text-navy-light/50 mt-3 max-w-md mx-auto">
-                  Try broader filters. New funders are added continuously.
+                  Our foundation database is growing. Check back soon or browse by category from the directory.
                 </p>
               </div>
             </RevealOnScroll>
