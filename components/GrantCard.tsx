@@ -49,10 +49,10 @@ export default function GrantCard({ grant }: { grant: PublicGrant }) {
           </div>
           <GrantStatusBadge status={grant.status} />
         </div>
-        <h3 className="heading-md text-navy group-hover:text-brand-gold transition-colors leading-snug text-lg font-bold line-clamp-2">
+        <h3 className="text-sm font-bold text-navy group-hover:text-brand-gold transition-colors leading-snug line-clamp-2">
           {grant.name}
         </h3>
-        <p className="text-sm text-navy-light mt-3 line-clamp-2 flex-1">
+        <p className="text-sm text-navy-light mt-3 line-clamp-4 flex-1">
           {grant.summary}
         </p>
         <div className="flex items-center justify-between text-xs text-navy-light/50 mt-5 pt-4 border-t border-navy/5">

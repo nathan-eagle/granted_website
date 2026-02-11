@@ -69,11 +69,13 @@ export default async function GrantsIndex() {
           <Container className="py-20 md:py-28 relative z-10">
             <RevealOnScroll>
               <div className="text-center max-w-3xl mx-auto">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-yellow/10 border border-brand-yellow/20 mb-6">
-                  <span className="text-sm font-semibold text-brand-yellow">
-                    {grants.length.toLocaleString()}+ Opportunities
-                  </span>
-                </div>
+                {grants.length > 0 && (
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-yellow/10 border border-brand-yellow/20 mb-6">
+                    <span className="text-sm font-semibold text-brand-yellow">
+                      {grants.length.toLocaleString()}+ Opportunities
+                    </span>
+                  </div>
+                )}
                 <h1 className="heading-xl text-white">
                   Find the right grant for your organization
                 </h1>

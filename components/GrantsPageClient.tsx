@@ -505,13 +505,13 @@ export default function GrantsPageClient({
             </RevealOnScroll>
           )}
 
-          {/* Empty state */}
+          {/* Empty state — only when DB has no grants */}
           {totalGrantCount === 0 && (
             <RevealOnScroll>
               <div className="text-center py-20">
-                <p className="heading-md text-navy/60">No grants matched right now</p>
+                <p className="heading-md text-navy/60">Search for grants above</p>
                 <p className="body-lg text-navy-light/50 mt-3 max-w-md mx-auto">
-                  New grants are added continuously. Try a broader search, or start drafting your next proposal with Granted AI.
+                  Use our AI-powered search to discover federal, foundation, and corporate grant opportunities tailored to your organization.
                 </p>
               </div>
             </RevealOnScroll>

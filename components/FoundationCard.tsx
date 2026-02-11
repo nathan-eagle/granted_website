@@ -25,10 +25,10 @@ export default function FoundationCard({ foundation }: { foundation: Foundation 
             {getFoundationCategoryLabel(foundation)}
           </span>
         </div>
-        <h3 className="heading-md text-navy group-hover:text-brand-gold transition-colors leading-snug text-lg font-bold line-clamp-2">
+        <h3 className="text-sm font-bold text-navy group-hover:text-brand-gold transition-colors leading-snug line-clamp-2">
           {foundation.name}
         </h3>
-        <p className="text-sm text-navy-light mt-3 line-clamp-1 flex-1">
+        <p className="text-sm text-navy-light mt-3 line-clamp-4 flex-1">
           {getFoundationLocation(foundation)}
         </p>
         <div className="flex items-center justify-between text-xs text-navy-light/50 mt-5 pt-4 border-t border-navy/5">
