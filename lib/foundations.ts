@@ -221,6 +221,16 @@ function nteeMajorLabel(nteeMajor: string | null): string {
   return cat?.name ?? 'General'
 }
 
+export function getFoundationCategoryTheme(
+  f: Pick<Foundation, 'ntee_major'>,
+): { label: string; gradient: string } {
+  const cat = FOUNDATION_CATEGORIES.find((c) => f.ntee_major && c.nteeMajors.includes(f.ntee_major))
+  if (!cat) {
+    return { label: 'General', gradient: 'blog-header-tips' }
+  }
+  return { label: cat.name, gradient: cat.gradient }
+}
+
 export function getFoundationLocation(f: Pick<Foundation, 'city' | 'state'>): string {
   const parts = [f.city, f.state].filter(Boolean)
   return parts.length > 0 ? parts.join(', ') : 'United States'
