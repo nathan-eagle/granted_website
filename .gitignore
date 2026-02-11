@@ -16,3 +16,7 @@ pnpm-debug.log*
 
 .vercel
 .env*.local
+
+# Comparison screenshots (one-time artifacts from scrape-pages script)
+compare/*.png
+compare/*.json
