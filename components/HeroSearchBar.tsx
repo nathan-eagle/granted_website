@@ -12,6 +12,10 @@ const AGENCY_CHIPS = [
   { label: 'USDA', href: '/grants/usda' },
   { label: 'DARPA', href: '/grants/darpa' },
   { label: 'NOAA', href: '/grants/noaa' },
+  { label: 'DOL', href: '/grants/dol' },
+  { label: 'HUD', href: '/grants/hud' },
+  { label: 'NEA', href: '/grants/nea' },
+  { label: 'DOE', href: '/grants/doe' },
 ]
 
 export default function HeroSearchBar({ className }: { className?: string }) {

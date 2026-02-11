@@ -5,8 +5,10 @@ import { trackEvent } from '@/lib/analytics'
 import {
   type Phase,
   type Opportunity,
+  type AmountRangeKey,
   ORG_TYPES,
   US_STATES,
+  AMOUNT_RANGES,
   summarizeTerm,
 } from '@/hooks/useGrantSearch'
 
@@ -29,6 +31,7 @@ interface GrantFinderProps {
   orgType: string
   focusArea: string
   state: string
+  amountRange: AmountRangeKey
   error: string
   gateRequired: boolean
   unlocked: boolean
@@ -38,6 +41,7 @@ interface GrantFinderProps {
   setOrgType: (v: string) => void
   setFocusArea: (v: string) => void
   setState: (v: string) => void
+  setAmountRange: (v: AmountRangeKey) => void
   setEmail: (v: string) => void
   // Actions
   handleSearch: (e: React.FormEvent) => void
@@ -50,6 +54,7 @@ export default function GrantFinder({
   orgType,
   focusArea,
   state,
+  amountRange,
   error,
   gateRequired,
   unlocked,
@@ -58,6 +63,7 @@ export default function GrantFinder({
   setOrgType,
   setFocusArea,
   setState,
+  setAmountRange,
   setEmail,
   handleSearch,
   handleEmailSubmit,
@@ -248,30 +254,56 @@ export default function GrantFinder({
             />
           </div>
 
-          {/* State */}
-          <div>
-            <label htmlFor="gf-state" className="block text-sm font-semibold text-navy mb-2">
-              State / Territory
-            </label>
-            <select
-              id="gf-state"
-              value={state}
-              onChange={e => {
-                const value = e.target.value
-                setState(value)
-                trackEvent('grant_finder_filter_change', {
-                  filter: 'state',
-                  value: value || 'any',
-                  surface: 'form',
-                })
-              }}
-              className="w-full rounded-lg border border-navy/15 bg-white px-4 py-3 text-sm text-navy outline-none focus:border-brand-yellow/60 focus:ring-2 focus:ring-brand-yellow/20 transition appearance-none"
-            >
-              <option value="">Select state (optional)</option>
-              {US_STATES.map(s => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
+          {/* State + Amount row */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="gf-state" className="block text-sm font-semibold text-navy mb-2">
+                State / Territory
+              </label>
+              <select
+                id="gf-state"
+                value={state}
+                onChange={e => {
+                  const value = e.target.value
+                  setState(value)
+                  trackEvent('grant_finder_filter_change', {
+                    filter: 'state',
+                    value: value || 'any',
+                    surface: 'form',
+                  })
+                }}
+                className="w-full rounded-lg border border-navy/15 bg-white px-4 py-3 text-sm text-navy outline-none focus:border-brand-yellow/60 focus:ring-2 focus:ring-brand-yellow/20 transition appearance-none"
+              >
+                <option value="">Select state (optional)</option>
+                {US_STATES.map(s => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="gf-amount" className="block text-sm font-semibold text-navy mb-2">
+                Funding Amount
+              </label>
+              <select
+                id="gf-amount"
+                value={amountRange}
+                onChange={e => {
+                  const value = e.target.value as AmountRangeKey
+                  setAmountRange(value)
+                  trackEvent('grant_finder_filter_change', {
+                    filter: 'amount_range',
+                    value: value || 'any',
+                    surface: 'form',
+                  })
+                }}
+                className="w-full rounded-lg border border-navy/15 bg-white px-4 py-3 text-sm text-navy outline-none focus:border-brand-yellow/60 focus:ring-2 focus:ring-brand-yellow/20 transition appearance-none"
+              >
+                {AMOUNT_RANGES.map(r => (
+                  <option key={r.key} value={r.key}>{r.label}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 

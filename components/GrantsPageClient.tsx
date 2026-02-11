@@ -17,7 +17,7 @@ import GrantCTA from '@/components/GrantCTA'
 import CheckoutButton from '@/components/CheckoutButton'
 import { trackEvent } from '@/lib/analytics'
 import { GRANT_CATEGORIES, GRANT_US_STATES, type PublicGrant } from '@/lib/grants'
-import { ORG_TYPES, US_STATES } from '@/hooks/useGrantSearch'
+import { ORG_TYPES, US_STATES, AMOUNT_RANGES, type AmountRangeKey } from '@/hooks/useGrantSearch'
 
 const agencyCategories = GRANT_CATEGORIES.filter((c) => c.type === 'agency')
 const audienceCategories = GRANT_CATEGORIES.filter((c) => c.type === 'audience')
@@ -50,6 +50,7 @@ export default function GrantsPageClient({
     orgType,
     focusArea,
     state: searchState,
+    amountRange,
     opportunities,
     error,
     unlocked,
@@ -63,6 +64,7 @@ export default function GrantsPageClient({
     setOrgType,
     setFocusArea,
     setState,
+    setAmountRange,
     setEmail,
     handleSearch,
     handleBackToBrowsing,
@@ -159,6 +161,7 @@ export default function GrantsPageClient({
             orgType={orgType}
             focusArea={focusArea}
             state={searchState}
+            amountRange={amountRange}
             error={error}
             gateRequired={gateRequired}
             unlocked={unlocked}
@@ -167,6 +170,7 @@ export default function GrantsPageClient({
             setOrgType={setOrgType}
             setFocusArea={setFocusArea}
             setState={setState}
+            setAmountRange={setAmountRange}
             setEmail={setEmail}
             handleSearch={handleSearch}
             handleEmailSubmit={handleEmailSubmit}
@@ -239,6 +243,22 @@ export default function GrantsPageClient({
                     <option value="">Any state</option>
                     {US_STATES.map(s => (
                       <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={amountRange}
+                    onChange={e => {
+                      setAmountRange(e.target.value as AmountRangeKey)
+                      trackEvent('grant_finder_filter_change', {
+                        filter: 'amount_range',
+                        value: e.target.value || 'any',
+                        surface: 'results',
+                      })
+                    }}
+                    className="sm:w-36 rounded-md border border-navy/10 bg-white px-3 py-2 text-sm text-navy outline-none focus:border-brand-yellow/60 transition appearance-none"
+                  >
+                    {AMOUNT_RANGES.map(r => (
+                      <option key={r.key} value={r.key}>{r.label}</option>
                     ))}
                   </select>
                 </div>

@@ -67,7 +67,7 @@ function inferFundingType(opp: Opportunity): FundingType | null {
   // Federal agencies
   const federalSources = ['grants_gov', 'sam_assistance', 'nih_guide', 'nsf_funding', 'nih_weekly_index', 'nsf_upcoming']
   if (federalSources.includes(source)) return 'Federal'
-  const federalKeywords = ['nih', 'nsf', 'epa', 'usda', 'doe', 'darpa', 'noaa', 'hud', 'dod', 'nasa', 'fema', 'cdc', 'department of', 'u.s.', 'federal', 'national institutes', 'national science']
+  const federalKeywords = ['nih', 'nsf', 'epa', 'usda', 'doe', 'darpa', 'noaa', 'hud', 'dol', 'dod', 'nasa', 'fema', 'cdc', 'nea', 'neh', 'department of', 'u.s.', 'federal', 'national institutes', 'national science', 'national endowment']
   if (federalKeywords.some(k => funder.includes(k))) return 'Federal'
 
   // State

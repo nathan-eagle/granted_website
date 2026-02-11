@@ -11,10 +11,24 @@ export const ORG_TYPES = [
   'Nonprofit',
   'University',
   'Small Business',
+  'Individual',
+  'HBCU',
   'Tribal',
+  'FFRDC',
+  'For-profit / SBIR',
   'Government',
   'Other',
 ] as const
+
+export type AmountRangeKey = '' | 'lt50k' | '50k-250k' | '250k-1m' | 'gt1m'
+
+export const AMOUNT_RANGES: { key: AmountRangeKey; label: string; min?: number; max?: number }[] = [
+  { key: '', label: 'Any amount' },
+  { key: 'lt50k', label: 'Under $50K', max: 50_000 },
+  { key: '50k-250k', label: '$50K – $250K', min: 50_000, max: 250_000 },
+  { key: '250k-1m', label: '$250K – $1M', min: 250_000, max: 1_000_000 },
+  { key: 'gt1m', label: 'Over $1M', min: 1_000_000 },
+]
 
 export const US_STATES = [
   'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado',
@@ -133,6 +147,7 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
   const [orgType, setOrgType] = useState('')
   const [focusArea, setFocusArea] = useState('')
   const [state, setState] = useState('')
+  const [amountRange, setAmountRange] = useState<AmountRangeKey>('')
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
   const [error, setError] = useState('')
   const [unlocked, setUnlocked] = useState(false)
@@ -184,7 +199,9 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
     searchFocusArea: string,
     searchState: string,
     poll = false,
+    searchAmountRange?: AmountRangeKey,
   ): Promise<{ opportunities: Opportunity[]; dbOnly: boolean }> => {
+    const amountDef = AMOUNT_RANGES.find(r => r.key === (searchAmountRange ?? ''))
     const res = await fetch(`${API_URL}/api/public/discover`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -193,6 +210,8 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
         focus_area: searchFocusArea,
         state: searchState || undefined,
         ...(poll ? { poll: true } : {}),
+        ...(amountDef?.min ? { amount_min: amountDef.min } : {}),
+        ...(amountDef?.max ? { amount_max: amountDef.max } : {}),
       }),
     })
 
@@ -238,6 +257,7 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
     searchFocusArea: string,
     searchState: string,
     initialNames: Set<string>,
+    searchAmountRange?: AmountRangeKey,
   ) => {
     let attempts = 0
     const maxAttempts = 8 // 8 * 5s = 40s max
@@ -250,7 +270,7 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
       }
 
       try {
-        const result = await doSearch(searchOrgType, searchFocusArea, searchState, true)
+        const result = await doSearch(searchOrgType, searchFocusArea, searchState, true, searchAmountRange)
 
         if (!result.dbOnly && result.opportunities.length > 0) {
           // Identify new grants from LLM enrichment
@@ -293,6 +313,7 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
     searchFocusArea: string,
     searchState: string,
     source: 'manual' | 'url' = 'manual',
+    searchAmountRange?: AmountRangeKey,
   ) => {
     const normalizedFocus = searchFocusArea.trim()
     if (!normalizedFocus) return
@@ -328,18 +349,18 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
     setPhase('loading')
 
     try {
-      let result = await doSearch(searchOrgType, normalizedFocus, searchState)
+      let result = await doSearch(searchOrgType, normalizedFocus, searchState, false, searchAmountRange)
       let broadenedSearch = false
       let finalSearchOrgType = searchOrgType
       let finalSearchState = searchState
 
       if (result.opportunities.length === 0 && (searchOrgType || searchState)) {
         if (searchState) {
-          result = await doSearch(searchOrgType, normalizedFocus, '')
+          result = await doSearch(searchOrgType, normalizedFocus, '', false, searchAmountRange)
           finalSearchState = ''
         }
         if (result.opportunities.length === 0 && searchOrgType) {
-          result = await doSearch('', normalizedFocus, '')
+          result = await doSearch('', normalizedFocus, '', false, searchAmountRange)
           finalSearchOrgType = ''
         }
         if (result.opportunities.length > 0) {
@@ -368,7 +389,7 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
       if (result.dbOnly && results.length > 0) {
         const initialNames = new Set(results.map(r => r.name.toLowerCase()))
         setEnriching(true)
-        startEnrichmentPoll(finalSearchOrgType, normalizedFocus, finalSearchState, initialNames)
+        startEnrichmentPoll(finalSearchOrgType, normalizedFocus, finalSearchState, initialNames, searchAmountRange)
       }
     } catch (err) {
       trackEvent('grant_finder_search_error', {
@@ -382,8 +403,8 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
 
   const handleSearch = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
-    await runSearch(orgType, focusArea, state, 'manual')
-  }, [orgType, focusArea, state, runSearch])
+    await runSearch(orgType, focusArea, state, 'manual', amountRange)
+  }, [orgType, focusArea, state, amountRange, runSearch])
 
   const handleBackToBrowsing = useCallback(() => {
     if (enrichPollRef.current) {
@@ -417,8 +438,8 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
     }
 
     autoSearchedQueryRef.current = q
-    void runSearch(orgType, q, state, 'url')
-  }, [searchParams, focusArea, orgType, state, runSearch])
+    void runSearch(orgType, q, state, 'url', amountRange)
+  }, [searchParams, focusArea, orgType, state, amountRange, runSearch])
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -495,6 +516,7 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
     orgType,
     focusArea,
     state,
+    amountRange,
     opportunities,
     error,
     unlocked,
@@ -509,6 +531,7 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
     setOrgType,
     setFocusArea,
     setState,
+    setAmountRange,
     setEmail,
     // Actions
     handleSearch,
