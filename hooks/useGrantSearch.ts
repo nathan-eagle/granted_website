@@ -115,6 +115,13 @@ export function buildApplyUrl(opportunity: Opportunity): string {
   return `${API_URL}/api/auth/signin?callbackUrl=${callback}`
 }
 
+export function isPastDeadline(deadline: string | undefined): boolean {
+  if (!deadline || deadline.toLowerCase() === 'rolling') return false
+  const parsed = Date.parse(deadline)
+  if (isNaN(parsed)) return false
+  return parsed < Date.now()
+}
+
 export function summarizeTerm(input: string): string {
   const normalized = input.trim().replace(/\s+/g, ' ')
   if (!normalized) return ''

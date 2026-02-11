@@ -8,6 +8,7 @@ import {
   relativeTime,
   buildApplyUrl,
   summarizeTerm,
+  isPastDeadline,
 } from '@/hooks/useGrantSearch'
 
 export type SortOption = 'best_match' | 'deadline' | 'amount' | 'newest'
@@ -139,7 +140,7 @@ export default function GrantResultsTable({
                   <h3 className="text-sm font-semibold text-navy leading-snug truncate group-hover:text-brand-gold transition-colors">
                     {opp.name}
                   </h3>
-                  {isNew(opp) && (
+                  {isNew(opp) && !isPastDeadline(opp.deadline) && (
                     <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700">
                       New
                     </span>
@@ -184,28 +185,40 @@ export default function GrantResultsTable({
 
               {/* Deadline */}
               <div className="shrink-0 w-28 text-right">
-                <span className="text-xs text-navy-light/70">{opp.deadline || 'Rolling'}</span>
+                {isPastDeadline(opp.deadline) ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-red-50 text-red-600 border border-red-100">
+                    Deadline Passed
+                  </span>
+                ) : (
+                  <span className="text-xs text-navy-light/70">{opp.deadline || 'Rolling'}</span>
+                )}
               </div>
 
               {/* Actions */}
               <div className="shrink-0 flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                <a
-                  href={buildApplyUrl(opp)}
-                  onClick={() => {
-                    trackEvent('grant_finder_apply_click', {
-                      grant_name: opp.name.slice(0, 120),
-                      grant_slug: opp.slug || '',
-                      source: 'result_table',
-                      focus_area: summarizeTerm(focusArea),
-                      org_type: orgType || 'any',
-                      state: state || 'any',
-                    })
-                  }}
-                  className="inline-flex items-center gap-1 rounded-md bg-brand-yellow px-3 py-1.5 text-xs font-semibold text-navy hover:bg-brand-gold transition-colors"
-                >
-                  Apply
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                </a>
+                {isPastDeadline(opp.deadline) ? (
+                  <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-400 cursor-not-allowed">
+                    Expired
+                  </span>
+                ) : (
+                  <a
+                    href={buildApplyUrl(opp)}
+                    onClick={() => {
+                      trackEvent('grant_finder_apply_click', {
+                        grant_name: opp.name.slice(0, 120),
+                        grant_slug: opp.slug || '',
+                        source: 'result_table',
+                        focus_area: summarizeTerm(focusArea),
+                        org_type: orgType || 'any',
+                        state: state || 'any',
+                      })
+                    }}
+                    className="inline-flex items-center gap-1 rounded-md bg-brand-yellow px-3 py-1.5 text-xs font-semibold text-navy hover:bg-brand-gold transition-colors"
+                  >
+                    Apply
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  </a>
+                )}
                 {unlocked && opp.rfp_url && (
                   <a
                     href={opp.rfp_url}
@@ -236,7 +249,7 @@ export default function GrantResultsTable({
                     <h3 className="text-sm font-semibold text-navy leading-snug line-clamp-2 group-hover:text-brand-gold transition-colors">
                       {opp.name}
                     </h3>
-                    {isNew(opp) && (
+                    {isNew(opp) && !isPastDeadline(opp.deadline) && (
                       <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700">
                         New
                       </span>
@@ -281,9 +294,9 @@ export default function GrantResultsTable({
                   </span>
                 )}
                 {opp.deadline && (
-                  <span className="inline-flex items-center gap-1">
+                  <span className={`inline-flex items-center gap-1 ${isPastDeadline(opp.deadline) ? 'text-red-500 font-medium' : ''}`}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-                    {opp.deadline}
+                    {isPastDeadline(opp.deadline) ? 'Deadline Passed' : opp.deadline}
                   </span>
                 )}
               </div>
@@ -302,23 +315,29 @@ export default function GrantResultsTable({
 
               {/* Action buttons */}
               <div className="mt-3 flex items-center gap-3" onClick={e => e.stopPropagation()}>
-                <a
-                  href={buildApplyUrl(opp)}
-                  onClick={() => {
-                    trackEvent('grant_finder_apply_click', {
-                      grant_name: opp.name.slice(0, 120),
-                      grant_slug: opp.slug || '',
-                      source: 'result_table_mobile',
-                      focus_area: summarizeTerm(focusArea),
-                      org_type: orgType || 'any',
-                      state: state || 'any',
-                    })
-                  }}
-                  className="inline-flex items-center gap-1 rounded-md bg-brand-yellow px-3 py-1.5 text-xs font-semibold text-navy hover:bg-brand-gold transition-colors"
-                >
-                  Apply
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                </a>
+                {isPastDeadline(opp.deadline) ? (
+                  <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-400 cursor-not-allowed">
+                    Expired
+                  </span>
+                ) : (
+                  <a
+                    href={buildApplyUrl(opp)}
+                    onClick={() => {
+                      trackEvent('grant_finder_apply_click', {
+                        grant_name: opp.name.slice(0, 120),
+                        grant_slug: opp.slug || '',
+                        source: 'result_table_mobile',
+                        focus_area: summarizeTerm(focusArea),
+                        org_type: orgType || 'any',
+                        state: state || 'any',
+                      })
+                    }}
+                    className="inline-flex items-center gap-1 rounded-md bg-brand-yellow px-3 py-1.5 text-xs font-semibold text-navy hover:bg-brand-gold transition-colors"
+                  >
+                    Apply
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  </a>
+                )}
                 {unlocked && opp.rfp_url && (
                   <a
                     href={opp.rfp_url}
