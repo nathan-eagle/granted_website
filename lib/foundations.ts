@@ -530,6 +530,34 @@ export async function getFoundationGrantees(
   return data ?? []
 }
 
+export async function getFoundationSlugsByPrefixes(
+  prefixes: string[],
+): Promise<Map<string, string>> {
+  if (!supabase || prefixes.length === 0) return new Map()
+  // Build OR filter: slug.like.prefix1% OR slug.like.prefix2% ...
+  const filter = prefixes.map((p) => `slug.like.${p}%`).join(',')
+  const { data, error } = await supabase
+    .from('foundations')
+    .select('slug')
+    .or(filter)
+    .limit(prefixes.length * 2)
+  if (error) {
+    console.error('Error fetching foundation slugs by prefix:', error.message)
+    return new Map()
+  }
+  const map = new Map<string, string>()
+  for (const row of data ?? []) {
+    // Extract the prefix portion (everything before the last hyphen-group which is the EIN suffix)
+    for (const prefix of prefixes) {
+      if (row.slug.startsWith(prefix)) {
+        map.set(prefix, row.slug)
+        break
+      }
+    }
+  }
+  return map
+}
+
 export async function getFoundationGranteeYears(foundationId: string): Promise<number[]> {
   if (!supabase) return []
   const { data, error } = await supabase

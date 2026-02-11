@@ -54,6 +54,28 @@ export default function FoundationFinancials({ financials }: Props) {
       ? ((latestYear.total_assets - previousYear.total_assets) / previousYear.total_assets) * 100
       : null
 
+  // Revenue trend data
+  const revenueTimeData = useMemo(
+    () =>
+      financials
+        .filter((f) => f.total_revenue != null && f.total_revenue > 0)
+        .map((f) => ({ year: f.fiscal_year, revenue: f.total_revenue! })),
+    [financials],
+  )
+  const maxRevenue = Math.max(...revenueTimeData.map((d) => d.revenue), 1)
+  const hasRevenueTimeData = revenueTimeData.length >= 2 && revenueTimeData.some((d) => d.revenue > 0)
+
+  // Liabilities trend data
+  const liabilitiesData = useMemo(
+    () =>
+      financials
+        .filter((f) => f.total_liabilities != null && f.total_liabilities > 0)
+        .map((f) => ({ year: f.fiscal_year, liabilities: f.total_liabilities! })),
+    [financials],
+  )
+  const maxLiabilities = Math.max(...liabilitiesData.map((d) => d.liabilities), 1)
+  const hasLiabilitiesData = liabilitiesData.length >= 2 && liabilitiesData.some((d) => d.liabilities > 0)
+
   // Investment portfolio breakdown for latest year
   const investmentData = useMemo(() => {
     const items: { label: string; value: number; color: string }[] = []
@@ -213,6 +235,68 @@ export default function FoundationFinancials({ financials }: Props) {
                   </div>
                   <div
                     className="w-full bg-navy/15 hover:bg-navy/25 rounded-t transition-colors min-h-[4px]"
+                    style={{ height: `${Math.max(pct, 2)}%` }}
+                  />
+                  <span className="text-[10px] md:text-xs text-navy-light/40 mt-1.5 tabular-nums">
+                    {String(d.year).slice(-2)}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Revenue Over Time */}
+      {hasRevenueTimeData && (
+        <div className="card p-6 md:p-8">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.1em] text-navy-light/50 mb-6">
+            Revenue Over Time
+          </h3>
+          <div className="flex items-end gap-[3px] md:gap-1.5 h-48">
+            {revenueTimeData.map((d) => {
+              const pct = (d.revenue / maxRevenue) * 100
+              return (
+                <div
+                  key={d.year}
+                  className="flex-1 flex flex-col items-center group relative min-w-0"
+                >
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-navy text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                    {formatAssets(d.revenue)}
+                  </div>
+                  <div
+                    className="w-full bg-green-500/40 hover:bg-green-500/60 rounded-t transition-colors min-h-[4px]"
+                    style={{ height: `${Math.max(pct, 2)}%` }}
+                  />
+                  <span className="text-[10px] md:text-xs text-navy-light/40 mt-1.5 tabular-nums">
+                    {String(d.year).slice(-2)}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Liabilities Over Time */}
+      {hasLiabilitiesData && (
+        <div className="card p-6 md:p-8">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.1em] text-navy-light/50 mb-6">
+            Liabilities Over Time
+          </h3>
+          <div className="flex items-end gap-[3px] md:gap-1.5 h-48">
+            {liabilitiesData.map((d) => {
+              const pct = (d.liabilities / maxLiabilities) * 100
+              return (
+                <div
+                  key={d.year}
+                  className="flex-1 flex flex-col items-center group relative min-w-0"
+                >
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-navy text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                    {formatAssets(d.liabilities)}
+                  </div>
+                  <div
+                    className="w-full bg-red-400/40 hover:bg-red-400/60 rounded-t transition-colors min-h-[4px]"
                     style={{ height: `${Math.max(pct, 2)}%` }}
                   />
                   <span className="text-[10px] md:text-xs text-navy-light/40 mt-1.5 tabular-nums">
