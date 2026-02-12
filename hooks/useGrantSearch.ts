@@ -136,6 +136,23 @@ export function isPastDeadline(deadline: string | undefined): boolean {
   return parsed < Date.now()
 }
 
+/** Deduplicate grants by normalized name, keeping the one with the higher fit_score */
+export function deduplicateOpportunities(opps: Opportunity[]): Opportunity[] {
+  const seen = new Map<string, Opportunity>()
+  for (const opp of opps) {
+    const key = opp.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+    const existing = seen.get(key)
+    if (!existing || (opp.fit_score || 0) > (existing.fit_score || 0)) {
+      seen.set(key, opp)
+    }
+  }
+  return Array.from(seen.values())
+}
+
 export function summarizeTerm(input: string): string {
   const normalized = input.trim().replace(/\s+/g, ' ')
   if (!normalized) return ''
@@ -281,10 +298,11 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
             }
           }
 
-          await matchSlugs(result.opportunities)
-          result.opportunities.sort((a, b) => (b.fit_score || 0) - (a.fit_score || 0))
+          const dedupedEnriched = deduplicateOpportunities(result.opportunities)
+          await matchSlugs(dedupedEnriched)
+          dedupedEnriched.sort((a, b) => (b.fit_score || 0) - (a.fit_score || 0))
 
-          setOpportunities(result.opportunities)
+          setOpportunities(dedupedEnriched)
           setEnrichedNames(newNames)
           setEnriching(false)
 
@@ -369,25 +387,25 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
         }
       }
 
-      const results = result.opportunities
-      await matchSlugs(results)
-      results.sort((a, b) => (b.fit_score || 0) - (a.fit_score || 0))
+      const deduped = deduplicateOpportunities(result.opportunities)
+      await matchSlugs(deduped)
+      deduped.sort((a, b) => (b.fit_score || 0) - (a.fit_score || 0))
 
-      setOpportunities(results)
+      setOpportunities(deduped)
       incrementSearchCount()
       setPhase('results')
       trackEvent('grant_finder_results', {
-        count: String(results.length),
+        count: String(deduped.length),
         broadened: String(broadenedSearch),
         db_only: String(result.dbOnly),
         source,
         focus_area: summarizeTerm(normalizedFocus),
-        top_grant: results[0]?.name ?? '',
+        top_grant: deduped[0]?.name ?? '',
       })
 
       // If response was db_only, poll for LLM-enriched results in background
-      if (result.dbOnly && results.length > 0) {
-        const initialNames = new Set(results.map(r => r.name.toLowerCase()))
+      if (result.dbOnly && deduped.length > 0) {
+        const initialNames = new Set(deduped.map((r: Opportunity) => r.name.toLowerCase()))
         setEnriching(true)
         startEnrichmentPoll(finalSearchOrgType, normalizedFocus, finalSearchState, initialNames, searchAmountRange)
       }

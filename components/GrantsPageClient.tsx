@@ -14,6 +14,7 @@ import FunderMatchesTable, { type FunderMatch } from '@/components/FunderMatches
 import RevealOnScroll from '@/components/RevealOnScroll'
 import GrantCard from '@/components/GrantCard'
 import GrantCTA from '@/components/GrantCTA'
+import EnrichmentProgress from '@/components/EnrichmentProgress'
 import CheckoutButton from '@/components/CheckoutButton'
 import { trackEvent } from '@/lib/analytics'
 import { GRANT_CATEGORIES, GRANT_US_STATES, type PublicGrant } from '@/lib/grants'
@@ -276,16 +277,14 @@ export default function GrantsPageClient({
               </p>
             )}
 
-            {/* Enrichment status banner */}
+            {/* Enrichment progress */}
             {enriching && (
-              <div className="flex items-center gap-2.5 px-4 py-3 rounded-lg bg-brand-yellow/8 border border-brand-yellow/20 mb-4 animate-pulse">
-                <svg className="shrink-0 animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 12a9 9 0 11-6.219-8.56" />
-                </svg>
-                <p className="text-xs font-medium text-navy">
-                  Searching the web for additional grants&hellip; new results will appear automatically.
-                </p>
-              </div>
+              <EnrichmentProgress
+                focusArea={focusArea}
+                orgType={orgType}
+                state={searchState}
+                resultCount={opportunities.length}
+              />
             )}
             {!enriching && enrichedNames.size > 0 && (
               <div className="flex items-center gap-2.5 px-4 py-3 rounded-lg bg-green-50 border border-green-200 mb-4">

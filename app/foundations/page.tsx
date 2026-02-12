@@ -46,7 +46,7 @@ export default async function FoundationsIndex() {
       <main>
         {/* ── Hero ── */}
         <section className="bg-navy noise-overlay overflow-hidden">
-          <Container className="py-8 md:py-12 relative z-10">
+          <Container className="py-16 md:py-20 relative z-10">
             <RevealOnScroll>
               <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow/80 mb-4">
                 Foundation Discovery

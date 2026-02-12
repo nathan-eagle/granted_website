@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { trackEvent } from '@/lib/analytics'
-import type { Opportunity } from '@/hooks/useGrantSearch'
+import { type Opportunity, isPastDeadline } from '@/hooks/useGrantSearch'
 
 export type FundingType = 'Federal' | 'Foundation' | 'Corporate' | 'State'
 export type AmountRange = 'any' | 'lt50k' | '50k-250k' | '250k-1m' | 'gt1m'
@@ -17,6 +17,7 @@ export interface FilterState {
   location: string
   status: StatusFilter
   searchWithin: string
+  hideExpired: boolean
 }
 
 export const DEFAULT_FILTERS: FilterState = {
@@ -27,6 +28,7 @@ export const DEFAULT_FILTERS: FilterState = {
   location: '',
   status: 'all',
   searchWithin: '',
+  hideExpired: true,
 }
 
 const AMOUNT_LABELS: Record<AmountRange, string> = {
@@ -89,6 +91,11 @@ function inferFundingType(opp: Opportunity): FundingType | null {
 
 export function applyFilters(opportunities: Opportunity[], filters: FilterState): Opportunity[] {
   let results = opportunities
+
+  // Hide expired filter
+  if (filters.hideExpired) {
+    results = results.filter(opp => !isPastDeadline(opp.deadline))
+  }
 
   // Funding type filter
   if (filters.fundingTypes.length > 0) {
@@ -153,6 +160,7 @@ export function activeFilterCount(filters: FilterState): number {
   if (filters.amountRange !== 'any') count++
   if (filters.deadlineRange !== 'any') count++
   if (filters.searchWithin.trim()) count++
+  if (!filters.hideExpired) count++ // default is ON, so OFF is an active filter
   return count
 }
 
@@ -278,12 +286,45 @@ export default function DiscoveryFilters({
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
             </button>
           )}
+          {!filters.hideExpired && (
+            <button
+              type="button"
+              onClick={() => update({ hideExpired: true })}
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 transition-colors"
+            >
+              Showing expired
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            </button>
+          )}
         </div>
       )}
 
       {/* Expanded filter bar */}
       {expanded && (
         <div className="card p-4 space-y-4">
+          {/* Hide expired toggle */}
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-medium text-navy-light/50">Hide expired grants</label>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={filters.hideExpired}
+              onClick={() => {
+                update({ hideExpired: !filters.hideExpired })
+                trackEvent('grant_discovery_filter', { filter: 'hide_expired', value: String(!filters.hideExpired) })
+              }}
+              className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors ${
+                filters.hideExpired ? 'bg-green-500' : 'bg-navy/20'
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
+                  filters.hideExpired ? 'translate-x-4' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+
           {/* Search within results */}
           <div>
             <label className="block text-xs font-medium text-navy-light/50 mb-1.5">Search within results</label>
