@@ -84,9 +84,9 @@ echo 'my-value' | npx vercel env add VAR_NAME production
 
 **Blog:** `/blog` + `/blog/[slug]` — 77+ MDX posts in `content/blog/`
 
-**Grant pages (Phase 1):** `/grants`, `/grants/[slug]` — ISR pages from `public_grants` table
-
-**Grant finder (Phase 2):** `/find-grants` — public search tool with email capture
+**Grant finder:** `/grants` — public grant search with browse categories + LLM-powered search + email capture gate
+**Grant detail pages:** `/grants/[slug]` — programmatic SEO pages from `public_grants` table (ISR)
+**Grant sub-pages:** `/grants/new`, `/grants/closing-soon`, `/grants/state/[state]`
 
 ### API Routes
 
@@ -94,15 +94,31 @@ echo 'my-value' | npx vercel env add VAR_NAME production
 |---|---|
 | `POST /api/contact` | Contact form → Resend email |
 | `POST /api/subscribe` | Email subscription |
+| `POST /api/unsubscribe` | Unsubscribe from emails |
 | `POST /api/leads/capture` | Lead capture (grant finder email gate) |
+| `POST /api/searches/save` | Save a search |
+| `POST /api/foundations/match` | Foundation matching |
+| `POST /api/cron/deadline-alerts` | Daily deadline alerts (Vercel cron) |
+| `POST /api/cron/weekly-digest` | Weekly email digest (Vercel cron) |
+| `GET /api/health` | Health check |
+| `POST /api/revalidate` | ISR revalidation |
+
+**Note:** The `/grants` search form calls `POST /api/public/discover` on the **granted-mvp** app (app.grantedai.com), not a local API route. That endpoint is the Gemini-powered LLM grant discovery. See `../ARCHITECTURE.md` for the full discovery pipeline.
 
 ### Key Directories
 
 ```
 app/                  # Next.js App Router pages + API routes
-components/           # React components (~43 files)
+  grants/             # Grant finder + programmatic SEO pages
+  foundations/        # Foundation directory pages
+  blog/               # Blog pages
+components/           # React components (~58 files)
+  GrantsPageClient.tsx  # Main grant finder UI (browse + search + results)
 lib/                  # Utilities and helpers
+  grants.ts           # Grant queries + category definitions
+  foundations.ts      # Foundation queries
 hooks/                # Custom React hooks
+  useGrantSearch.ts   # Grant search state management
 content/blog/         # MDX blog posts (77+)
 public/               # Static assets
 scripts/              # Build utilities (import-posts, scrape-pages)
@@ -120,12 +136,14 @@ Reads from the shared Supabase project (`rziggkbirlabvnvdcnkc`). Key tables:
 
 | Table | Purpose | Access |
 |---|---|---|
-| `public_grants` | Grant listings for SEO pages | Read-only via anon key (no RLS) |
+| `public_grants` | Grant listings for finder + SEO pages | Read-only via anon key (no RLS) |
+| `foundations` | Foundation directory (133K from ProPublica) | Read-only via anon key |
+| `foundation_rfps` | Open grants from foundation websites | Read-only via anon key |
 | `leads` | Email captures from grant finder | Insert via service role key |
 
 ## Sibling Project
 
-The authenticated app lives in `../granted-mvp/` (same parent repo: `nathan-eagle/granted`). Its Vercel project is named **`granted-mvp`** and deploys to **app.grantedai.com**. See `../CLAUDE.md` for the full project map.
+The authenticated app lives in `../granted-mvp/` (a subdirectory of the `nathan-eagle/granted` repo — same parent directory but different git repo). Its Vercel project is named **`granted-mvp`** and deploys to **app.grantedai.com**. See `../CLAUDE.md` for the project map and `../ARCHITECTURE.md` for the full platform architecture.
 
 ## Strategy
 
