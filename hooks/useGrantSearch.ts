@@ -260,7 +260,7 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
     searchAmountRange?: AmountRangeKey,
   ) => {
     let attempts = 0
-    const maxAttempts = 8 // 8 * 5s = 40s max
+    const maxAttempts = 12 // 12 * 5s = 60s max
 
     const poll = async () => {
       attempts++
