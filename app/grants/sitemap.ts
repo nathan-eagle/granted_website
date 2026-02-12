@@ -1,16 +1,15 @@
 import type { MetadataRoute } from 'next'
-import { getGrantCount, getGrantSlugsPage, hasSeoSummary, GRANT_CATEGORIES, GRANT_US_STATES } from '@/lib/grants'
+import { getGrantSlugsPage, hasSeoSummary, GRANT_CATEGORIES, GRANT_US_STATES } from '@/lib/grants'
 
 const GRANTS_PER_SITEMAP = 50_000
 
 /**
  * Generate a sitemap index so all ~64K grants get indexed.
- * Requires Supabase PostgREST max_rows >= 50000.
+ * Hardcoded to 2 chunks to avoid DB queries at build time (which timeout on Vercel).
+ * ISR fetches actual data at request time. Bump if grants exceed 100K.
  */
 export async function generateSitemaps() {
-  const total = await getGrantCount(true).catch((err) => { console.error('[grants/sitemap] getGrantCount failed:', err); return 0 })
-  const chunks = Math.max(1, Math.ceil(total / GRANTS_PER_SITEMAP))
-  return Array.from({ length: chunks }, (_, i) => ({ id: i }))
+  return [{ id: 0 }, { id: 1 }]
 }
 
 export default async function sitemap({ id }: { id: number }): Promise<MetadataRoute.Sitemap> {
