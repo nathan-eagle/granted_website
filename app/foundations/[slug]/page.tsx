@@ -624,14 +624,23 @@ export default async function FoundationSlugPage({ params }: Props) {
       getFoundationRfps(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationRfps failed:`, err); return [] }),
     ])
 
-    // Batch-lookup grantee slugs so we can link to real foundation pages
-    const allUniquePrefixes = [...new Set(
-      allGrantees
+    // Display table: one row per unique grantee (largest grant), top 50
+    const seen = new Set<string>()
+    const grantees = allGrantees.filter((g) => {
+      const key = (g.recipient_name ?? '').toLowerCase().trim()
+      if (!key || seen.has(key)) return false
+      seen.add(key)
+      return true
+    }).slice(0, 50)
+
+    // Only look up slugs for the 50 display grantees (not all 2000+ unique names)
+    const displayPrefixes = [...new Set(
+      grantees
         .map((g) => g.recipient_name ? slugifyName(g.recipient_name) : null)
         .filter((p): p is string => !!p)
     )]
     const [granteeSlugMap, rfpSlugMap] = await Promise.all([
-      getFoundationSlugsByPrefixes(allUniquePrefixes).catch((err) => {
+      getFoundationSlugsByPrefixes(displayPrefixes).catch((err) => {
         console.error(`[foundations/${params.slug}] getFoundationSlugsByPrefixes failed:`, err)
         return new Map<string, string>()
       }),
@@ -640,23 +649,6 @@ export default async function FoundationSlugPage({ params }: Props) {
         return new Map<string, string>()
       }),
     ])
-
-    // Display table: one row per unique grantee (largest grant), linked grantees first
-    const seen = new Set<string>()
-    const deduped = allGrantees.filter((g) => {
-      const key = (g.recipient_name ?? '').toLowerCase().trim()
-      if (!key || seen.has(key)) return false
-      seen.add(key)
-      return true
-    })
-    const grantees = deduped
-      .sort((a, b) => {
-        const aLinked = a.recipient_name && granteeSlugMap.has(slugifyName(a.recipient_name)) ? 1 : 0
-        const bLinked = b.recipient_name && granteeSlugMap.has(slugifyName(b.recipient_name)) ? 1 : 0
-        if (aLinked !== bLinked) return bLinked - aLinked
-        return 0 // preserve existing year desc / amount desc order
-      })
-      .slice(0, 50)
 
     // Compute chart summaries server-side (only summaries sent to client, not 5000 raw records)
     const insightStats = computeGrantStats(allGrantees)
