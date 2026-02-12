@@ -191,13 +191,13 @@ export default function FoundationFinancials({ financials }: Props) {
           <h3 className="text-sm font-semibold uppercase tracking-[0.1em] text-navy-light/50 mb-6">
             Total Giving by Year
           </h3>
-          <div className="flex items-end gap-[3px] md:gap-1.5 h-48">
+          <div className="flex gap-[3px] md:gap-1.5 h-48">
             {givingData.map((d) => {
               const pct = (d.giving / maxGiving) * 100
               return (
                 <div
                   key={d.year}
-                  className="flex-1 flex flex-col items-center group relative min-w-0"
+                  className="flex-1 flex flex-col items-center justify-end group relative min-w-0"
                 >
                   <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-navy text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                     {formatAssets(d.giving)}
@@ -222,13 +222,13 @@ export default function FoundationFinancials({ financials }: Props) {
           <h3 className="text-sm font-semibold uppercase tracking-[0.1em] text-navy-light/50 mb-6">
             Asset Growth
           </h3>
-          <div className="flex items-end gap-[3px] md:gap-1.5 h-48">
+          <div className="flex gap-[3px] md:gap-1.5 h-48">
             {assetData.map((d) => {
               const pct = (d.assets / maxAssets) * 100
               return (
                 <div
                   key={d.year}
-                  className="flex-1 flex flex-col items-center group relative min-w-0"
+                  className="flex-1 flex flex-col items-center justify-end group relative min-w-0"
                 >
                   <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-navy text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                     {formatAssets(d.assets)}
@@ -253,13 +253,13 @@ export default function FoundationFinancials({ financials }: Props) {
           <h3 className="text-sm font-semibold uppercase tracking-[0.1em] text-navy-light/50 mb-6">
             Revenue Over Time
           </h3>
-          <div className="flex items-end gap-[3px] md:gap-1.5 h-48">
+          <div className="flex gap-[3px] md:gap-1.5 h-48">
             {revenueTimeData.map((d) => {
               const pct = (d.revenue / maxRevenue) * 100
               return (
                 <div
                   key={d.year}
-                  className="flex-1 flex flex-col items-center group relative min-w-0"
+                  className="flex-1 flex flex-col items-center justify-end group relative min-w-0"
                 >
                   <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-navy text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                     {formatAssets(d.revenue)}
@@ -284,13 +284,13 @@ export default function FoundationFinancials({ financials }: Props) {
           <h3 className="text-sm font-semibold uppercase tracking-[0.1em] text-navy-light/50 mb-6">
             Liabilities Over Time
           </h3>
-          <div className="flex items-end gap-[3px] md:gap-1.5 h-48">
+          <div className="flex gap-[3px] md:gap-1.5 h-48">
             {liabilitiesData.map((d) => {
               const pct = (d.liabilities / maxLiabilities) * 100
               return (
                 <div
                   key={d.year}
-                  className="flex-1 flex flex-col items-center group relative min-w-0"
+                  className="flex-1 flex flex-col items-center justify-end group relative min-w-0"
                 >
                   <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-navy text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                     {formatAssets(d.liabilities)}

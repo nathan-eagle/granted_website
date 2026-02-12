@@ -600,17 +600,15 @@ export default async function FoundationSlugPage({ params }: Props) {
       getFoundationRfps(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationRfps failed:`, err); return [] }),
     ])
 
-    // Display table shows top 50 grantees; full dataset used for stats/charts
-    const grantees = allGrantees.slice(0, 50)
-
     // Batch-lookup grantee slugs so we can link to real foundation pages
-    const uniquePrefixes = [...new Set(
-      grantees
+    // Use all unique names (capped at 300) to find linked grantees
+    const allUniquePrefixes = [...new Set(
+      allGrantees
         .map((g) => g.recipient_name ? slugifyName(g.recipient_name) : null)
         .filter((p): p is string => !!p)
-    )]
+    )].slice(0, 300)
     const [granteeSlugMap, rfpSlugMap] = await Promise.all([
-      getFoundationSlugsByPrefixes(uniquePrefixes).catch((err) => {
+      getFoundationSlugsByPrefixes(allUniquePrefixes).catch((err) => {
         console.error(`[foundations/${params.slug}] getFoundationSlugsByPrefixes failed:`, err)
         return new Map<string, string>()
       }),
@@ -619,6 +617,16 @@ export default async function FoundationSlugPage({ params }: Props) {
         return new Map<string, string>()
       }),
     ])
+
+    // Display table: prioritize grantees that link to foundation pages, then by year/amount
+    const grantees = [...allGrantees]
+      .sort((a, b) => {
+        const aLinked = a.recipient_name && granteeSlugMap.has(slugifyName(a.recipient_name)) ? 1 : 0
+        const bLinked = b.recipient_name && granteeSlugMap.has(slugifyName(b.recipient_name)) ? 1 : 0
+        if (aLinked !== bLinked) return bLinked - aLinked
+        return 0 // preserve existing year desc / amount desc order
+      })
+      .slice(0, 50)
 
     return (
       <FoundationDetailPage

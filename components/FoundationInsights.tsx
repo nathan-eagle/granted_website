@@ -69,13 +69,13 @@ export default function FoundationInsights({ grantees }: Props) {
       {givingByYear.length >= 2 && (
         <div className="card p-6 md:p-8">
           <h3 className="text-sm font-semibold uppercase tracking-[0.1em] text-navy-light/50 mb-6">
-            Total Giving by Year
+            Grant Disbursements by Year
           </h3>
-          <div className="flex items-end gap-[3px] md:gap-1.5 h-48">
+          <div className="flex gap-[3px] md:gap-1.5 h-48">
             {givingByYear.map((y) => {
               const pct = (y.total / maxYearTotal) * 100
               return (
-                <div key={y.year} className="flex-1 flex flex-col items-center group relative min-w-0">
+                <div key={y.year} className="flex-1 flex flex-col items-center justify-end group relative min-w-0">
                   <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-navy text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                     {formatAssets(y.total)} ({y.count} grants)
                   </div>
