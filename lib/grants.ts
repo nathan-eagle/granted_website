@@ -26,7 +26,7 @@ export type PublicGrant = {
 /** Columns for listing queries — excludes large source_text column */
 const LISTING_COLS = 'id,slug,name,funder,deadline,amount,summary,status,source,source_provider,eligibility,rfp_url,created_at,last_verified_at,target_states'
 
-export const SEO_SUMMARY_MIN_WORDS = 300
+export const SEO_SUMMARY_MIN_WORDS = 50
 export const SEO_FRESHNESS_DAYS = 90
 
 function wordCount(value: string | null | undefined): number {
@@ -47,23 +47,77 @@ export function isGrantFresh(lastVerifiedAt: string | null): boolean {
 }
 
 export function isGrantSeoReady(grant: Pick<PublicGrant, 'summary' | 'last_verified_at'>): boolean {
-  return hasSeoSummary(grant.summary) && isGrantFresh(grant.last_verified_at)
+  // For sitemap inclusion, only require sufficient summary content.
+  // Freshness matters for active grants but closed grants with good content still rank.
+  return hasSeoSummary(grant.summary)
+}
+
+export async function getGrantCount(includeClosedGrants = false): Promise<number> {
+  if (!supabase) return 0
+  let query = supabase.from('public_grants').select('*', { count: 'exact', head: true })
+  if (!includeClosedGrants) {
+    query = query.neq('status', 'closed')
+  }
+  const { count, error } = await query
+  if (error) throw error
+  return count ?? 0
+}
+
+export async function getGrantSlugsPage(
+  offset: number,
+  limit: number,
+  includeClosedGrants = false,
+): Promise<{ slug: string; status: string; updated_at: string; summary: string | null }[]> {
+  if (!supabase) return []
+  const BATCH = 1000
+  const results: { slug: string; status: string; updated_at: string; summary: string | null }[] = []
+  let fetched = 0
+  while (fetched < limit) {
+    const batchSize = Math.min(BATCH, limit - fetched)
+    const from = offset + fetched
+    let query = supabase
+      .from('public_grants')
+      .select('slug, status, updated_at, summary')
+      .order('deadline', { ascending: true, nullsFirst: false })
+      .range(from, from + batchSize - 1)
+    if (!includeClosedGrants) {
+      query = query.neq('status', 'closed')
+    }
+    const { data, error } = await query
+    if (error) throw error
+    if (!data || data.length === 0) break
+    results.push(...data)
+    fetched += data.length
+    if (data.length < batchSize) break
+  }
+  return results
 }
 
 /* ── Data functions ── */
 
 export async function getAllGrants(includeClosedGrants = false): Promise<PublicGrant[]> {
   if (!supabase) return []
-  let query = supabase
-    .from('public_grants')
-    .select(LISTING_COLS)
-    .order('deadline', { ascending: true, nullsFirst: false })
-  if (!includeClosedGrants) {
-    query = query.neq('status', 'closed')
+  // Supabase PostgREST caps at 1000 rows per request, so paginate in batches
+  const BATCH = 1000
+  const results: PublicGrant[] = []
+  let offset = 0
+  while (true) {
+    let query = supabase
+      .from('public_grants')
+      .select(LISTING_COLS)
+      .order('deadline', { ascending: true, nullsFirst: false })
+      .range(offset, offset + BATCH - 1)
+    if (!includeClosedGrants) {
+      query = query.neq('status', 'closed')
+    }
+    const { data, error } = await query
+    if (error) throw error
+    if (!data || data.length === 0) break
+    results.push(...(data as PublicGrant[]))
+    offset += data.length
+    if (data.length < BATCH) break // no more rows
   }
-  const { data, error } = await query
-  if (error) throw error
-  return (data ?? []) as PublicGrant[]
+  return results
 }
 
 export async function getGrantBySlug(slug: string): Promise<PublicGrant | null> {

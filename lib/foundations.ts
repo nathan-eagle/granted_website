@@ -403,24 +403,30 @@ export async function getFoundationSlugsPage(
   limit: number,
 ): Promise<{ slug: string; updated_at: string }[]> {
   if (!supabase) return []
-  const { data, error } = await supabase
-    .from('foundations')
-    .select('slug, updated_at')
-    .order('asset_amount', { ascending: false, nullsFirst: false })
-    .range(offset, offset + limit - 1)
-  if (error) throw error
-  return data ?? []
+  // Supabase PostgREST caps at 1000 rows per request, so paginate in batches
+  const BATCH = 1000
+  const results: { slug: string; updated_at: string }[] = []
+  let fetched = 0
+  while (fetched < limit) {
+    const batchSize = Math.min(BATCH, limit - fetched)
+    const from = offset + fetched
+    const { data, error } = await supabase
+      .from('foundations')
+      .select('slug, updated_at')
+      .order('asset_amount', { ascending: false, nullsFirst: false })
+      .range(from, from + batchSize - 1)
+    if (error) throw error
+    if (!data || data.length === 0) break
+    results.push(...data)
+    fetched += data.length
+    if (data.length < batchSize) break // no more rows
+  }
+  return results
 }
 
 export async function getAllFoundationSlugs(limit = 50000): Promise<{ slug: string; updated_at: string }[]> {
-  if (!supabase) return []
-  const { data, error } = await supabase
-    .from('foundations')
-    .select('slug, updated_at')
-    .order('asset_amount', { ascending: false, nullsFirst: false })
-    .limit(limit)
-  if (error) throw error
-  return data ?? []
+  // Delegates to getFoundationSlugsPage which handles the 1000-row batch limit
+  return getFoundationSlugsPage(0, limit)
 }
 
 export async function getRelatedFoundations(
