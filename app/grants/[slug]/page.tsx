@@ -347,7 +347,13 @@ function GrantDetailPage({ grant, related, blogPosts, stale }: { grant: PublicGr
           <RevealOnScroll>
             <GrantBreadcrumbs
               crumbs={[
-                { label: grant.funder, href: `/grants/${grant.funder.toLowerCase().split(/[\s/]+/)[0]}` },
+                (() => {
+                  const funderSlug = grant.funder.toLowerCase().split(/[\s/]+/)[0]
+                  const category = getCategoryBySlug(funderSlug)
+                  return category
+                    ? { label: grant.funder, href: `/grants/${funderSlug}` }
+                    : { label: grant.funder }
+                })(),
                 { label: grant.name },
               ]}
             />

@@ -4,9 +4,25 @@ import RevealOnScroll from '@/components/RevealOnScroll'
 import { ButtonLink } from '@/components/ButtonLink'
 import type { PublicGrant } from '@/lib/grants'
 
+/** Pick up to `limit` grants, allowing at most one per funder. */
+function diverseByFunder(grants: PublicGrant[], limit: number): PublicGrant[] {
+  const seen = new Set<string>()
+  const result: PublicGrant[] = []
+  for (const g of grants) {
+    const key = g.funder.toLowerCase()
+    if (seen.has(key)) continue
+    seen.add(key)
+    result.push(g)
+    if (result.length >= limit) break
+  }
+  return result
+}
+
 export default function TrendingGrants({ grants, error }: { grants: PublicGrant[]; error?: boolean }) {
   // Genuinely no grants in DB — hide the section
   if (!error && (!grants || grants.length === 0)) return null
+
+  const displayed = diverseByFunder(grants, 6)
 
   return (
     <section>
@@ -20,7 +36,7 @@ export default function TrendingGrants({ grants, error }: { grants: PublicGrant[
           </h2>
         </RevealOnScroll>
 
-        {error && grants.length === 0 ? (
+        {error && displayed.length === 0 ? (
           <RevealOnScroll delay={100}>
             <div className="mt-10 text-center py-12 rounded-xl border border-navy/10 bg-white/50">
               <p className="text-navy/60 font-medium">Grant data is temporarily unavailable.</p>
@@ -28,8 +44,8 @@ export default function TrendingGrants({ grants, error }: { grants: PublicGrant[
             </div>
           </RevealOnScroll>
         ) : (
-          <div className={`mt-10 grid auto-rows-fr items-stretch gap-6 sm:grid-cols-2 ${grants.length >= 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3 max-w-5xl mx-auto'}`}>
-            {grants.map((grant, i) => (
+          <div className="mt-10 grid auto-rows-fr items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
+            {displayed.map((grant, i) => (
               <RevealOnScroll key={grant.id} delay={i * 80} className="h-full">
                 <GrantCard grant={grant} />
               </RevealOnScroll>
