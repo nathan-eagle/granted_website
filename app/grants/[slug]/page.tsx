@@ -13,6 +13,7 @@ import GrantCTA from '@/components/GrantCTA'
 import GrantFinderCTA from '@/components/GrantFinderCTA'
 import CategoryGrantList from '@/components/CategoryGrantList'
 import TrackedExternalLink from '@/components/TrackedExternalLink'
+import RfpLink from '@/components/RfpLink'
 import {
   getGrantBySlug,
   getRelatedGrants,
@@ -393,23 +394,12 @@ function GrantDetailPage({ grant, related, blogPosts, stale }: { grant: PublicGr
                     </p>
                   ))}
                 </div>
-                {grant.rfp_url && (
-                  <TrackedExternalLink
-                    href={grant.rfp_url}
-                    eventName="grant_detail_rfp_click"
-                    eventParams={{
-                      grant_slug: grant.slug,
-                      grant_name: grant.name,
-                      funder: grant.funder,
-                    }}
-                    className="inline-flex items-center gap-2 mt-4 text-sm font-semibold text-brand-gold hover:underline"
-                  >
-                    View Original RFP
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline">
-                      <path d="M7 17L17 7M17 7H7M17 7v10" />
-                    </svg>
-                  </TrackedExternalLink>
-                )}
+                <RfpLink
+                  slug={grant.slug}
+                  initialRfpUrl={grant.rfp_url}
+                  grantName={grant.name}
+                  funder={grant.funder}
+                />
               </section>
             </RevealOnScroll>
           )}
