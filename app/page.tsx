@@ -75,7 +75,7 @@ export default async function HomePage() {
                   The World&apos;s Largest Grants + Funders Database
                 </p>
                 <h1 className="heading-display">
-                  Find the right funding. Write the winning proposal.
+                  What do you need funding for?
                 </h1>
                 <HeroSearchBar className="mt-8" />
                 <p className="mt-5 text-sm text-white/40">

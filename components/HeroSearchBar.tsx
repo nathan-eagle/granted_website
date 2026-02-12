@@ -43,14 +43,14 @@ export default function HeroSearchBar({ className }: { className?: string }) {
           type="text"
           value={query}
           onChange={e => setQuery(e.target.value)}
-          placeholder="Search grants by topic, agency, or keyword..."
+          placeholder="e.g., community garden in Detroit, AI safety research..."
           className="hero-search-input flex-1 rounded-pill px-5 py-3.5 text-sm text-white placeholder:text-white/40 outline-none transition-all"
         />
         <button
           type="submit"
           className="shrink-0 rounded-pill bg-brand-yellow px-6 py-3.5 text-sm font-semibold text-navy hover:bg-brand-gold transition-colors"
         >
-          Search Grants
+          Find Grants
         </button>
       </form>
 
