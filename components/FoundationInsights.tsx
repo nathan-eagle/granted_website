@@ -1,15 +1,9 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps'
-import type { FoundationGrantee } from '@/lib/foundations'
-import {
-  formatAssets,
-  computeGrantStats,
-  computeGivingByYear,
-  computeStateDistribution,
-  computeNewGranteeRate,
-} from '@/lib/foundations'
+import type { GrantStats, GivingByYear, StateDistribution } from '@/lib/foundations'
+import { formatAssets } from '@/lib/foundations'
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json'
 
@@ -29,23 +23,16 @@ const FIPS_TO_STATE: Record<string, string> = {
 }
 
 type Props = {
-  grantees: FoundationGrantee[]
+  stats: GrantStats | null
+  givingByYear: GivingByYear[]
+  stateDistribution: StateDistribution[]
+  newGranteeInfo: { rate: number; year: number } | null
 }
 
-export default function FoundationInsights({ grantees }: Props) {
-  const stats = useMemo(() => computeGrantStats(grantees), [grantees])
-  const givingByYearRaw = useMemo(() => computeGivingByYear(grantees), [grantees])
-  // Filter out years with no actual dollar amounts
-  const givingByYear = useMemo(
-    () => givingByYearRaw.filter((y) => y.total > 0),
-    [givingByYearRaw],
-  )
-  const stateDistribution = useMemo(() => computeStateDistribution(grantees), [grantees])
-  const newGranteeInfo = useMemo(() => computeNewGranteeRate(grantees), [grantees])
+export default function FoundationInsights({ stats, givingByYear, stateDistribution, newGranteeInfo }: Props) {
   const [tooltip, setTooltip] = useState<{ x: number; y: number; label: string } | null>(null)
 
-  // Nothing to show if no grantee data
-  if (!stats || grantees.length === 0) return null
+  if (!stats) return null
 
   const maxYearTotal = Math.max(...givingByYear.map((y) => y.total), 1)
   const maxStateDist = Math.max(...stateDistribution.map((s) => s.total), 1)

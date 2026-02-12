@@ -22,6 +22,10 @@ import {
   getFoundationSlugsByPrefixes,
   getPublicGrantSlugsForRfps,
   getFoundationRfps,
+  computeGrantStats,
+  computeGivingByYear,
+  computeStateDistribution,
+  computeNewGranteeRate,
   formatAssets,
   getFoundationLocation,
   getFoundationCategoryLabel,
@@ -33,6 +37,9 @@ import {
   type FoundationGrantee,
   type FoundationFinancial,
   type FoundationRfp,
+  type GrantStats,
+  type GivingByYear,
+  type StateDistribution,
 } from '@/lib/foundations'
 
 export const revalidate = 3600
@@ -188,7 +195,10 @@ function FoundationDetailPage({
   related,
   similar,
   grantees,
-  allGrantees,
+  insightStats,
+  insightGivingByYear,
+  insightStateDistribution,
+  insightNewGranteeInfo,
   financials,
   rfps,
   rfpSlugMap,
@@ -198,7 +208,10 @@ function FoundationDetailPage({
   related: Foundation[]
   similar: Foundation[]
   grantees: FoundationGrantee[]
-  allGrantees: FoundationGrantee[]
+  insightStats: GrantStats | null
+  insightGivingByYear: GivingByYear[]
+  insightStateDistribution: StateDistribution[]
+  insightNewGranteeInfo: { rate: number; year: number } | null
   financials: FoundationFinancial[]
   rfps: FoundationRfp[]
   rfpSlugMap: Map<string, string>
@@ -454,7 +467,12 @@ function FoundationDetailPage({
 
           {/* Grantmaking Insights (charts, map, stats — from grant-level data) */}
           <RevealOnScroll delay={340}>
-            <FoundationInsights grantees={allGrantees} />
+            <FoundationInsights
+              stats={insightStats}
+              givingByYear={insightGivingByYear}
+              stateDistribution={insightStateDistribution}
+              newGranteeInfo={insightNewGranteeInfo}
+            />
           </RevealOnScroll>
 
           {/* Past Grantees */}
@@ -640,13 +658,22 @@ export default async function FoundationSlugPage({ params }: Props) {
       })
       .slice(0, 50)
 
+    // Compute chart summaries server-side (only summaries sent to client, not 5000 raw records)
+    const insightStats = computeGrantStats(allGrantees)
+    const insightGivingByYear = computeGivingByYear(allGrantees).filter((y) => y.total > 0)
+    const insightStateDistribution = computeStateDistribution(allGrantees)
+    const insightNewGranteeInfo = computeNewGranteeRate(allGrantees)
+
     return (
       <FoundationDetailPage
         foundation={foundation}
         related={related}
         similar={similar}
         grantees={grantees}
-        allGrantees={allGrantees}
+        insightStats={insightStats}
+        insightGivingByYear={insightGivingByYear}
+        insightStateDistribution={insightStateDistribution}
+        insightNewGranteeInfo={insightNewGranteeInfo}
         financials={financials}
         rfps={rfps}
         rfpSlugMap={rfpSlugMap}

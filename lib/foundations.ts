@@ -581,28 +581,40 @@ export async function getFoundationSlugsByPrefixes(
   prefixes: string[],
 ): Promise<Map<string, string>> {
   if (!supabase || prefixes.length === 0) return new Map()
-  // Batch into chunks of 80 to stay under PostgREST URL length limits
+  // Batch into chunks of 80 to stay under PostgREST URL length limits, run all batches in parallel
   const BATCH = 80
-  const map = new Map<string, string>()
+  const batches: string[][] = []
   for (let i = 0; i < prefixes.length; i += BATCH) {
-    const batch = prefixes.slice(i, i + BATCH)
-    const filter = batch.map((p) => `slug.like.${p}%`).join(',')
-    const { data, error } = await supabase
-      .from('foundations')
-      .select('slug')
-      .or(filter)
-      .limit(batch.length * 2)
-    if (error) {
-      console.error('Error fetching foundation slugs by prefix:', error.message)
-      continue
-    }
-    for (const row of data ?? []) {
-      for (const prefix of batch) {
-        if (row.slug.startsWith(prefix)) {
-          map.set(prefix, row.slug)
-          break
+    batches.push(prefixes.slice(i, i + BATCH))
+  }
+  const results = await Promise.all(
+    batches.map(async (batch) => {
+      const filter = batch.map((p) => `slug.like.${p}%`).join(',')
+      const { data, error } = await supabase!
+        .from('foundations')
+        .select('slug')
+        .or(filter)
+        .limit(batch.length * 2)
+      if (error) {
+        console.error('Error fetching foundation slugs by prefix:', error.message)
+        return [] as Array<{ prefix: string; slug: string }>
+      }
+      const matches: Array<{ prefix: string; slug: string }> = []
+      for (const row of data ?? []) {
+        for (const prefix of batch) {
+          if (row.slug.startsWith(prefix)) {
+            matches.push({ prefix, slug: row.slug })
+            break
+          }
         }
       }
+      return matches
+    }),
+  )
+  const map = new Map<string, string>()
+  for (const batch of results) {
+    for (const { prefix, slug } of batch) {
+      map.set(prefix, slug)
     }
   }
   return map
