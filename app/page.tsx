@@ -75,7 +75,7 @@ export default async function HomePage() {
                   The World&apos;s Largest Grants + Funders Database
                 </p>
                 <h1 className="heading-display">
-                  What would you like funding for?
+                  What would <em>you</em> like funding for?
                 </h1>
                 <HeroSearchBar className="mt-8" />
                 <p className="mt-5 text-sm text-white/40">
