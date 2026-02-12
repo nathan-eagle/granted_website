@@ -650,6 +650,13 @@ export default async function FoundationSlugPage({ params }: Props) {
       }),
     ])
 
+    // Sort linked grantees to the top
+    grantees.sort((a, b) => {
+      const aLinked = a.recipient_name && granteeSlugMap.has(slugifyName(a.recipient_name)) ? 1 : 0
+      const bLinked = b.recipient_name && granteeSlugMap.has(slugifyName(b.recipient_name)) ? 1 : 0
+      return bLinked - aLinked
+    })
+
     // Compute chart summaries server-side (only summaries sent to client, not 5000 raw records)
     const insightStats = computeGrantStats(allGrantees)
     const insightGivingByYear = computeGivingByYear(allGrantees).filter((y) => y.total > 0)
