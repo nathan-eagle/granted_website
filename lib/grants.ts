@@ -120,6 +120,7 @@ export async function getGrantsByFunder(funder: string): Promise<PublicGrant[]> 
     .ilike('funder', `%${funder}%`)
     .neq('status', 'closed')
     .order('deadline', { ascending: true, nullsFirst: false })
+    .limit(500)
   if (error) throw error
   return (data ?? []) as PublicGrant[]
 }
@@ -230,6 +231,7 @@ export async function getGrantsByState(stateName: string): Promise<PublicGrant[]
     .contains('target_states', [stateName])
     .neq('status', 'closed')
     .order('deadline', { ascending: true, nullsFirst: false })
+    .limit(500)
   if (!arrErr && byArray && byArray.length > 0) return byArray as PublicGrant[]
 
   const { data, error } = await supabase
@@ -238,6 +240,7 @@ export async function getGrantsByState(stateName: string): Promise<PublicGrant[]
     .ilike('eligibility', `%${stateName}%`)
     .neq('status', 'closed')
     .order('deadline', { ascending: true, nullsFirst: false })
+    .limit(500)
   if (error) throw error
   return (data ?? []) as PublicGrant[]
 }
@@ -253,6 +256,7 @@ export async function getClosingSoonGrants(days = 30): Promise<PublicGrant[]> {
     .gte('deadline', now)
     .lte('deadline', future)
     .order('deadline', { ascending: true })
+    .limit(500)
   if (error) throw error
   return (data ?? []) as PublicGrant[]
 }
@@ -266,6 +270,7 @@ export async function getNewGrants(sinceDate?: Date): Promise<PublicGrant[]> {
     .gte('created_at', since.toISOString())
     .neq('status', 'closed')
     .order('created_at', { ascending: false })
+    .limit(500)
   if (error) throw error
   return (data ?? []) as PublicGrant[]
 }
@@ -475,7 +480,7 @@ export async function getGrantsForCategory(
   if (!supabase) return []
 
   if (category.topicKeywords && category.topicKeywords.length > 0) {
-    const all = await getAllGrants()
+    const all = await getAllGrants(false, 1000)
     const keywords = category.topicKeywords.map((k) => k.toLowerCase())
     return all.filter((grant) => {
       const haystack = [
@@ -500,6 +505,7 @@ export async function getGrantsForCategory(
       .ilike('eligibility', `%${category.eligibilityMatch}%`)
       .neq('status', 'closed')
       .order('deadline', { ascending: true, nullsFirst: false })
+      .limit(500)
     if (error) throw error
     return (data ?? []) as PublicGrant[]
   }
