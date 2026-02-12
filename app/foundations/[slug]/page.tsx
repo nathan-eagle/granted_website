@@ -617,8 +617,15 @@ export default async function FoundationSlugPage({ params }: Props) {
       }),
     ])
 
-    // Display table: prioritize grantees that link to foundation pages, then by year/amount
-    const grantees = [...allGrantees]
+    // Display table: one row per unique grantee (largest grant), linked grantees first
+    const seen = new Set<string>()
+    const deduped = allGrantees.filter((g) => {
+      const key = (g.recipient_name ?? '').toLowerCase().trim()
+      if (!key || seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+    const grantees = deduped
       .sort((a, b) => {
         const aLinked = a.recipient_name && granteeSlugMap.has(slugifyName(a.recipient_name)) ? 1 : 0
         const bLinked = b.recipient_name && granteeSlugMap.has(slugifyName(b.recipient_name)) ? 1 : 0
