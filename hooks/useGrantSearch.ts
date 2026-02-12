@@ -302,17 +302,17 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
         const result = await doSearch(searchOrgType, searchFocusArea, searchState, true, searchAmountRange)
 
         if (!result.dbOnly && result.opportunities.length > 0) {
-          // Identify new grants from LLM enrichment
+          const dedupedEnriched = deduplicateOpportunities(result.opportunities)
+          await matchSlugs(dedupedEnriched)
+          dedupedEnriched.sort((a, b) => (b.fit_score || 0) - (a.fit_score || 0))
+
+          // Identify new grants from LLM enrichment (post-dedup to avoid count mismatch)
           const newNames = new Set<string>()
-          for (const opp of result.opportunities) {
+          for (const opp of dedupedEnriched) {
             if (!initialNames.has(opp.name.toLowerCase())) {
               newNames.add(opp.name)
             }
           }
-
-          const dedupedEnriched = deduplicateOpportunities(result.opportunities)
-          await matchSlugs(dedupedEnriched)
-          dedupedEnriched.sort((a, b) => (b.fit_score || 0) - (a.fit_score || 0))
 
           setOpportunities(dedupedEnriched)
           setEnrichedNames(newNames)

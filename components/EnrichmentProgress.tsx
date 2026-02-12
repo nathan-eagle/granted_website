@@ -135,55 +135,74 @@ export default function EnrichmentProgress({ focusArea, orgType, state, resultCo
   const progress = Math.min(95, (elapsed / 55) * 95) // cap at 95% until results arrive
 
   return (
-    <div className="mb-4 overflow-hidden rounded-lg border border-brand-yellow/20 bg-gradient-to-r from-brand-yellow/[0.04] to-brand-yellow/[0.08]">
-      {/* Progress bar */}
-      <div className="h-1 bg-navy/[0.04]">
-        <div
-          className="h-full bg-brand-yellow transition-all duration-1000 ease-out"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-
-      <div className="px-4 py-3">
-        {/* Main message */}
-        <div className="flex items-start gap-2.5">
-          <svg
-            className="shrink-0 mt-0.5 animate-spin text-brand-gold"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M21 12a9 9 0 11-6.219-8.56" />
-          </svg>
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-navy leading-snug">
-              {step.message}
-            </p>
-            <p className="text-xs text-navy-light/50 mt-0.5">
-              {step.detail}
-            </p>
-          </div>
+    <div className="sticky top-0 z-20 pb-3 bg-cream">
+      <div className="overflow-hidden rounded-xl border-2 border-brand-yellow/25 bg-gradient-to-br from-white via-brand-yellow/[0.03] to-brand-yellow/[0.07] shadow-lg shadow-brand-yellow/[0.08]">
+        {/* Animated progress bar */}
+        <div className="h-1.5 bg-navy/[0.04]">
+          <div
+            className="h-full bg-gradient-to-r from-brand-yellow to-brand-gold transition-all duration-1000 ease-out"
+            style={{ width: `${progress}%` }}
+          />
         </div>
 
-        {/* Step indicators */}
-        <div className="flex items-center gap-1 mt-3">
-          {steps.map((_, i) => (
-            <div
-              key={i}
-              className={`h-1 flex-1 rounded-full transition-colors duration-500 ${
-                i < stepIndex
-                  ? 'bg-brand-yellow'
-                  : i === stepIndex
-                    ? 'bg-brand-yellow/60 animate-pulse'
-                    : 'bg-navy/[0.06]'
-              }`}
-            />
-          ))}
+        <div className="px-5 py-4 md:px-6 md:py-5">
+          {/* Header with prominent icon */}
+          <div className="flex items-start gap-3">
+            <div className="shrink-0 w-10 h-10 rounded-full bg-brand-yellow/15 flex items-center justify-center ring-4 ring-brand-yellow/[0.06]">
+              <svg
+                className="animate-spin text-brand-gold"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 12a9 9 0 11-6.219-8.56" />
+              </svg>
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-base font-bold text-navy leading-snug" style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}>
+                AI is discovering more grants for you
+              </p>
+              <p className="text-sm text-navy-light/70 mt-1 leading-snug">
+                {step.message}
+              </p>
+              <p className="text-xs text-navy-light/40 mt-0.5">
+                {step.detail}
+              </p>
+            </div>
+          </div>
+
+          {/* Step indicators */}
+          <div className="flex items-center gap-1.5 mt-4">
+            {steps.map((_, i) => (
+              <div
+                key={i}
+                className={`h-1.5 flex-1 rounded-full transition-colors duration-500 ${
+                  i < stepIndex
+                    ? 'bg-brand-yellow'
+                    : i === stepIndex
+                      ? 'bg-brand-yellow/60 animate-pulse'
+                      : 'bg-navy/[0.06]'
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Expectation-setting footer */}
+          <div className="mt-3 pt-3 border-t border-navy/[0.04] flex items-center gap-2">
+            <svg className="shrink-0 text-brand-gold/60" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            <p className="text-xs text-navy-light/50">
+              <span className="font-semibold text-navy-light/70">Hang tight!</span>{' '}
+              This typically finds 3{'\u2013'}8 more grants in about 30{'\u2013'}60 seconds.
+            </p>
+          </div>
         </div>
       </div>
     </div>

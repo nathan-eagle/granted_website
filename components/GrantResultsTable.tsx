@@ -42,9 +42,8 @@ function parseDeadline(deadline: string): number {
 }
 
 function isNew(opp: Opportunity): boolean {
-  if (!opp.created_at && !opp.last_verified_at) return false
-  const dateStr = opp.created_at || opp.last_verified_at!
-  const ms = Date.now() - Date.parse(dateStr)
+  if (!opp.created_at) return false
+  const ms = Date.now() - Date.parse(opp.created_at)
   return ms < 14 * 24 * 60 * 60 * 1000
 }
 
@@ -132,9 +131,9 @@ export default function GrantResultsTable({
           <div
             key={i}
             className={`card p-4 md:p-5 transition-all hover:shadow-lg hover:border-brand-yellow/30 cursor-pointer group ${
-              isEnriched ? 'border-l-[3px] border-l-green-400 bg-green-50/30' : ''
+              isEnriched ? 'border-l-[3px] border-l-brand-yellow ring-1 ring-brand-yellow/15' : ''
             }`}
-            style={isEnriched ? { animation: 'enrichHighlight 2s ease-out' } : undefined}
+            style={isEnriched ? { animation: 'enrichHighlight 3s ease-out', backgroundColor: 'rgb(245 207 73 / 0.04)' } : undefined}
             onClick={() => onRowClick(opp)}
             role="button"
             tabIndex={0}
@@ -154,8 +153,9 @@ export default function GrantResultsTable({
                     </span>
                   )}
                   {isEnriched && (
-                    <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700">
-                      Web result
+                    <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-yellow/15 text-amber-700 border border-brand-yellow/30">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7-6.3-4.6L5.7 21l2.3-7L2 9.4h7.6z"/></svg>
+                      AI Found
                     </span>
                   )}
                 </div>
@@ -272,6 +272,12 @@ export default function GrantResultsTable({
                     {isNew(opp) && !isPastDeadline(opp.deadline) && (
                       <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700">
                         New
+                      </span>
+                    )}
+                    {isEnriched && (
+                      <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-yellow/15 text-amber-700 border border-brand-yellow/30">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7-6.3-4.6L5.7 21l2.3-7L2 9.4h7.6z"/></svg>
+                        AI Found
                       </span>
                     )}
                   </div>

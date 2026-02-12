@@ -127,6 +127,19 @@ export default function GrantsPageClient({
   }, [phase, focusArea, searchState])
 
   const filteredOpps = applyFilters(opportunities, filters)
+  const visibleEnrichedCount = filteredOpps.filter(opp => enrichedNames.has(opp.name)).length
+
+  // Auto-scroll to completion banner when enrichment finishes
+  const prevEnrichingRef = useRef(false)
+  const completionBannerRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (prevEnrichingRef.current && !enriching && enrichedNames.size > 0) {
+      setTimeout(() => {
+        completionBannerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 150)
+    }
+    prevEnrichingRef.current = enriching
+  }, [enriching, enrichedNames.size])
 
   const handleRowClick = useCallback((opp: Opportunity) => {
     setSelectedOpp(opp)
@@ -286,14 +299,25 @@ export default function GrantsPageClient({
                 resultCount={opportunities.length}
               />
             )}
-            {!enriching && enrichedNames.size > 0 && (
-              <div className="flex items-center gap-2.5 px-4 py-3 rounded-lg bg-green-50 border border-green-200 mb-4">
-                <svg className="shrink-0 text-green-600" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
-                </svg>
-                <p className="text-xs font-medium text-green-800">
-                  {enrichedNames.size} new {enrichedNames.size === 1 ? 'grant' : 'grants'} found from web search
-                </p>
+            {!enriching && visibleEnrichedCount > 0 && (
+              <div
+                ref={completionBannerRef}
+                className="flex items-center gap-3 px-5 py-4 rounded-xl bg-gradient-to-r from-brand-yellow/10 to-brand-yellow/5 border border-brand-yellow/25 mb-6"
+                style={{ animation: 'enrichSlideIn 0.5s ease-out' }}
+              >
+                <div className="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-brand-yellow/20">
+                  <svg className="text-brand-gold" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-navy">
+                    Found {visibleEnrichedCount} additional {visibleEnrichedCount === 1 ? 'grant' : 'grants'} from AI web search
+                  </p>
+                  <p className="text-xs text-navy-light/50 mt-0.5">
+                    Look for the highlighted results below
+                  </p>
+                </div>
               </div>
             )}
 
