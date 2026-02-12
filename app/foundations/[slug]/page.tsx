@@ -21,6 +21,7 @@ import {
   getFoundationFinancials,
   getFoundationFilings,
   getFoundationSlugsByPrefixes,
+  getFoundationRfps,
   formatAssets,
   getFoundationLocation,
   getFoundationCategoryLabel,
@@ -32,6 +33,7 @@ import {
   type FoundationGrantee,
   type FoundationFinancial,
   type FoundationFiling,
+  type FoundationRfp,
 } from '@/lib/foundations'
 
 export const revalidate = 3600
@@ -189,6 +191,7 @@ function FoundationDetailPage({
   grantees,
   financials,
   filings,
+  rfps,
   granteeSlugMap,
 }: {
   foundation: Foundation
@@ -197,6 +200,7 @@ function FoundationDetailPage({
   grantees: FoundationGrantee[]
   financials: FoundationFinancial[]
   filings: FoundationFiling[]
+  rfps: FoundationRfp[]
   granteeSlugMap: Map<string, string>
 }) {
   const location = getFoundationLocation(foundation)
@@ -320,19 +324,34 @@ function FoundationDetailPage({
                   </div>
                 ))}
               </dl>
-              {foundation.website && (
-                <a
-                  href={foundation.website.startsWith('http') ? foundation.website : `https://${foundation.website}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 mt-6 text-sm font-semibold text-brand-gold hover:underline"
-                >
-                  Visit Website
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline">
-                    <path d="M7 17L17 7M17 7H7M17 7v10" />
-                  </svg>
-                </a>
-              )}
+              <div className="flex flex-wrap items-center gap-4 mt-6">
+                {foundation.website && (
+                  <a
+                    href={foundation.website.startsWith('http') ? foundation.website : `https://${foundation.website}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-brand-gold hover:underline"
+                  >
+                    Visit Website
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline">
+                      <path d="M7 17L17 7M17 7H7M17 7v10" />
+                    </svg>
+                  </a>
+                )}
+                {foundation.grants_page_url && foundation.grants_page_url !== foundation.website && (
+                  <a
+                    href={foundation.grants_page_url.startsWith('http') ? foundation.grants_page_url : `https://${foundation.grants_page_url}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-brand-gold hover:underline"
+                  >
+                    View Grants Page
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline">
+                      <path d="M7 17L17 7M17 7H7M17 7v10" />
+                    </svg>
+                  </a>
+                )}
+              </div>
               <div className="mt-6">
                 <a
                   href={SIGN_IN_URL}
@@ -343,6 +362,68 @@ function FoundationDetailPage({
               </div>
             </div>
           </RevealOnScroll>
+
+          {/* Open Grant Opportunities */}
+          {rfps.length > 0 && (
+            <RevealOnScroll delay={200}>
+              <section className="mt-12">
+                <h2 className="heading-md text-navy text-2xl font-bold mb-6">Open Grant Opportunities</h2>
+                <div className="space-y-4">
+                  {rfps.map((rfp) => (
+                    <div key={rfp.id} className="bg-cream-dark rounded-2xl p-6 border border-navy/5">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-base font-bold text-navy">{rfp.name}</h3>
+                          {rfp.description && (
+                            <p className="text-sm text-navy-light/70 mt-1 line-clamp-2">{rfp.description}</p>
+                          )}
+                          <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-navy-light/50">
+                            {rfp.deadline && (
+                              <span>
+                                Deadline: <span className="font-medium text-navy">{rfp.deadline}</span>
+                              </span>
+                            )}
+                            {rfp.amount && rfp.amount !== 'Not specified' && (
+                              <span>
+                                Amount: <span className="font-medium text-navy">{rfp.amount}</span>
+                              </span>
+                            )}
+                            {rfp.grant_type === 'rolling_program' && (
+                              <span className="bg-brand-gold/10 text-brand-gold px-2 py-0.5 rounded-full font-medium">
+                                Rolling
+                              </span>
+                            )}
+                          </div>
+                          {rfp.focus_areas && rfp.focus_areas.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                              {rfp.focus_areas.slice(0, 4).map((area) => (
+                                <span key={area} className="text-xs bg-navy/5 text-navy-light/70 px-2 py-0.5 rounded-full">
+                                  {area}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        {rfp.application_url && (
+                          <a
+                            href={rfp.application_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="shrink-0 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-gold hover:underline"
+                          >
+                            Apply
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline">
+                              <path d="M7 17L17 7M17 7H7M17 7v10" />
+                            </svg>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </RevealOnScroll>
+          )}
 
           {/* About */}
           <RevealOnScroll delay={240}>
@@ -507,12 +588,13 @@ export default async function FoundationSlugPage({ params }: Props) {
   // 2. Check individual foundation
   const foundation = await getFoundationBySlug(params.slug).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationBySlug failed:`, err); return null })
   if (foundation) {
-    const [related, similar, grantees, financials, filings] = await Promise.all([
+    const [related, similar, grantees, financials, filings, rfps] = await Promise.all([
       getRelatedFoundations(foundation.state, foundation.ntee_major, foundation.slug, 3).catch((err) => { console.error(`[foundations/${params.slug}] getRelatedFoundations failed:`, err); return [] }),
       getSimilarFoundations(foundation.ntee_major, foundation.slug, 6).catch((err) => { console.error(`[foundations/${params.slug}] getSimilarFoundations failed:`, err); return [] }),
       getFoundationGrantees(foundation.id, 50).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationGrantees failed:`, err); return [] }),
       getFoundationFinancials(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationFinancials failed:`, err); return [] }),
       getFoundationFilings(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationFilings failed:`, err); return [] }),
+      getFoundationRfps(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationRfps failed:`, err); return [] }),
     ])
 
     // Batch-lookup grantee slugs so we can link to real foundation pages
@@ -534,6 +616,7 @@ export default async function FoundationSlugPage({ params }: Props) {
         grantees={grantees}
         financials={financials}
         filings={filings}
+        rfps={rfps}
         granteeSlugMap={granteeSlugMap}
       />
     )

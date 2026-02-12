@@ -22,6 +22,7 @@ export type Foundation = {
   income_amount: number | null
   revenue_amount: number | null
   website: string | null
+  grants_page_url: string | null
   contact_name: string | null
   organization_type: string | null
   deductibility: string | null
@@ -329,6 +330,18 @@ export type FoundationFiling = {
   created_at: string
 }
 
+export type FoundationRfp = {
+  id: string
+  name: string
+  description: string | null
+  deadline: string | null
+  amount: string | null
+  application_url: string | null
+  grant_type: string | null
+  focus_areas: string[] | null
+  geographic_focus: string | null
+}
+
 /* ── Data functions ── */
 
 export async function getFoundationBySlug(slug: string): Promise<Foundation | null> {
@@ -340,6 +353,19 @@ export async function getFoundationBySlug(slug: string): Promise<Foundation | nu
     .maybeSingle()
   if (error) throw error
   return data
+}
+
+export async function getFoundationRfps(foundationId: string): Promise<FoundationRfp[]> {
+  if (!supabase) return []
+  const { data, error } = await supabase
+    .from('foundation_rfps')
+    .select('id, name, description, deadline, amount, application_url, grant_type, focus_areas, geographic_focus')
+    .eq('foundation_id', foundationId)
+    .eq('is_active', true)
+    .in('grant_type', ['open_rfp', 'rolling_program'])
+    .order('deadline', { ascending: true, nullsFirst: false })
+  if (error) throw error
+  return data ?? []
 }
 
 export async function getTopFoundations(limit = 20): Promise<Foundation[]> {
