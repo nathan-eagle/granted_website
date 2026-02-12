@@ -560,24 +560,27 @@ export async function getFoundationSlugsByPrefixes(
   prefixes: string[],
 ): Promise<Map<string, string>> {
   if (!supabase || prefixes.length === 0) return new Map()
-  // Build OR filter: slug.like.prefix1% OR slug.like.prefix2% ...
-  const filter = prefixes.map((p) => `slug.like.${p}%`).join(',')
-  const { data, error } = await supabase
-    .from('foundations')
-    .select('slug')
-    .or(filter)
-    .limit(prefixes.length * 2)
-  if (error) {
-    console.error('Error fetching foundation slugs by prefix:', error.message)
-    return new Map()
-  }
+  // Batch into chunks of 80 to stay under PostgREST URL length limits
+  const BATCH = 80
   const map = new Map<string, string>()
-  for (const row of data ?? []) {
-    // Extract the prefix portion (everything before the last hyphen-group which is the EIN suffix)
-    for (const prefix of prefixes) {
-      if (row.slug.startsWith(prefix)) {
-        map.set(prefix, row.slug)
-        break
+  for (let i = 0; i < prefixes.length; i += BATCH) {
+    const batch = prefixes.slice(i, i + BATCH)
+    const filter = batch.map((p) => `slug.like.${p}%`).join(',')
+    const { data, error } = await supabase
+      .from('foundations')
+      .select('slug')
+      .or(filter)
+      .limit(batch.length * 2)
+    if (error) {
+      console.error('Error fetching foundation slugs by prefix:', error.message)
+      continue
+    }
+    for (const row of data ?? []) {
+      for (const prefix of batch) {
+        if (row.slug.startsWith(prefix)) {
+          map.set(prefix, row.slug)
+          break
+        }
       }
     }
   }

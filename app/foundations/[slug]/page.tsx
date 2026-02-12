@@ -601,12 +601,11 @@ export default async function FoundationSlugPage({ params }: Props) {
     ])
 
     // Batch-lookup grantee slugs so we can link to real foundation pages
-    // Use all unique names (capped at 300) to find linked grantees
     const allUniquePrefixes = [...new Set(
       allGrantees
         .map((g) => g.recipient_name ? slugifyName(g.recipient_name) : null)
         .filter((p): p is string => !!p)
-    )].slice(0, 300)
+    )]
     const [granteeSlugMap, rfpSlugMap] = await Promise.all([
       getFoundationSlugsByPrefixes(allUniquePrefixes).catch((err) => {
         console.error(`[foundations/${params.slug}] getFoundationSlugsByPrefixes failed:`, err)
