@@ -1,15 +1,28 @@
 import type { MetadataRoute } from 'next'
-import { getGrantSlugsPage, hasSeoSummary, GRANT_CATEGORIES, GRANT_US_STATES } from '@/lib/grants'
+import { GRANT_CATEGORIES, GRANT_US_STATES } from '@/lib/grants'
+import { supabase } from '@/lib/supabase'
 
 const GRANTS_PER_SITEMAP = 50_000
 
 /**
- * Generate a sitemap index so all ~64K grants get indexed.
+ * Generate a sitemap index so all ~70K grants get indexed.
  * Hardcoded to 2 chunks to avoid DB queries at build time (which timeout on Vercel).
- * ISR fetches actual data at request time. Bump if grants exceed 100K.
+ * Bump if grants exceed 100K.
  */
 export async function generateSitemaps() {
   return [{ id: 0 }, { id: 1 }]
+}
+
+async function getGrantSitemapSlugs(offset: number, limit: number) {
+  if (!supabase) return []
+  // Use created_at ordering (faster than deadline) and exclude summary to avoid timeouts
+  const { data, error } = await supabase
+    .from('public_grants')
+    .select('slug, status, updated_at')
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1)
+  if (error) throw error
+  return data ?? []
 }
 
 export default async function sitemap({ id }: { id: number }): Promise<MetadataRoute.Sitemap> {
@@ -47,13 +60,12 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
 
   // Grant pages for this chunk (including closed grants)
   const offset = id * GRANTS_PER_SITEMAP
-  const slugs = await getGrantSlugsPage(offset, GRANTS_PER_SITEMAP, true).catch((err) => {
-    console.error(`[grants/sitemap] getGrantSlugsPage(${offset}) failed:`, err)
+  const slugs = await getGrantSitemapSlugs(offset, GRANTS_PER_SITEMAP).catch((err) => {
+    console.error(`[grants/sitemap] getGrantSitemapSlugs(${offset}) failed:`, err)
     return []
   })
 
   for (const g of slugs) {
-    if (!hasSeoSummary(g.summary)) continue
     const isActive = g.status === 'active'
     entries.push({
       url: `${base}/grants/${g.slug}`,
