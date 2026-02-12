@@ -1,11 +1,11 @@
 import type { MetadataRoute } from 'next'
 import { getGrantCount, getGrantSlugsPage, hasSeoSummary, GRANT_CATEGORIES, GRANT_US_STATES } from '@/lib/grants'
 
-const GRANTS_PER_SITEMAP = 10_000
+const GRANTS_PER_SITEMAP = 50_000
 
 /**
  * Generate a sitemap index so all ~64K grants get indexed.
- * Smaller chunks (10K) avoid Vercel function timeouts from sequential Supabase fetches.
+ * Requires Supabase PostgREST max_rows >= 50000.
  */
 export async function generateSitemaps() {
   const total = await getGrantCount(true).catch((err) => { console.error('[grants/sitemap] getGrantCount failed:', err); return 0 })

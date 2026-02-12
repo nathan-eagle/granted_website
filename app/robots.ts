@@ -1,18 +1,6 @@
 import type { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-  const sitemaps = ['https://grantedai.com/sitemap.xml']
-
-  // Grants: ~70K pages across 7 chunks of 10K
-  for (let i = 0; i < 7; i++) {
-    sitemaps.push(`https://grantedai.com/grants/sitemap/${i}.xml`)
-  }
-
-  // Foundations: ~133K pages across 14 chunks of 10K
-  for (let i = 0; i < 14; i++) {
-    sitemaps.push(`https://grantedai.com/foundations/sitemap/${i}.xml`)
-  }
-
   return {
     rules: [
       {
@@ -20,6 +8,15 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
       },
     ],
-    sitemap: sitemaps,
+    sitemap: [
+      'https://grantedai.com/sitemap.xml',
+      // Grants: ~70K pages across 2 chunks of 50K
+      'https://grantedai.com/grants/sitemap/0.xml',
+      'https://grantedai.com/grants/sitemap/1.xml',
+      // Foundations: ~133K pages across 3 chunks of 50K
+      'https://grantedai.com/foundations/sitemap/0.xml',
+      'https://grantedai.com/foundations/sitemap/1.xml',
+      'https://grantedai.com/foundations/sitemap/2.xml',
+    ],
   }
 }

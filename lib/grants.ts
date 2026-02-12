@@ -69,55 +69,33 @@ export async function getGrantSlugsPage(
   includeClosedGrants = false,
 ): Promise<{ slug: string; status: string; updated_at: string; summary: string | null }[]> {
   if (!supabase) return []
-  const BATCH = 1000
-  const results: { slug: string; status: string; updated_at: string; summary: string | null }[] = []
-  let fetched = 0
-  while (fetched < limit) {
-    const batchSize = Math.min(BATCH, limit - fetched)
-    const from = offset + fetched
-    let query = supabase
-      .from('public_grants')
-      .select('slug, status, updated_at, summary')
-      .order('deadline', { ascending: true, nullsFirst: false })
-      .range(from, from + batchSize - 1)
-    if (!includeClosedGrants) {
-      query = query.neq('status', 'closed')
-    }
-    const { data, error } = await query
-    if (error) throw error
-    if (!data || data.length === 0) break
-    results.push(...data)
-    fetched += data.length
-    if (data.length < batchSize) break
+  let query = supabase
+    .from('public_grants')
+    .select('slug, status, updated_at, summary')
+    .order('deadline', { ascending: true, nullsFirst: false })
+    .range(offset, offset + limit - 1)
+  if (!includeClosedGrants) {
+    query = query.neq('status', 'closed')
   }
-  return results
+  const { data, error } = await query
+  if (error) throw error
+  return data ?? []
 }
 
 /* ── Data functions ── */
 
 export async function getAllGrants(includeClosedGrants = false): Promise<PublicGrant[]> {
   if (!supabase) return []
-  // Supabase PostgREST caps at 1000 rows per request, so paginate in batches
-  const BATCH = 1000
-  const results: PublicGrant[] = []
-  let offset = 0
-  while (true) {
-    let query = supabase
-      .from('public_grants')
-      .select(LISTING_COLS)
-      .order('deadline', { ascending: true, nullsFirst: false })
-      .range(offset, offset + BATCH - 1)
-    if (!includeClosedGrants) {
-      query = query.neq('status', 'closed')
-    }
-    const { data, error } = await query
-    if (error) throw error
-    if (!data || data.length === 0) break
-    results.push(...(data as PublicGrant[]))
-    offset += data.length
-    if (data.length < BATCH) break // no more rows
+  let query = supabase
+    .from('public_grants')
+    .select(LISTING_COLS)
+    .order('deadline', { ascending: true, nullsFirst: false })
+  if (!includeClosedGrants) {
+    query = query.neq('status', 'closed')
   }
-  return results
+  const { data, error } = await query
+  if (error) throw error
+  return (data ?? []) as PublicGrant[]
 }
 
 export async function getGrantBySlug(slug: string): Promise<PublicGrant | null> {

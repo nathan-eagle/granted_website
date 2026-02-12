@@ -6,11 +6,11 @@ import {
   US_STATES,
 } from '@/lib/foundations'
 
-const FOUNDATIONS_PER_SITEMAP = 10_000
+const FOUNDATIONS_PER_SITEMAP = 50_000
 
 /**
  * Generate a sitemap index so all ~133K foundations get indexed.
- * Smaller chunks (10K) avoid Vercel function timeouts from sequential Supabase fetches.
+ * Requires Supabase PostgREST max_rows >= 50000.
  */
 export async function generateSitemaps() {
   const total = await getFoundationCount().catch((err) => { console.error('[foundations/sitemap] getFoundationCount failed:', err); return 0 })
