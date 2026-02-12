@@ -6,12 +6,11 @@ import {
   US_STATES,
 } from '@/lib/foundations'
 
-const FOUNDATIONS_PER_SITEMAP = 45_000
+const FOUNDATIONS_PER_SITEMAP = 10_000
 
 /**
  * Generate a sitemap index so all ~133K foundations get indexed.
- * Chunk 0 = index + categories + states + first 45K foundations
- * Chunk 1..N = next 45K foundations each
+ * Smaller chunks (10K) avoid Vercel function timeouts from sequential Supabase fetches.
  */
 export async function generateSitemaps() {
   const total = await getFoundationCount().catch((err) => { console.error('[foundations/sitemap] getFoundationCount failed:', err); return 0 })

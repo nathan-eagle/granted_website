@@ -10,11 +10,8 @@ export default function robots(): MetadataRoute.Robots {
     ],
     sitemap: [
       'https://grantedai.com/sitemap.xml',
-      'https://grantedai.com/grants/sitemap/0.xml',
-      'https://grantedai.com/grants/sitemap/1.xml',
-      'https://grantedai.com/foundations/sitemap/0.xml',
-      'https://grantedai.com/foundations/sitemap/1.xml',
-      'https://grantedai.com/foundations/sitemap/2.xml',
+      'https://grantedai.com/grants/sitemap.xml',
+      'https://grantedai.com/foundations/sitemap.xml',
     ],
   }
 }
