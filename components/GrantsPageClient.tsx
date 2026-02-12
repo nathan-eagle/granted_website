@@ -80,11 +80,6 @@ export default function GrantsPageClient({
 
   // Auto-switch to funders tab if URL has tab=funders
   const tabParam = useSearchParams().get('tab')
-  useEffect(() => {
-    if (tabParam === 'funders' && phase === 'results') {
-      setActiveTab('funders')
-    }
-  }, [tabParam, phase])
 
   // Funder matches state
   const [funders, setFunders] = useState<FunderMatch[]>([])
@@ -95,7 +90,7 @@ export default function GrantsPageClient({
   useEffect(() => {
     if (phase === 'results') {
       setFilters(DEFAULT_FILTERS)
-      setActiveTab('grants')
+      setActiveTab(tabParam === 'funders' ? 'funders' : 'grants')
       setSelectedOpp(null)
     }
   }, [opportunities]) // eslint-disable-line react-hooks/exhaustive-deps

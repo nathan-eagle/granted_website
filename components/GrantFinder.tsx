@@ -329,6 +329,9 @@ export default function GrantFinder({
       <p className="mt-4 text-sm text-navy-light/60 text-center">
         Free &middot; No account required &middot; Powered by AI across the world&apos;s largest grants + funders database
       </p>
+      <p className="mt-1.5 text-xs text-navy-light/40 text-center">
+        Currently focused on US federal, state, and foundation grants.
+      </p>
     </div>
   )
 }

@@ -49,7 +49,7 @@ export default function HowGrantedWorks() {
   const { ref, isInView } = useInView({ threshold: 0.15 })
 
   return (
-    <section id="how-it-works" className="bg-cream-dark">
+    <section id="how-it-works" className="scroll-mt-24 bg-cream-dark">
       <div className="container py-20 md:py-24">
         <div
           ref={ref}
