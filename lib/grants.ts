@@ -84,7 +84,7 @@ export async function getGrantSlugsPage(
 
 /* ── Data functions ── */
 
-export async function getAllGrants(includeClosedGrants = false): Promise<PublicGrant[]> {
+export async function getAllGrants(includeClosedGrants = false, limit?: number): Promise<PublicGrant[]> {
   if (!supabase) return []
   let query = supabase
     .from('public_grants')
@@ -92,6 +92,9 @@ export async function getAllGrants(includeClosedGrants = false): Promise<PublicG
     .order('deadline', { ascending: true, nullsFirst: false })
   if (!includeClosedGrants) {
     query = query.neq('status', 'closed')
+  }
+  if (limit) {
+    query = query.limit(limit)
   }
   const { data, error } = await query
   if (error) throw error

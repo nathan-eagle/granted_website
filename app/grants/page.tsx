@@ -49,7 +49,7 @@ const jsonLd = {
 
 export default async function GrantsIndex() {
   const [grants, closingSoon, newGrants] = await Promise.all([
-    getAllGrants().catch((err) => { console.error('[grants/page] getAllGrants failed:', err); return [] }),
+    getAllGrants(false, 1000).catch((err) => { console.error('[grants/page] getAllGrants failed:', err); return [] }),
     getClosingSoonGrants(30).catch((err) => { console.error('[grants/page] getClosingSoonGrants failed:', err); return [] }),
     getNewGrants().catch((err) => { console.error('[grants/page] getNewGrants failed:', err); return [] }),
   ])
