@@ -6,6 +6,8 @@ import {
   US_STATES,
 } from '@/lib/foundations'
 
+export const revalidate = 3600
+
 const FOUNDATIONS_PER_SITEMAP = 50_000
 
 /**

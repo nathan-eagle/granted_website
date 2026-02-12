@@ -2,6 +2,9 @@ import type { MetadataRoute } from 'next'
 import { GRANT_CATEGORIES, GRANT_US_STATES } from '@/lib/grants'
 import { supabase } from '@/lib/supabase'
 
+// Regenerate every hour so data stays fresh (build-time queries timeout on Supabase free tier)
+export const revalidate = 3600
+
 const GRANTS_PER_SITEMAP = 50_000
 
 /**
