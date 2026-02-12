@@ -504,6 +504,27 @@ export async function getSimilarFoundations(
   return data ?? []
 }
 
+export async function getSimilarFoundationsByAssets(
+  assetAmount: number,
+  excludeSlug: string,
+  limit = 6,
+): Promise<Foundation[]> {
+  if (!supabase || !assetAmount) return []
+  // Find foundations in a similar asset range (0.2x to 5x)
+  const lower = Math.floor(assetAmount * 0.2)
+  const upper = Math.ceil(assetAmount * 5)
+  const { data, error } = await supabase
+    .from('foundations')
+    .select('*')
+    .neq('slug', excludeSlug)
+    .gte('asset_amount', lower)
+    .lte('asset_amount', upper)
+    .order('asset_amount', { ascending: false, nullsFirst: false })
+    .limit(limit)
+  if (error) throw error
+  return data ?? []
+}
+
 export async function getFoundationFinancials(
   foundationId: string,
 ): Promise<FoundationFinancial[]> {

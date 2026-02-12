@@ -14,6 +14,7 @@ import {
   getFoundationBySlug,
   getRelatedFoundations,
   getSimilarFoundations,
+  getSimilarFoundationsByAssets,
   getFoundationGrantees,
   getFoundationsByCategory,
   getCategoryBySlug,
@@ -508,33 +509,34 @@ function FoundationDetailPage({
             </RevealOnScroll>
           )}
 
-          {/* See Similar Foundations (by NTEE category) */}
-          {(() => {
+          {/* See Similar Foundations */}
+          {similar.length > 0 && (() => {
             const catLabel = getFoundationCategoryLabel(foundation)
             const catObj = FOUNDATION_CATEGORIES.find((c) => c.nteeMajors.includes(foundation.ntee_major ?? ''))
-            return catObj ? (
+            const heading = catObj ? 'See Similar Foundations' : 'Foundations of Similar Size'
+            return (
               <RevealOnScroll delay={400}>
                 <section className="mt-12">
-                  <h2 className="heading-md text-navy text-2xl font-bold mb-4">See Similar Foundations</h2>
-                  {similar.length > 0 && (
-                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-6">
-                      {similar.map((f) => (
-                        <FoundationCard key={f.id} foundation={f} />
-                      ))}
-                    </div>
+                  <h2 className="heading-md text-navy text-2xl font-bold mb-4">{heading}</h2>
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-6">
+                    {similar.map((f) => (
+                      <FoundationCard key={f.id} foundation={f} />
+                    ))}
+                  </div>
+                  {catObj && (
+                    <Link
+                      href={`/foundations/${catObj.slug}`}
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-brand-gold hover:underline"
+                    >
+                      Browse all {catLabel} foundations
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline">
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                      </svg>
+                    </Link>
                   )}
-                  <Link
-                    href={`/foundations/${catObj.slug}`}
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-brand-gold hover:underline"
-                  >
-                    Browse all {catLabel} foundations
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline">
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                  </Link>
                 </section>
               </RevealOnScroll>
-            ) : null
+            )
           })()}
 
           {/* Related (same state) */}
@@ -592,9 +594,13 @@ export default async function FoundationSlugPage({ params }: Props) {
   // 2. Check individual foundation
   const foundation = await getFoundationBySlug(params.slug).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationBySlug failed:`, err); return null })
   if (foundation) {
+    const similarFn = foundation.ntee_major
+      ? getSimilarFoundations(foundation.ntee_major, foundation.slug, 6)
+      : getSimilarFoundationsByAssets(foundation.asset_amount ?? 0, foundation.slug, 6)
+
     const [related, similar, allGrantees, financials, rfps] = await Promise.all([
       getRelatedFoundations(foundation.state, foundation.ntee_major, foundation.slug, 3).catch((err) => { console.error(`[foundations/${params.slug}] getRelatedFoundations failed:`, err); return [] }),
-      getSimilarFoundations(foundation.ntee_major, foundation.slug, 6).catch((err) => { console.error(`[foundations/${params.slug}] getSimilarFoundations failed:`, err); return [] }),
+      similarFn.catch((err) => { console.error(`[foundations/${params.slug}] getSimilarFoundations failed:`, err); return [] }),
       getFoundationGrantees(foundation.id, 5000).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationGrantees failed:`, err); return [] }),
       getFoundationFinancials(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationFinancials failed:`, err); return [] }),
       getFoundationRfps(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationRfps failed:`, err); return [] }),
