@@ -49,7 +49,7 @@ const softwareAppLd = {
 
 export default async function HomePage() {
   const trending = await safeFetch(
-    () => getClosingSoonGrants(30).then(g => g.slice(0, 8)),
+    () => getClosingSoonGrants(30),
     [],
     'homepage:closingSoonGrants',
   )
