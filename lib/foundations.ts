@@ -584,6 +584,28 @@ export async function getFoundationSlugsByPrefixes(
   return map
 }
 
+export async function getPublicGrantSlugsForRfps(
+  rfpNames: string[],
+): Promise<Map<string, string>> {
+  if (!supabase || rfpNames.length === 0) return new Map()
+  const { data, error } = await supabase
+    .from('public_grants')
+    .select('name, slug')
+    .in('name', rfpNames)
+    .limit(rfpNames.length * 2)
+  if (error) {
+    console.error('Error looking up grant slugs for RFPs:', error.message)
+    return new Map()
+  }
+  const map = new Map<string, string>()
+  for (const row of data ?? []) {
+    if (row.name && row.slug) {
+      map.set(row.name, row.slug)
+    }
+  }
+  return map
+}
+
 export async function getFoundationGranteeYears(foundationId: string): Promise<number[]> {
   if (!supabase) return []
   const { data, error } = await supabase

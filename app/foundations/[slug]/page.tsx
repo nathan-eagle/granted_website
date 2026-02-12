@@ -9,7 +9,6 @@ import GrantCTA from '@/components/GrantCTA'
 import CategoryFoundationList from '@/components/CategoryFoundationList'
 import FoundationInsights from '@/components/FoundationInsights'
 import FoundationFinancials from '@/components/FoundationFinancials'
-import FoundationFilings from '@/components/FoundationFilings'
 import Link from 'next/link'
 import {
   getFoundationBySlug,
@@ -19,8 +18,8 @@ import {
   getFoundationsByCategory,
   getCategoryBySlug,
   getFoundationFinancials,
-  getFoundationFilings,
   getFoundationSlugsByPrefixes,
+  getPublicGrantSlugsForRfps,
   getFoundationRfps,
   formatAssets,
   getFoundationLocation,
@@ -32,7 +31,6 @@ import {
   type FoundationCategory,
   type FoundationGrantee,
   type FoundationFinancial,
-  type FoundationFiling,
   type FoundationRfp,
 } from '@/lib/foundations'
 
@@ -77,7 +75,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     foundation.income_amount ? `Annual income: ${formatAssets(foundation.income_amount)}.` : null,
     foundation.ntee_major ? `Category: ${getFoundationCategoryLabel(foundation)}.` : null,
     foundation.contact_name ? `Principal officer: ${foundation.contact_name}.` : null,
-    'View financial details, 990-PF filings, and grantmaking history.',
+    'View financial details and grantmaking history.',
   ]
     .filter(Boolean)
     .join(' ')
@@ -189,18 +187,20 @@ function FoundationDetailPage({
   related,
   similar,
   grantees,
+  allGrantees,
   financials,
-  filings,
   rfps,
+  rfpSlugMap,
   granteeSlugMap,
 }: {
   foundation: Foundation
   related: Foundation[]
   similar: Foundation[]
   grantees: FoundationGrantee[]
+  allGrantees: FoundationGrantee[]
   financials: FoundationFinancial[]
-  filings: FoundationFiling[]
   rfps: FoundationRfp[]
+  rfpSlugMap: Map<string, string>
   granteeSlugMap: Map<string, string>
 }) {
   const location = getFoundationLocation(foundation)
@@ -369,11 +369,21 @@ function FoundationDetailPage({
               <section className="mt-12">
                 <h2 className="heading-md text-navy text-2xl font-bold mb-6">Open Grant Opportunities</h2>
                 <div className="space-y-4">
-                  {rfps.map((rfp) => (
+                  {rfps.map((rfp) => {
+                    const grantSlug = rfpSlugMap.get(rfp.name)
+                    return (
                     <div key={rfp.id} className="bg-cream-dark rounded-2xl p-6 border border-navy/5">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-base font-bold text-navy">{rfp.name}</h3>
+                          <h3 className="text-base font-bold text-navy">
+                            {grantSlug ? (
+                              <Link href={`/grants/${grantSlug}`} className="hover:text-brand-gold transition-colors hover:underline">
+                                {rfp.name}
+                              </Link>
+                            ) : (
+                              rfp.name
+                            )}
+                          </h3>
                           {rfp.description && (
                             <p className="text-sm text-navy-light/70 mt-1 line-clamp-2">{rfp.description}</p>
                           )}
@@ -419,7 +429,8 @@ function FoundationDetailPage({
                         )}
                       </div>
                     </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </section>
             </RevealOnScroll>
@@ -440,9 +451,9 @@ function FoundationDetailPage({
             <FoundationFinancials financials={financials} />
           </RevealOnScroll>
 
-          {/* Grantmaking Insights (charts, map, stats — from 990-PF grant-level data) */}
+          {/* Grantmaking Insights (charts, map, stats — from grant-level data) */}
           <RevealOnScroll delay={340}>
-            <FoundationInsights grantees={grantees} />
+            <FoundationInsights grantees={allGrantees} />
           </RevealOnScroll>
 
           {/* Past Grantees */}
@@ -494,13 +505,6 @@ function FoundationDetailPage({
                   </table>
                 </div>
               </section>
-            </RevealOnScroll>
-          )}
-
-          {/* 990 Filing Archive */}
-          {filings.length > 0 && (
-            <RevealOnScroll delay={380}>
-              <FoundationFilings filings={filings} ein={foundation.ein} />
             </RevealOnScroll>
           )}
 
@@ -588,14 +592,16 @@ export default async function FoundationSlugPage({ params }: Props) {
   // 2. Check individual foundation
   const foundation = await getFoundationBySlug(params.slug).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationBySlug failed:`, err); return null })
   if (foundation) {
-    const [related, similar, grantees, financials, filings, rfps] = await Promise.all([
+    const [related, similar, allGrantees, financials, rfps] = await Promise.all([
       getRelatedFoundations(foundation.state, foundation.ntee_major, foundation.slug, 3).catch((err) => { console.error(`[foundations/${params.slug}] getRelatedFoundations failed:`, err); return [] }),
       getSimilarFoundations(foundation.ntee_major, foundation.slug, 6).catch((err) => { console.error(`[foundations/${params.slug}] getSimilarFoundations failed:`, err); return [] }),
-      getFoundationGrantees(foundation.id, 50).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationGrantees failed:`, err); return [] }),
+      getFoundationGrantees(foundation.id, 5000).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationGrantees failed:`, err); return [] }),
       getFoundationFinancials(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationFinancials failed:`, err); return [] }),
-      getFoundationFilings(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationFilings failed:`, err); return [] }),
       getFoundationRfps(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationRfps failed:`, err); return [] }),
     ])
+
+    // Display table shows top 50 grantees; full dataset used for stats/charts
+    const grantees = allGrantees.slice(0, 50)
 
     // Batch-lookup grantee slugs so we can link to real foundation pages
     const uniquePrefixes = [...new Set(
@@ -603,10 +609,16 @@ export default async function FoundationSlugPage({ params }: Props) {
         .map((g) => g.recipient_name ? slugifyName(g.recipient_name) : null)
         .filter((p): p is string => !!p)
     )]
-    const granteeSlugMap = await getFoundationSlugsByPrefixes(uniquePrefixes).catch((err) => {
-      console.error(`[foundations/${params.slug}] getFoundationSlugsByPrefixes failed:`, err)
-      return new Map<string, string>()
-    })
+    const [granteeSlugMap, rfpSlugMap] = await Promise.all([
+      getFoundationSlugsByPrefixes(uniquePrefixes).catch((err) => {
+        console.error(`[foundations/${params.slug}] getFoundationSlugsByPrefixes failed:`, err)
+        return new Map<string, string>()
+      }),
+      getPublicGrantSlugsForRfps(rfps.map((r) => r.name)).catch((err) => {
+        console.error(`[foundations/${params.slug}] getPublicGrantSlugsForRfps failed:`, err)
+        return new Map<string, string>()
+      }),
+    ])
 
     return (
       <FoundationDetailPage
@@ -614,9 +626,10 @@ export default async function FoundationSlugPage({ params }: Props) {
         related={related}
         similar={similar}
         grantees={grantees}
+        allGrantees={allGrantees}
         financials={financials}
-        filings={filings}
         rfps={rfps}
+        rfpSlugMap={rfpSlugMap}
         granteeSlugMap={granteeSlugMap}
       />
     )
