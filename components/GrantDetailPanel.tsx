@@ -10,6 +10,7 @@ import {
   buildApplyUrl,
   summarizeTerm,
   isPastDeadline,
+  deadlineUrgency,
 } from '@/hooks/useGrantSearch'
 
 interface Props {
@@ -123,6 +124,11 @@ export default function GrantDetailPanel({
                 <span className={`text-sm font-medium ${isPastDeadline(opp.deadline) ? 'text-red-600' : 'text-navy'}`}>
                   {isPastDeadline(opp.deadline) ? `${opp.deadline} — Expired` : opp.deadline}
                 </span>
+                {!isPastDeadline(opp.deadline) && deadlineUrgency(opp.deadline) && (
+                  <span className="ml-2 text-xs font-semibold text-amber-600 animate-pulse">
+                    {deadlineUrgency(opp.deadline)}
+                  </span>
+                )}
               </div>
             )}
             {opp.source_provider && OFFICIAL_SOURCES.has(opp.source_provider) && (

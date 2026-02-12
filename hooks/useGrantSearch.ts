@@ -83,7 +83,6 @@ export const OFFICIAL_SOURCES = new Set([
   'nsf_funding',
   'nih_weekly_index',
   'nsf_upcoming',
-  'ca_grants_portal',
 ])
 
 export type Phase = 'form' | 'loading' | 'results'
@@ -134,6 +133,19 @@ export function isPastDeadline(deadline: string | undefined): boolean {
   const parsed = Date.parse(deadline)
   if (isNaN(parsed)) return false
   return parsed < Date.now()
+}
+
+/** Returns urgency label like "Closing today!" or "Closing in 3 days" if deadline is within 14 days */
+export function deadlineUrgency(deadline: string | undefined): string | null {
+  if (!deadline || deadline.toLowerCase() === 'rolling') return null
+  const parsed = Date.parse(deadline)
+  if (isNaN(parsed)) return null
+  const daysLeft = Math.ceil((parsed - Date.now()) / (1000 * 60 * 60 * 24))
+  if (daysLeft < 0) return null
+  if (daysLeft === 0) return 'Closing today!'
+  if (daysLeft === 1) return 'Closing tomorrow!'
+  if (daysLeft <= 14) return `Closing in ${daysLeft} days`
+  return null
 }
 
 /** Deduplicate grants by normalized name, keeping the one with the higher fit_score */
@@ -312,8 +324,6 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
             poll_attempts: String(attempts),
           })
 
-          // Clear highlights after 15 seconds
-          setTimeout(() => setEnrichedNames(new Set()), 15000)
           return
         }
       } catch {
