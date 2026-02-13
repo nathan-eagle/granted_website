@@ -134,7 +134,18 @@ export default function GrantResultsTable({
               isEnriched ? 'border-l-[3px] border-l-brand-yellow ring-1 ring-brand-yellow/15' : ''
             }`}
             style={isEnriched ? { animation: 'enrichHighlight 3s ease-out', backgroundColor: 'rgb(245 207 73 / 0.04)' } : undefined}
-            onClick={() => onRowClick(opp)}
+            onClick={() => {
+              trackEvent('grant_finder_result_click', {
+                grant_name: opp.name.slice(0, 120),
+                funder: (opp.funder || '').slice(0, 80),
+                fit_score: opp.fit_score || 0,
+                position: i + 1,
+                focus_area: summarizeTerm(focusArea),
+                org_type: orgType || 'any',
+                state: state || 'any',
+              })
+              onRowClick(opp)
+            }}
             role="button"
             tabIndex={0}
             onKeyDown={e => { if (e.key === 'Enter') onRowClick(opp) }}
@@ -228,6 +239,8 @@ export default function GrantResultsTable({
                         grant_name: opp.name.slice(0, 120),
                         grant_slug: opp.slug || '',
                         source: 'result_table',
+                        position: i + 1,
+                        fit_score: opp.fit_score || 0,
                         focus_area: summarizeTerm(focusArea),
                         org_type: orgType || 'any',
                         state: state || 'any',
@@ -249,6 +262,7 @@ export default function GrantResultsTable({
                         grant_name: opp.name.slice(0, 120),
                         grant_slug: opp.slug || '',
                         funder: opp.funder,
+                        position: i + 1,
                         source: 'result_table',
                       })
                     }}
@@ -356,6 +370,8 @@ export default function GrantResultsTable({
                         grant_name: opp.name.slice(0, 120),
                         grant_slug: opp.slug || '',
                         source: 'result_table_mobile',
+                        position: i + 1,
+                        fit_score: opp.fit_score || 0,
                         focus_area: summarizeTerm(focusArea),
                         org_type: orgType || 'any',
                         state: state || 'any',
@@ -372,6 +388,15 @@ export default function GrantResultsTable({
                     href={opp.rfp_url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => {
+                      trackEvent('grant_finder_view_opportunity_click', {
+                        grant_name: opp.name.slice(0, 120),
+                        grant_slug: opp.slug || '',
+                        funder: opp.funder,
+                        position: i + 1,
+                        source: 'result_table_mobile',
+                      })
+                    }}
                     className="inline-flex items-center gap-1 text-xs font-medium text-navy-light/60 hover:text-brand-gold transition-colors"
                   >
                     View RFP
