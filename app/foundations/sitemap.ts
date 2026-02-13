@@ -8,14 +8,19 @@ import {
 
 export const revalidate = 3600
 
-const FOUNDATIONS_PER_SITEMAP = 50_000
+// Keep well under the 50,000 URL / 50 MB sitemap protocol limits.
+// Smaller chunks = faster Supabase queries = reliable serving on Vercel serverless.
+const FOUNDATIONS_PER_SITEMAP = 10_000
 
 /**
  * Generate a sitemap index so all ~133K foundations get indexed.
- * Requires Supabase PostgREST max_rows >= 50000.
+ * Dynamically computes chunk count from DB to handle growth automatically.
  */
 export async function generateSitemaps() {
-  const total = await getFoundationCount().catch((err) => { console.error('[foundations/sitemap] getFoundationCount failed:', err); return 0 })
+  const total = await getFoundationCount().catch((err) => {
+    console.error('[foundations/sitemap] getFoundationCount failed:', err)
+    return 140_000 // fallback estimate — produces 14 chunks
+  })
   const chunks = Math.max(1, Math.ceil(total / FOUNDATIONS_PER_SITEMAP))
   return Array.from({ length: chunks }, (_, i) => ({ id: i }))
 }

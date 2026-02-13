@@ -1,19 +1,25 @@
 import type { MetadataRoute } from 'next'
-import { GRANT_CATEGORIES, GRANT_US_STATES } from '@/lib/grants'
+import { GRANT_CATEGORIES, GRANT_US_STATES, getGrantCount } from '@/lib/grants'
 import { supabase } from '@/lib/supabase'
 
 // Regenerate every hour so data stays fresh (build-time queries timeout on Supabase free tier)
 export const revalidate = 3600
 
-const GRANTS_PER_SITEMAP = 50_000
+// Keep well under the 50,000 URL / 50 MB sitemap protocol limits.
+// Smaller chunks = faster Supabase queries = reliable serving on Vercel serverless.
+const GRANTS_PER_SITEMAP = 10_000
 
 /**
- * Generate a sitemap index so all ~70K grants get indexed.
- * Hardcoded to 2 chunks to avoid DB queries at build time (which timeout on Vercel).
- * Bump if grants exceed 100K.
+ * Generate a sitemap index so all grants get indexed.
+ * Dynamically computes chunk count from DB to handle growth automatically.
  */
 export async function generateSitemaps() {
-  return [{ id: 0 }, { id: 1 }]
+  const total = await getGrantCount(true).catch((err) => {
+    console.error('[grants/sitemap] getGrantCount failed:', err)
+    return 80_000 // fallback estimate — produces 8 chunks
+  })
+  const chunks = Math.max(1, Math.ceil(total / GRANTS_PER_SITEMAP))
+  return Array.from({ length: chunks }, (_, i) => ({ id: i }))
 }
 
 async function getGrantSitemapSlugs(offset: number, limit: number) {
