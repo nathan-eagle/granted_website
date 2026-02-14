@@ -213,6 +213,8 @@ export function useGrantSearchStream(onPhaseChange?: (phase: Phase) => void) {
             dbNames.add(opp.name.toLowerCase())
           }
           const deduped = deduplicateOpportunities(allOpps)
+          // Sort by fit_score for intermediate display while LLMs are still running
+          deduped.sort((a, b) => (b.fit_score || 0) - (a.fit_score || 0))
           setOpportunities(deduped)
           setPhase('results')
           break
@@ -229,6 +231,8 @@ export function useGrantSearchStream(onPhaseChange?: (phase: Phase) => void) {
           setEnrichedNames(new Set(localEnrichedNames))
 
           const deduped = deduplicateOpportunities(allOpps)
+          // Sort by fit_score for intermediate display while LLMs are still running
+          deduped.sort((a, b) => (b.fit_score || 0) - (a.fit_score || 0))
           setOpportunities(deduped)
 
           // Update provider status
