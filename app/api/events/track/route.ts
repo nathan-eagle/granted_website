@@ -48,8 +48,11 @@ const ALLOWED_EVENTS = new Set([
   'calculator.submit', 'calculator.email',
   // External links
   'external.link_click',
-  // Page views
-  'page.view',
+  // Page views & landings
+  'page.view', 'page.landing', 'page.grant_view',
+  'page.grant_landing', 'page.seo_grant_landing',
+  // Site-wide clicks
+  'site.click',
   // Catch-all for unmapped events
   'site.other',
 ])
@@ -124,7 +127,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true, inserted: 0 })
     }
 
-    const { error } = await supabase.from('app_events').insert(rows)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await supabase.from('app_events').insert(rows as any)
     if (error) {
       console.error('[events/track] Supabase insert error:', error)
       return NextResponse.json({ error: 'Failed to persist' }, { status: 500 })

@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { trackEvent } from '@/lib/analytics'
+import { trackEvent, trackGA4WithRetry } from '@/lib/analytics'
 
 const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID
 
@@ -85,24 +85,29 @@ export default function AnalyticsTracker() {
   const searchParams = useSearchParams()
 
   useEffect(() => {
-    if (!GA4_ID) return
     if (!pathname) return
     const pendingTimers: number[] = []
 
-    const sendWithRetry = (
+    const send = (
       eventName: string,
       params: Record<string, string | number | boolean | null | undefined>,
-      attempt = 0,
     ) => {
-      if (typeof window !== 'undefined' && window.gtag) {
-        trackEvent(eventName, params)
-        return
+      // Always queue to Supabase immediately (works without gtag)
+      trackEvent(eventName, params)
+
+      // Retry GA4 separately if gtag isn't loaded yet (ad blockers, slow script)
+      if (GA4_ID && !(typeof window !== 'undefined' && window.gtag)) {
+        const retryGA4 = (attempt: number) => {
+          if (typeof window !== 'undefined' && window.gtag) {
+            trackGA4WithRetry(eventName, params)
+            return
+          }
+          if (attempt >= 8) return
+          const timer = window.setTimeout(() => retryGA4(attempt + 1), 350)
+          pendingTimers.push(timer)
+        }
+        retryGA4(0)
       }
-      if (attempt >= 8) return
-      const timer = window.setTimeout(() => {
-        sendWithRetry(eventName, params, attempt + 1)
-      }, 350)
-      pendingTimers.push(timer)
     }
 
     const query = searchParams.toString()
@@ -147,27 +152,27 @@ export default function AnalyticsTracker() {
       msclkid,
     }
 
-    sendWithRetry('page_view', commonParams)
-    sendWithRetry('page_view_enriched', commonParams)
+    send('page_view', commonParams)
+    send('page_view_enriched', commonParams)
 
     if (!landingAlreadyTracked) {
       window.sessionStorage.setItem(LANDING_RECORDED_KEY, '1')
-      sendWithRetry('landing_page', {
+      send('landing_page', {
         ...commonParams,
         landing_page_path: pathname,
       })
     }
 
     if (pathname.startsWith('/grants/')) {
-      sendWithRetry('grant_page_view', commonParams)
+      send('grant_page_view', commonParams)
       if (!landingAlreadyTracked) {
-        sendWithRetry('grant_landing', {
+        send('grant_landing', {
           ...commonParams,
           is_seo_landing: referrer.type === 'search_engine',
         })
       }
       if (!landingAlreadyTracked && referrer.type === 'search_engine') {
-        sendWithRetry('seo_grant_landing', {
+        send('seo_grant_landing', {
           ...commonParams,
           search_engine: referrer.host || 'unknown',
         })
@@ -200,7 +205,7 @@ export default function AnalyticsTracker() {
         }
       }
 
-      sendWithRetry('site_click', {
+      send('site_click', {
         page_path: pathname,
         page_type: pageType,
         click_type: clickType,

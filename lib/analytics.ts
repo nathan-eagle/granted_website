@@ -93,6 +93,14 @@ const EVENT_MAP: Record<string, string> = {
   cost_calculator_submit: 'calculator.submit',
   cost_calculator_email: 'calculator.email',
   external_link_click: 'external.link_click',
+  // AnalyticsTracker page-level events
+  page_view: 'page.view',
+  page_view_enriched: 'page.view',
+  landing_page: 'page.landing',
+  grant_page_view: 'page.grant_view',
+  grant_landing: 'page.grant_landing',
+  seo_grant_landing: 'page.seo_grant_landing',
+  site_click: 'site.click',
 }
 
 function mapEventName(ga4Name: string): string {
@@ -179,4 +187,11 @@ export function trackEvent(eventName: string, params?: Record<string, AnalyticsV
 
   // Supabase
   queueEvent(mapEventName(eventName), cleanParams)
+}
+
+/** GA4-only send (no Supabase). Used by AnalyticsTracker's delayed retry path. */
+export function trackGA4WithRetry(eventName: string, params?: Record<string, AnalyticsValue>) {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', eventName, sanitizeParams(params))
+  }
 }
