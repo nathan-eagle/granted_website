@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { useGrantSearch, summarizeTerm } from '@/hooks/useGrantSearch'
-import type { Phase, Opportunity } from '@/hooks/useGrantSearch'
+import { useGrantSearchStream, summarizeTerm } from '@/hooks/useGrantSearchStream'
+import type { Phase, Opportunity } from '@/hooks/useGrantSearchStream'
 import GrantFinder from '@/components/GrantFinder'
 import GrantResultsTable, { type SortOption } from '@/components/GrantResultsTable'
 import GrantDetailPanel from '@/components/GrantDetailPanel'
@@ -18,7 +18,7 @@ import EnrichmentProgress from '@/components/EnrichmentProgress'
 import CheckoutButton from '@/components/CheckoutButton'
 import { trackEvent } from '@/lib/analytics'
 import { GRANT_CATEGORIES, GRANT_US_STATES, type PublicGrant } from '@/lib/grants'
-import { ORG_TYPES, US_STATES, AMOUNT_RANGES, type AmountRangeKey } from '@/hooks/useGrantSearch'
+import { ORG_TYPES, US_STATES, AMOUNT_RANGES, type AmountRangeKey } from '@/hooks/useGrantSearchStream'
 
 const agencyCategories = GRANT_CATEGORIES.filter((c) => c.type === 'agency')
 const audienceCategories = GRANT_CATEGORIES.filter((c) => c.type === 'audience')
@@ -45,7 +45,7 @@ export default function GrantsPageClient({
   upcomingGrants,
   totalGrantCount,
 }: Props) {
-  const search = useGrantSearch()
+  const search = useGrantSearchStream()
   const {
     phase,
     orgType,

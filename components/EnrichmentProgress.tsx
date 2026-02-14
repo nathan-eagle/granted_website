@@ -86,22 +86,22 @@ export default function EnrichmentProgress({ focusArea, orgType, state, resultCo
 
   const steps = [
     {
-      message: `Searching across ${agencies.length + 12} federal and private databases...`,
+      message: `Searching across 6 AI models and ${agencies.length + 12} databases...`,
       detail: `Finding grants related to "${focusShort}"`,
     },
     {
-      message: `Scanning ${agencyStr} programs for relevant opportunities...`,
+      message: `Scanning ${agencyStr} programs with Google, Perplexity, and OpenAI...`,
       detail: orgType ? `Filtering for ${orgType} eligibility` : 'Matching to your focus area',
     },
     {
       message: state
-        ? `Checking state-level programs in ${state}...`
-        : 'Analyzing foundation and corporate funding sources...',
+        ? `Checking state-level programs in ${state} with Claude and Grok...`
+        : 'Cross-referencing results from Claude and Grok search...',
       detail: `Expanding beyond the ${resultCount} cached results`,
     },
     {
-      message: `Cross-referencing ${Math.floor(Math.random() * 80 + 140)} program listings...`,
-      detail: 'Verifying deadlines and award amounts',
+      message: `Merging results from multiple search engines...`,
+      detail: 'Deduplicating and verifying across providers',
     },
     {
       message: orgType
@@ -114,8 +114,8 @@ export default function EnrichmentProgress({ focusArea, orgType, state, resultCo
       detail: 'Confirming each program is real and currently open',
     },
     {
-      message: 'Ranking new discoveries by match quality...',
-      detail: 'Almost done — your personalized results are coming',
+      message: 'Ranking discoveries by match quality and provider consensus...',
+      detail: 'Grants found by multiple AI models get a confidence boost',
     },
   ]
 
