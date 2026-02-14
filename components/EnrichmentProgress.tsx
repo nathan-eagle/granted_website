@@ -200,7 +200,7 @@ export default function EnrichmentProgress({ focusArea, orgType, state, resultCo
             </svg>
             <p className="text-xs text-navy-light/50">
               <span className="font-semibold text-navy-light/70">Hang tight!</span>{' '}
-              This typically finds 3{'\u2013'}8 more grants in about 30{'\u2013'}60 seconds.
+              Your grant results will be finalized in about 60 seconds.
             </p>
           </div>
         </div>
