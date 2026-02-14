@@ -51,7 +51,7 @@ export function sortOpportunities(opps: Opportunity[], sort: SortOption): Opport
   const sorted = [...opps]
   switch (sort) {
     case 'best_match':
-      sorted.sort((a, b) => (b.fit_score || 0) - (a.fit_score || 0))
+      // Server returns grants in reranked order — preserve that order
       break
     case 'deadline':
       sorted.sort((a, b) => parseDeadline(a.deadline) - parseDeadline(b.deadline))
@@ -187,20 +187,7 @@ export default function GrantResultsTable({
                 </div>
               </div>
 
-              {/* Score */}
-              <div className="shrink-0 w-16 text-center">
-                {opp.fit_score > 0 && (
-                  <span
-                    className="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-semibold"
-                    style={{
-                      backgroundColor: opp.fit_score >= 70 ? '#22c55e18' : opp.fit_score >= 40 ? '#F5CF4918' : '#6b728018',
-                      color: opp.fit_score >= 70 ? '#16a34a' : opp.fit_score >= 40 ? '#b8941c' : '#6b7280',
-                    }}
-                  >
-                    {opp.fit_score}%
-                  </span>
-                )}
-              </div>
+              {/* Score badge removed — rank order is the signal */}
 
               {/* Amount */}
               <div className="shrink-0 w-28 text-right">
@@ -297,17 +284,7 @@ export default function GrantResultsTable({
                   </div>
                   <p className="text-xs text-navy-light/60 mt-0.5">{opp.funder}</p>
                 </div>
-                {opp.fit_score > 0 && (
-                  <span
-                    className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold"
-                    style={{
-                      backgroundColor: opp.fit_score >= 70 ? '#22c55e18' : opp.fit_score >= 40 ? '#F5CF4918' : '#6b728018',
-                      color: opp.fit_score >= 70 ? '#16a34a' : opp.fit_score >= 40 ? '#b8941c' : '#6b7280',
-                    }}
-                  >
-                    {opp.fit_score}%
-                  </span>
-                )}
+                {/* Score badge removed — rank order is the signal */}
               </div>
 
               {/* Source badges */}

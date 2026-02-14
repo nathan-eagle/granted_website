@@ -137,17 +137,7 @@ export default function GrantDetailPanel({
                 {SOURCE_LABELS[opp.source_provider] ?? opp.source_provider}
               </span>
             )}
-            {opp.fit_score > 0 && (
-              <span
-                className="inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs font-semibold"
-                style={{
-                  backgroundColor: opp.fit_score >= 70 ? '#22c55e18' : opp.fit_score >= 40 ? '#F5CF4918' : '#6b728018',
-                  color: opp.fit_score >= 70 ? '#16a34a' : opp.fit_score >= 40 ? '#b8941c' : '#6b7280',
-                }}
-              >
-                {opp.fit_score}% match
-              </span>
-            )}
+            {/* Score badge removed — rank order is the signal */}
           </div>
 
           {isPastDeadline(opp.deadline) && (
