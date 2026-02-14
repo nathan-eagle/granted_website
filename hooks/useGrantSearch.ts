@@ -304,7 +304,7 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
         if (!result.dbOnly && result.opportunities.length > 0) {
           const dedupedEnriched = deduplicateOpportunities(result.opportunities)
           await matchSlugs(dedupedEnriched)
-          dedupedEnriched.sort((a, b) => (b.fit_score || 0) - (a.fit_score || 0))
+          // Server returns grants in reranked order — preserve that order
 
           // Identify new grants from LLM enrichment (post-dedup to avoid count mismatch)
           const newNames = new Set<string>()
@@ -399,8 +399,6 @@ export function useGrantSearch(onPhaseChange?: (phase: Phase) => void) {
 
       const deduped = deduplicateOpportunities(result.opportunities)
       await matchSlugs(deduped)
-      deduped.sort((a, b) => (b.fit_score || 0) - (a.fit_score || 0))
-
       setOpportunities(deduped)
       incrementSearchCount()
       setPhase('results')
