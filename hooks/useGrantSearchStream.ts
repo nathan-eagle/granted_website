@@ -424,6 +424,17 @@ export function useGrantSearchStream(onPhaseChange?: (phase: Phase) => void) {
     window.history.replaceState({}, '', url.pathname + url.search)
   }, [])
 
+  // Read state/org_type from URL params (passed from hero search bar)
+  const urlParamsApplied = useRef(false)
+  useEffect(() => {
+    if (urlParamsApplied.current) return
+    const urlState = searchParams.get('state')?.trim() ?? ''
+    const urlOrgType = searchParams.get('org_type')?.trim() ?? ''
+    if (urlState && !state) setState(urlState)
+    if (urlOrgType && !orgType) setOrgType(urlOrgType)
+    if (urlState || urlOrgType) urlParamsApplied.current = true
+  }, [searchParams]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Auto-run search from URL query string
   useEffect(() => {
     const q = searchParams.get('q')?.trim() ?? ''
@@ -437,12 +448,18 @@ export function useGrantSearchStream(onPhaseChange?: (phase: Phase) => void) {
       setFocusArea(q)
     }
 
-    if (autoSearchedQueryRef.current === q) {
+    // Use URL params for state/org if available (from hero search)
+    const effectiveState = state || searchParams.get('state')?.trim() || ''
+    const effectiveOrgType = orgType || searchParams.get('org_type')?.trim() || ''
+
+    // Build a composite key that includes all search dimensions
+    const searchKey = `${q}|${effectiveState}|${effectiveOrgType}`
+    if (autoSearchedQueryRef.current === searchKey) {
       return
     }
 
-    autoSearchedQueryRef.current = q
-    void runSearch(orgType, q, state, 'url', amountRange)
+    autoSearchedQueryRef.current = searchKey
+    void runSearch(effectiveOrgType, q, effectiveState, 'url', amountRange)
   }, [searchParams, focusArea, orgType, state, amountRange, runSearch])
 
   const handleEmailSubmit = async (e: React.FormEvent) => {

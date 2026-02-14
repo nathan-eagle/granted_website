@@ -1,19 +1,22 @@
+import Link from 'next/link'
+
 const AGENCIES: {
   name: string
   full: string
   color: string
+  slug: string
   sealType: 'cross' | 'globe' | 'leaf' | 'wheat' | 'star' | 'atom' | 'wave' | 'building' | 'heart' | 'feather'
 }[] = [
-  { name: 'NIH', full: 'National Institutes of Health', color: '#1A4480', sealType: 'cross' },
-  { name: 'NSF', full: 'National Science Foundation', color: '#003087', sealType: 'globe' },
-  { name: 'EPA', full: 'Environmental Protection Agency', color: '#205040', sealType: 'leaf' },
-  { name: 'USDA', full: 'U.S. Department of Agriculture', color: '#205B2E', sealType: 'wheat' },
-  { name: 'DARPA', full: 'Defense Advanced Research Projects Agency', color: '#1B2A3D', sealType: 'star' },
-  { name: 'DOE', full: 'Department of Energy', color: '#2D5A27', sealType: 'atom' },
-  { name: 'NOAA', full: 'National Oceanic and Atmospheric Administration', color: '#003366', sealType: 'wave' },
-  { name: 'HUD', full: 'Department of Housing and Urban Development', color: '#003049', sealType: 'building' },
-  { name: 'HRSA', full: 'Health Resources and Services Administration', color: '#5C1A3A', sealType: 'heart' },
-  { name: 'IHS', full: 'Indian Health Service', color: '#5A3A1A', sealType: 'feather' },
+  { name: 'NIH', full: 'National Institutes of Health', color: '#1A4480', slug: 'nih', sealType: 'cross' },
+  { name: 'NSF', full: 'National Science Foundation', color: '#003087', slug: 'nsf', sealType: 'globe' },
+  { name: 'EPA', full: 'Environmental Protection Agency', color: '#205040', slug: 'epa', sealType: 'leaf' },
+  { name: 'USDA', full: 'U.S. Department of Agriculture', color: '#205B2E', slug: 'usda', sealType: 'wheat' },
+  { name: 'DARPA', full: 'Defense Advanced Research Projects Agency', color: '#1B2A3D', slug: 'darpa', sealType: 'star' },
+  { name: 'DOE', full: 'Department of Energy', color: '#2D5A27', slug: 'doe', sealType: 'atom' },
+  { name: 'NOAA', full: 'National Oceanic and Atmospheric Administration', color: '#003366', slug: 'noaa', sealType: 'wave' },
+  { name: 'HUD', full: 'Department of Housing and Urban Development', color: '#003049', slug: 'hud', sealType: 'building' },
+  { name: 'HRSA', full: 'Health Resources and Services Administration', color: '#5C1A3A', slug: 'hrsa', sealType: 'heart' },
+  { name: 'IHS', full: 'Indian Health Service', color: '#5A3A1A', slug: 'ihs', sealType: 'feather' },
 ]
 
 function SealInterior({ type, color }: { type: string; color: string }) {
@@ -114,10 +117,11 @@ export default function AgencyLogos() {
         </p>
         <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8">
           {AGENCIES.map((agency) => (
-            <div
+            <Link
               key={agency.name}
+              href={`/grants/${agency.slug}`}
               title={agency.full}
-              className="flex flex-col items-center w-[68px] cursor-default group"
+              className="flex flex-col items-center w-[68px] group"
             >
               <svg
                 width="48"
@@ -145,7 +149,7 @@ export default function AgencyLogos() {
               >
                 {agency.name}
               </span>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

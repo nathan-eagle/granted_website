@@ -363,6 +363,25 @@
   box-shadow: 0 0 0 3px rgba(245, 207, 73, 0.2), 0 0 20px rgba(245, 207, 73, 0.1);
 }
 
+/* ── Hero filter dropdown animation ── */
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes tagAppear {
+  from { opacity: 0; transform: scale(0.9) translateY(4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Scrollbar utility ── */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar { width: 5px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 9999px; }
+
 /* ── Nav dropdown ── */
 .nav-dropdown {
   opacity: 0;
