@@ -259,9 +259,9 @@ export function useGrantSearchStream(onPhaseChange?: (phase: Phase) => void) {
         }
 
         case 'reranked': {
+          // Server sends grants in GPT-4.1-mini reranked order — do NOT re-sort by fit_score
           allOpps = [...envelope.opportunities]
           const deduped = deduplicateOpportunities(allOpps)
-          deduped.sort((a, b) => (b.fit_score || 0) - (a.fit_score || 0))
           setOpportunities(deduped)
           break
         }
