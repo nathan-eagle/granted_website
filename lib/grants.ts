@@ -21,6 +21,7 @@ export type PublicGrant = {
   created_at: string
   updated_at: string
   target_states?: string[]
+  canonical_slug?: string | null
 }
 
 /** Columns for listing queries — excludes large source_text column */

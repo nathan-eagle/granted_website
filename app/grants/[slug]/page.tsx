@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -157,6 +157,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const grant = await getGrantBySlug(params.slug).catch((err) => { console.error(`[grants/${params.slug}] metadata getGrantBySlug failed:`, err); return null })
   if (!grant) return {}
+  if (grant.canonical_slug) return { robots: { index: false, follow: true } }
 
   const seoReady = isGrantSeoReady(grant)
 
@@ -535,6 +536,9 @@ export default async function GrantSlugPage({ params }: Props) {
 
   // 2. Check individual grant
   const grant = await getGrantBySlug(params.slug).catch((err) => { console.error(`[grants/${params.slug}] getGrantBySlug failed:`, err); return null })
+  if (grant?.canonical_slug) {
+    redirect(`/grants/${grant.canonical_slug}`)
+  }
   if (grant) {
     const stale = !isGrantSeoReady(grant)
     const [related, blogPosts] = await Promise.all([
