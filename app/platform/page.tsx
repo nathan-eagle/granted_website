@@ -312,7 +312,7 @@ export default function PlatformPage() {
             </div>
 
             <div className="mt-12 mx-auto max-w-2xl">
-              <div className="card p-6 md:p-8 bg-navy text-white">
+              <div className="rounded-[24px] bg-navy p-6 md:p-8 text-white shadow-[0_8px_30px_rgba(10,22,40,0.06)]">
                 <p className="text-sm uppercase tracking-[0.25em] text-white/50">Key Insight</p>
                 <p className="mt-3 text-base md:text-lg leading-relaxed text-slate-200">
                   We discard every model&apos;s self-reported confidence score and re-evaluate all candidates through our own 15-feature scoring function&mdash;trained on 1,034 labeled query&ndash;grant pairs.
