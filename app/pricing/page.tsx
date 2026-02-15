@@ -8,7 +8,7 @@ import CheckoutButton from '@/components/CheckoutButton'
 export const metadata: Metadata = {
   title: 'Pricing — Granted AI Grant Writing Tool, Plans from $29/mo',
   description:
-    'Compare Granted AI pricing plans. Basic ($29/mo) and Professional ($89/mo) with 7-day free trial. Cheaper than hiring a grant writer.',
+    'Compare Granted AI pricing plans. Basic ($29/mo) and Professional ($89/mo). Start free, upgrade when you\'re ready. Cheaper than hiring a grant writer.',
   alternates: { canonical: 'https://grantedai.com/pricing' },
 }
 
@@ -52,10 +52,10 @@ export default function PricingPage() {
             </p>
             <h1 className="heading-xl text-white">A professional grant writer costs $5K+. <br className="hidden md:block" />Granted costs $29/month.</h1>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-white/60">
-              Every plan includes full-cycle workflow: discover grants, evaluate fit, run RFP analysis, and draft section-by-section proposals. Start with a free 7-day trial.
+              Every plan includes full-cycle workflow: discover grants, evaluate fit, run RFP analysis, and draft section-by-section proposals. Start free with 5 AI drafts per month.
             </p>
             <div className="mt-10">
-              <CheckoutButton label="Start Your Free Trial" />
+              <CheckoutButton label="Start Writing — Free" />
             </div>
           </Container>
         </section>
@@ -72,9 +72,9 @@ export default function PricingPage() {
           </p>
 
           <div className="mt-20 text-center">
-            <h3 className="heading-md">7-Days On Us</h3>
+            <h3 className="heading-md">Start Free, Upgrade When Ready</h3>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-navy-light">
-              Our goal is that once you use Granted you will fall in love with it. That&apos;s why, when you sign up now, you will get 7-days free with access to every feature and model. As you work in Granted, please send us your feedback — we&apos;re building Granted for you!
+              Every account starts with 5 free AI drafts per month — no credit card required. Once you see how Granted transforms your grant writing, upgrade to unlock unlimited drafting, DOCX export, and more.
             </p>
           </div>
         </Container>

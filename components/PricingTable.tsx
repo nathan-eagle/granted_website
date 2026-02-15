@@ -9,47 +9,51 @@ const PLANS = [
     badge: null as string | null,
     monthly: {
       price: '$29',
-      cadence: 'per month billed monthly',
+      cadence: 'per month',
       note: null as string | null,
     },
     annual: {
-      price: '$290',
-      cadence: 'per year (save 2 months)',
-      note: 'Effective rate $24/mo when billed annually',
+      price: '$220',
+      cadence: 'per year',
+      note: 'Effective rate ~$18/mo — save 37%',
     },
     features: [
-      '20k words per month',
+      'Unlimited AI drafts',
+      'DOCX export',
+      '3 active grants',
       'Grant Writing Coach',
       'RFP Analysis & Requirement Discovery',
-      'Unlimited Projects',
     ],
+    cta: 'Get Basic',
   },
   {
     name: 'Professional',
     badge: 'Most Popular',
     monthly: {
       price: '$89',
-      cadence: 'per month billed monthly',
+      cadence: 'per month',
       note: null as string | null,
     },
     annual: {
-      price: '$890',
-      cadence: 'per year (save 2 months)',
-      note: 'Effective rate $74/mo when billed annually',
+      price: '$680',
+      cadence: 'per year',
+      note: 'Effective rate ~$57/mo — save 36%',
     },
     features: [
-      'Unlimited words',
-      'Early Access to New Features',
+      'Unlimited AI drafts',
+      'DOCX export',
+      'Unlimited active grants',
+      'Priority AI model',
       'Grant Writing Coach',
       'RFP Analysis & Requirement Discovery',
-      'Unlimited Projects',
     ],
+    cta: 'Get Professional',
   },
 ]
 
 const BILLING = [
   { id: 'monthly' as const, label: 'Monthly' },
-  { id: 'annual' as const, label: 'Annual', helper: '2 months free' },
+  { id: 'annual' as const, label: 'Annual', helper: 'Save ~37%' },
 ]
 
 export function PricingTable() {
@@ -109,7 +113,7 @@ export function PricingTable() {
                 </ul>
                 <CheckoutButton
                   plan={billing === 'annual' ? 'yearly' : 'monthly'}
-                  label="Start free trial"
+                  label={plan.cta ?? 'Get Started'}
                   className="mt-auto w-full"
                 />
               </div>
