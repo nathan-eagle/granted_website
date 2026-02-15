@@ -555,7 +555,7 @@ export default function GrantsPageClient({
           {recentlyAdded.length > 0 && (
             <RevealOnScroll delay={100}>
               <div className="mb-12">
-                <h2 className="heading-lg text-navy mb-8">Recently Discovered by AI</h2>
+                <h2 className="heading-lg text-navy mb-8">Recently Discovered</h2>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {recentlyAdded.map((g) => (
                     <GrantCard key={g.id} grant={g} />
