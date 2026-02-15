@@ -42,7 +42,15 @@ type StreamEnvelope =
   | { type: 'complete'; summary: { totalCount: number; providerResults: ProviderStatus[]; totalDurationMs: number } }
   | { type: 'heartbeat' }
 
-export function useGrantSearchStream(onPhaseChange?: (phase: Phase) => void) {
+export type { StreamEnvelope }
+
+export function useGrantSearchStream(opts?: {
+  onPhaseChange?: (phase: Phase) => void
+  onEnvelope?: (envelope: StreamEnvelope) => void
+}) {
+  const onPhaseChange = opts?.onPhaseChange
+  const onEnvelopeRef = useRef(opts?.onEnvelope)
+  onEnvelopeRef.current = opts?.onEnvelope
   const [phase, setPhase] = useState<Phase>('form')
   const [orgType, setOrgType] = useState('')
   const [focusArea, setFocusArea] = useState('')
@@ -172,6 +180,9 @@ export function useGrantSearchStream(onPhaseChange?: (phase: Phase) => void) {
       } catch {
         return
       }
+
+      // Fire envelope to visualization before state updates
+      onEnvelopeRef.current?.(envelope)
 
       switch (envelope.type) {
         case 'db_results': {

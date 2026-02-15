@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useGrantSearchStream, summarizeTerm } from '@/hooks/useGrantSearchStream'
-import type { Phase, Opportunity } from '@/hooks/useGrantSearchStream'
+import type { Phase, Opportunity, StreamEnvelope } from '@/hooks/useGrantSearchStream'
 import GrantFinder from '@/components/GrantFinder'
 import GrantResultsTable, { type SortOption } from '@/components/GrantResultsTable'
 import GrantDetailPanel from '@/components/GrantDetailPanel'
@@ -18,6 +18,10 @@ import GrantCard from '@/components/GrantCard'
 import GrantCTA from '@/components/GrantCTA'
 import EnrichmentProgress from '@/components/EnrichmentProgress'
 import CheckoutButton from '@/components/CheckoutButton'
+import SearchVisualization from '@/components/SearchVisualization'
+import VizToggle, { getPersistedVizMode, persistVizMode } from '@/components/VizToggle'
+import { createAdapter } from '@/lib/viz/adapter'
+import type { VizMode, VizGrant, SearchVisualization as ISearchVisualization } from '@/lib/viz/types'
 import { trackEvent } from '@/lib/analytics'
 import { GRANT_CATEGORIES, GRANT_US_STATES, type PublicGrant } from '@/lib/grants'
 import { ORG_TYPES, US_STATES, AMOUNT_RANGES, type AmountRangeKey } from '@/hooks/useGrantSearchStream'
@@ -45,7 +49,33 @@ export default function GrantsPageClient({
   recentlyAdded,
   totalGrantCount,
 }: Props) {
-  const search = useGrantSearchStream()
+  // Visualization state
+  const [vizMode, setVizMode] = useState<VizMode>('discovery-map')
+  const [vizActive, setVizActive] = useState(false)
+  const vizEnvelopeHandlerRef = useRef<((envelope: StreamEnvelope) => void) | null>(null)
+
+  // Initialize viz mode from localStorage/URL on mount
+  useEffect(() => {
+    setVizMode(getPersistedVizMode())
+  }, [])
+
+  // Auto-force Concept E on mobile
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const handler = (e: MediaQueryListEvent) => {
+      if (e.matches) setVizMode('rising-stakes')
+    }
+    mq.addEventListener('change', handler)
+    if (mq.matches) setVizMode('rising-stakes')
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+
+  // onEnvelope callback — forwards NDJSON envelopes to the visualization engine
+  const handleEnvelope = useCallback((envelope: StreamEnvelope) => {
+    vizEnvelopeHandlerRef.current?.(envelope)
+  }, [])
+
+  const search = useGrantSearchStream({ onEnvelope: handleEnvelope })
   const {
     phase,
     orgType,
@@ -64,6 +94,13 @@ export default function GrantsPageClient({
     handleSearch,
     handleBackToBrowsing,
   } = search
+
+  // Activate visualization when enriching starts
+  useEffect(() => {
+    if (enriching) {
+      setVizActive(true)
+    }
+  }, [enriching])
 
   // Results state
   const [sort, setSort] = useState<SortOption>('best_match')
@@ -134,6 +171,20 @@ export default function GrantsPageClient({
     prevEnrichingRef.current = enriching
   }, [enriching, enrichedNames.size])
 
+  // Handle grant selection from visualization
+  const handleVizGrantSelect = useCallback((vizGrant: VizGrant) => {
+    // Find matching Opportunity from the results
+    const opp = opportunities.find(o => o.name === vizGrant.name)
+    if (opp) setSelectedOpp(opp)
+    trackEvent('viz_grant_select', { name: vizGrant.name.slice(0, 120), mode: vizMode })
+  }, [opportunities, vizMode])
+
+  // Switch from visualization to list view
+  const handleSwitchToList = useCallback(() => {
+    setVizActive(false)
+    trackEvent('viz_switch_to_list', { mode: vizMode })
+  }, [vizMode])
+
   const handleRowClick = useCallback((opp: Opportunity) => {
     setSelectedOpp(opp)
   }, [])
@@ -169,8 +220,44 @@ export default function GrantsPageClient({
         </div>
       )}
 
+      {/* Visualization phase — shown during enrichment when viz is active */}
+      {phase === 'results' && vizActive && enriching && (
+        <div className="relative">
+          <SearchVisualization
+            mode={vizMode}
+            focusArea={focusArea}
+            orgType={orgType}
+            state={searchState}
+            active={true}
+            onGrantSelect={handleVizGrantSelect}
+            onReady={(processEnvelope) => {
+              vizEnvelopeHandlerRef.current = processEnvelope
+            }}
+            onTeardown={() => {
+              vizEnvelopeHandlerRef.current = null
+            }}
+            className="w-full"
+          />
+          {/* Floating controls over visualization */}
+          <div className="absolute top-3 left-3 z-50 flex items-center gap-2">
+            <VizToggle mode={vizMode} onChange={setVizMode} />
+            <button
+              type="button"
+              onClick={handleSwitchToList}
+              className="flex items-center gap-1.5 rounded-lg border border-navy/10 bg-white/90 backdrop-blur px-3 py-1.5 text-xs font-medium text-navy-light/70 hover:text-navy transition-colors"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" />
+                <line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
+              </svg>
+              List view
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Results phase */}
-      {phase === 'results' && (
+      {phase === 'results' && (!vizActive || !enriching) && (
         <div className="py-8 md:py-12">
           <div className="max-w-4xl mx-auto">
             {/* Back button */}
@@ -321,14 +408,24 @@ export default function GrantsPageClient({
               </div>
             ) : (
               <>
-                {/* Tabs */}
-                <DiscoveryTabs
-                  activeTab={activeTab}
-                  onTabChange={setActiveTab}
-                  grantCount={filteredOpps.length}
-                  funderCount={funders.length}
-                  funderLoading={funderLoading}
-                />
+                {/* Tabs + Viz Toggle */}
+                <div className="flex items-center justify-between gap-3 mb-1">
+                  <DiscoveryTabs
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                    grantCount={filteredOpps.length}
+                    funderCount={funders.length}
+                    funderLoading={funderLoading}
+                  />
+                  <VizToggle
+                    mode={vizMode}
+                    onChange={(m) => {
+                      setVizMode(m)
+                      persistVizMode(m)
+                    }}
+                    className="hidden sm:inline-flex"
+                  />
+                </div>
 
                 {activeTab === 'grants' && (
                   <>
