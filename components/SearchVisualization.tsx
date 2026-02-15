@@ -98,8 +98,14 @@ export default function SearchVisualization({
           engineRef.current = engine
         }
 
-        // If currently enriching, set up streaming adapter
+        // If currently enriching, replay existing grants then wire up streaming
         if (enrichingRef.current && engineRef.current) {
+          // Load any already-received grants instantly (mid-stream toggle)
+          if (opportunities.length > 0) {
+            const vizGrants = opportunities.map(toVizGrant)
+            engineRef.current.loadAll(vizGrants)
+          }
+          // Wire up adapter for new incoming envelopes
           const adapter = createAdapter(engineRef.current)
           adapterRef.current = adapter
           onReadyRef.current?.((envelope: StreamEnvelope) => {

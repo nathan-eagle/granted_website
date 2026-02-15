@@ -13,6 +13,7 @@ export interface VizGrant {
   url?: string
   slug?: string
   eligibility?: string
+  match_reasons?: string[]
 }
 
 export interface VizConfig {

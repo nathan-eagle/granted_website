@@ -45,6 +45,7 @@ export function toVizGrant(opp: Opportunity): VizGrant {
     url: opp.google_url || opp.rfp_url,
     slug: opp.slug,
     eligibility: opp.eligibility,
+    match_reasons: opp.match_reasons,
   }
 }
 

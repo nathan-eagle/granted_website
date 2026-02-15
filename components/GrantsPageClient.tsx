@@ -52,6 +52,9 @@ export default function GrantsPageClient({
   const [vizMode, setVizMode] = useState<VizMode>('discovery-map')
   const [vizActive, setVizActive] = useState(false)
   const vizEnvelopeHandlerRef = useRef<((envelope: StreamEnvelope) => void) | null>(null)
+  // Buffer envelopes that arrive before the engine is ready (e.g., db_results
+  // arrive in ~1s but engine needs 2-5s to load d3 dynamically)
+  const vizEnvelopeBufferRef = useRef<StreamEnvelope[]>([])
 
   // Initialize viz mode from localStorage/URL on mount
   useEffect(() => {
@@ -69,9 +72,15 @@ export default function GrantsPageClient({
     return () => mq.removeEventListener('change', handler)
   }, [])
 
-  // onEnvelope callback — forwards NDJSON envelopes to the visualization engine
+  // onEnvelope callback — forwards NDJSON envelopes to the visualization engine,
+  // buffering them if the engine isn't ready yet
   const handleEnvelope = useCallback((envelope: StreamEnvelope) => {
-    vizEnvelopeHandlerRef.current?.(envelope)
+    if (vizEnvelopeHandlerRef.current) {
+      vizEnvelopeHandlerRef.current(envelope)
+    } else {
+      // Engine not ready yet — buffer for replay
+      vizEnvelopeBufferRef.current.push(envelope)
+    }
   }, [])
 
   const search = useGrantSearchStream({ onEnvelope: handleEnvelope })
@@ -98,6 +107,7 @@ export default function GrantsPageClient({
   useEffect(() => {
     if (enriching) {
       setVizActive(true)
+      vizEnvelopeBufferRef.current = [] // Clear buffer for fresh search
     }
   }, [enriching])
 
@@ -105,6 +115,7 @@ export default function GrantsPageClient({
   useEffect(() => {
     if (phase === 'form') {
       setVizActive(false)
+      vizEnvelopeBufferRef.current = []
     }
   }, [phase])
 
@@ -177,13 +188,11 @@ export default function GrantsPageClient({
     prevEnrichingRef.current = enriching
   }, [enriching, enrichedNames.size])
 
-  // Handle grant selection from visualization
+  // Handle grant selection from visualization — engine shows its own detail panel,
+  // so we do NOT open the React GrantDetailPanel here (just track the event)
   const handleVizGrantSelect = useCallback((vizGrant: VizGrant) => {
-    // Find matching Opportunity from the results
-    const opp = opportunities.find(o => o.name === vizGrant.name)
-    if (opp) setSelectedOpp(opp)
     trackEvent('viz_grant_select', { name: vizGrant.name.slice(0, 120), mode: vizMode })
-  }, [opportunities, vizMode])
+  }, [vizMode])
 
   // Switch from visualization to list view (or back to viz)
   const handleSwitchToList = useCallback(() => {
@@ -239,14 +248,20 @@ export default function GrantsPageClient({
             onGrantSelect={handleVizGrantSelect}
             onReady={(processEnvelope) => {
               vizEnvelopeHandlerRef.current = processEnvelope
+              // Replay any buffered envelopes that arrived while engine was loading
+              const buffered = vizEnvelopeBufferRef.current
+              if (buffered.length > 0) {
+                buffered.forEach(env => processEnvelope(env))
+                vizEnvelopeBufferRef.current = []
+              }
             }}
             onTeardown={() => {
               vizEnvelopeHandlerRef.current = null
             }}
             className="w-full"
           />
-          {/* Floating controls over visualization */}
-          <div className="absolute top-3 left-3 z-50 flex items-center gap-2">
+          {/* Floating controls over visualization — z-[999] to stay above engine internals */}
+          <div className="absolute top-3 left-3 z-[999] flex items-center gap-2">
             <button
               type="button"
               onClick={handleBackToBrowsing}
@@ -255,7 +270,7 @@ export default function GrantsPageClient({
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
               Back
             </button>
-            <VizToggle mode={vizMode} onChange={setVizMode} />
+            <VizToggle mode={vizMode} onChange={(m) => { setVizMode(m); persistVizMode(m) }} />
             <button
               type="button"
               onClick={handleSwitchToList}
@@ -498,16 +513,17 @@ export default function GrantsPageClient({
         </div>
       )}
 
-      {/* Detail panel — slides from left in viz mode, right in list mode */}
-      <GrantDetailPanel
-        opportunity={selectedOpp}
-        onClose={handleDetailClose}
-        onApplyClick={setGatedGrant}
-        focusArea={focusArea}
-        orgType={orgType}
-        state={searchState}
-        side={vizActive ? 'left' : 'right'}
-      />
+      {/* Detail panel — only in list mode (viz engines have their own built-in detail panel) */}
+      {!vizActive && (
+        <GrantDetailPanel
+          opportunity={selectedOpp}
+          onClose={handleDetailClose}
+          onApplyClick={setGatedGrant}
+          focusArea={focusArea}
+          orgType={orgType}
+          state={searchState}
+        />
+      )}
 
       {/* Signup gate modal */}
       {gatedGrant && (
