@@ -29,7 +29,7 @@ const ALLOWED_EVENTS = new Set([
   'nav.header_click', 'nav.sign_in', 'nav.logo_click',
   'cta.click', 'cta.blog_sticky',
   // Email / conversion
-  'email.signup', 'email.exit_intent_shown',
+  'email.signup',
   'conversion.intent', 'conversion.trial_signup',
   // Quiz
   'quiz.start', 'quiz.answer', 'quiz.complete',

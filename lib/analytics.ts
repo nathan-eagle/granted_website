@@ -67,7 +67,6 @@ const EVENT_MAP: Record<string, string> = {
   grant_finder_cta_click: 'cta.click',
   button_link_click: 'cta.click',
   email_signup: 'email.signup',
-  exit_intent_shown: 'email.exit_intent_shown',
   conversion_intent: 'conversion.intent',
   trial_signup_intent: 'conversion.trial_signup',
   quiz_start: 'quiz.start',

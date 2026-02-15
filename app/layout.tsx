@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import Script from 'next/script'
 import { DM_Sans } from 'next/font/google'
-import ExitIntentPopup from '@/components/ExitIntentPopup'
 import AnalyticsTracker from '@/components/AnalyticsTracker'
 import './globals.css'
 
@@ -122,7 +121,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         {children}
-        <ExitIntentPopup />
       </body>
     </html>
   )

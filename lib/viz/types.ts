@@ -20,7 +20,6 @@ export interface VizConfig {
   focusArea: string
   orgType: string
   state: string
-  soundEnabled: boolean
 }
 
 export type VizMode = 'discovery-map' | 'rising-stakes' | 'list'

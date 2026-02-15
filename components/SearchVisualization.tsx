@@ -39,7 +39,6 @@ export default function SearchVisualization({
   const engineRef = useRef<ISearchVisualization | null>(null)
   const adapterRef = useRef<ReturnType<typeof createAdapter> | null>(null)
   const [loading, setLoading] = useState(true)
-  const [soundEnabled, setSoundEnabled] = useState(false)
   const modeRef = useRef(mode)
   modeRef.current = mode
   const enrichingRef = useRef(enriching)
@@ -75,7 +74,6 @@ export default function SearchVisualization({
         focusArea,
         orgType,
         state,
-        soundEnabled,
       }
 
       try {
@@ -98,14 +96,16 @@ export default function SearchVisualization({
           engineRef.current = engine
         }
 
-        // If currently enriching, replay existing grants then wire up streaming
+        // If currently enriching, load existing grants then wire up streaming
+        // IMPORTANT: Only wire up adapter for NEW envelopes — don't replay buffer
+        // because loadAll already rendered the existing opportunities
         if (enrichingRef.current && engineRef.current) {
-          // Load any already-received grants instantly (mid-stream toggle)
           if (opportunities.length > 0) {
             const vizGrants = opportunities.map(toVizGrant)
             engineRef.current.loadAll(vizGrants)
           }
-          // Wire up adapter for new incoming envelopes
+          // Wire up adapter for new incoming envelopes only (not buffered ones
+          // which would duplicate grants already loaded via loadAll)
           const adapter = createAdapter(engineRef.current)
           adapterRef.current = adapter
           onReadyRef.current?.((envelope: StreamEnvelope) => {
@@ -138,18 +138,6 @@ export default function SearchVisualization({
 
   return (
     <div className={`relative ${className}`}>
-      {/* Sound toggle */}
-      {!loading && (
-        <button
-          type="button"
-          onClick={() => setSoundEnabled(!soundEnabled)}
-          className="absolute top-3 right-3 z-50 w-8 h-8 rounded-full border border-navy/10 bg-white/90 backdrop-blur flex items-center justify-center text-sm text-navy-light/60 hover:text-navy transition-colors"
-          title={soundEnabled ? 'Mute sounds' : 'Enable sounds'}
-        >
-          {soundEnabled ? '\u{1F50A}' : '\u{1F507}'}
-        </button>
-      )}
-
       {/* Loading state while engine initializes */}
       {loading && (
         <div className="flex items-center justify-center h-[60vh]">

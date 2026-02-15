@@ -257,12 +257,9 @@ export default function GrantsPageClient({
             onGrantSelect={handleVizGrantSelect}
             onReady={(processEnvelope) => {
               vizEnvelopeHandlerRef.current = processEnvelope
-              // Replay any buffered envelopes that arrived while engine was loading
-              const buffered = vizEnvelopeBufferRef.current
-              if (buffered.length > 0) {
-                buffered.forEach(env => processEnvelope(env))
-                vizEnvelopeBufferRef.current = []
-              }
+              // Don't replay buffered envelopes — loadAll already rendered existing
+              // opportunities. Only forward NEW envelopes from here on.
+              vizEnvelopeBufferRef.current = []
             }}
             onTeardown={() => {
               vizEnvelopeHandlerRef.current = null
