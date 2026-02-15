@@ -16,8 +16,6 @@ import {
 interface Props {
   opportunity: Opportunity | null
   onClose: () => void
-  unlocked: boolean
-  onEmailGateClick: () => void
   focusArea: string
   orgType: string
   state: string
@@ -26,8 +24,6 @@ interface Props {
 export default function GrantDetailPanel({
   opportunity,
   onClose,
-  unlocked,
-  onEmailGateClick,
   focusArea,
   orgType,
   state,
@@ -186,57 +182,17 @@ export default function GrantDetailPanel({
           {/* Summary */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-navy-light/40 mb-2">Summary</h4>
-            {unlocked ? (
-              <p className="text-sm text-navy-light leading-relaxed">
-                {opp.summary || 'No summary available.'}
-              </p>
-            ) : (
-              <button
-                type="button"
-                onClick={onEmailGateClick}
-                className="relative w-full text-left group"
-              >
-                <div className="select-none blur-[6px] pointer-events-none" aria-hidden="true">
-                  <p className="text-sm text-navy-light leading-relaxed">
-                    This grant supports organizations working in community development and environmental justice initiatives across the United States with substantial funding.
-                  </p>
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-navy/5 text-navy-light border border-navy/10 group-hover:bg-brand-yellow/10 group-hover:border-brand-yellow/30 group-hover:text-navy transition-colors">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
-                    Enter email to unlock
-                  </span>
-                </div>
-              </button>
-            )}
+            <p className="text-sm text-navy-light leading-relaxed">
+              {opp.summary || 'No summary available.'}
+            </p>
           </div>
 
           {/* Eligibility */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-navy-light/40 mb-2">Eligibility</h4>
-            {unlocked ? (
-              <p className="text-sm text-navy-light leading-relaxed">
-                {opp.eligibility || 'No eligibility information available.'}
-              </p>
-            ) : (
-              <button
-                type="button"
-                onClick={onEmailGateClick}
-                className="relative w-full text-left group"
-              >
-                <div className="select-none blur-[6px] pointer-events-none" aria-hidden="true">
-                  <p className="text-sm text-navy-light leading-relaxed">
-                    Eligible: 501(c)(3) nonprofits with annual budget under $5M focused on community-based programs.
-                  </p>
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-navy/5 text-navy-light border border-navy/10 group-hover:bg-brand-yellow/10 group-hover:border-brand-yellow/30 group-hover:text-navy transition-colors">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
-                    Enter email to unlock
-                  </span>
-                </div>
-              </button>
-            )}
+            <p className="text-sm text-navy-light leading-relaxed">
+              {opp.eligibility || 'No eligibility information available.'}
+            </p>
           </div>
 
           {/* Link to SEO page if slug exists */}
@@ -284,7 +240,7 @@ export default function GrantDetailPanel({
             </a>
           )}
 
-          {unlocked && opp.rfp_url && (
+          {opp.rfp_url && (
             <a
               href={opp.rfp_url}
               target="_blank"

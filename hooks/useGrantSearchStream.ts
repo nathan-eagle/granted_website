@@ -42,28 +42,7 @@ type StreamEnvelope =
   | { type: 'complete'; summary: { totalCount: number; providerResults: ProviderStatus[]; totalDurationMs: number } }
   | { type: 'heartbeat' }
 
-function getSearchCount(): number {
-  if (typeof window === 'undefined') return 0
-  try {
-    const raw = localStorage.getItem('gf_searches')
-    return raw ? parseInt(raw, 10) : 0
-  } catch { return 0 }
-}
-
-function incrementSearchCount(): number {
-  const next = getSearchCount() + 1
-  try { localStorage.setItem('gf_searches', String(next)) } catch {}
-  return next
-}
-
-function isUnlockedCheck(): boolean {
-  if (typeof document === 'undefined') return false
-  return document.cookie.includes('gf_unlocked=1')
-}
-
-function setUnlockedCookie() {
-  document.cookie = 'gf_unlocked=1; max-age=2592000; path=/; SameSite=Lax'
-}
+export const FREE_RESULT_LIMIT = 3
 
 export function useGrantSearchStream(onPhaseChange?: (phase: Phase) => void) {
   const [phase, setPhase] = useState<Phase>('form')
@@ -73,12 +52,7 @@ export function useGrantSearchStream(onPhaseChange?: (phase: Phase) => void) {
   const [amountRange, setAmountRange] = useState<AmountRangeKey>('')
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
   const [error, setError] = useState('')
-  const [unlocked, setUnlocked] = useState(false)
-  const [email, setEmail] = useState('')
-  const [emailStatus, setEmailStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const [gateRequired, setGateRequired] = useState(false)
   const [broadened, setBroadened] = useState(false)
-  const [searchSaved, setSearchSaved] = useState(false)
   const [enriching, setEnriching] = useState(false)
   const [enrichedNames, setEnrichedNames] = useState<Set<string>>(new Set())
   const [providers, setProviders] = useState<Map<ProviderName, ProviderStatus>>(new Map())
@@ -93,10 +67,6 @@ export function useGrantSearchStream(onPhaseChange?: (phase: Phase) => void) {
     return () => {
       abortRef.current?.abort()
     }
-  }, [])
-
-  useEffect(() => {
-    setUnlocked(isUnlockedCheck())
   }, [])
 
   useEffect(() => {
@@ -163,9 +133,8 @@ export function useGrantSearchStream(onPhaseChange?: (phase: Phase) => void) {
     })
 
     if (res.status === 429) {
-      setError('You have reached the daily search limit. Enter your email below for unlimited access, or try again tomorrow.')
+      setError('You have reached the daily search limit. Please try again tomorrow.')
       setPhase('form')
-      setGateRequired(true)
       return { opportunities: [], streamed: false }
     }
 
@@ -333,19 +302,9 @@ export function useGrantSearchStream(onPhaseChange?: (phase: Phase) => void) {
 
     setError('')
     setBroadened(false)
-    setGateRequired(false)
     setEnriching(false)
     setEnrichedNames(new Set())
     setProviders(new Map())
-
-    const currentlyUnlocked = isUnlockedCheck()
-    setUnlocked(currentlyUnlocked)
-
-    if (!currentlyUnlocked && getSearchCount() >= 3) {
-      setGateRequired(true)
-      trackEvent('grant_finder_gate', { reason: source === 'url' ? 'search_limit_url' : 'search_limit' })
-      return
-    }
 
     trackEvent('grant_finder_search', {
       org_type: searchOrgType || 'any',
@@ -386,7 +345,6 @@ export function useGrantSearchStream(onPhaseChange?: (phase: Phase) => void) {
         await matchSlugs(result.opportunities)
       }
 
-      incrementSearchCount()
       if (phase !== 'results') setPhase('results')
 
       trackEvent('grant_finder_results', {
@@ -463,75 +421,6 @@ export function useGrantSearchStream(onPhaseChange?: (phase: Phase) => void) {
     void runSearch(effectiveOrgType, q, effectiveState, 'url', amountRange)
   }, [searchParams, focusArea, orgType, state, amountRange, runSearch])
 
-  const handleEmailSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email) return
-    setEmailStatus('loading')
-    trackEvent('grant_finder_email_submit', {
-      org_type: orgType || 'any',
-      state: state || 'any',
-      focus_area: summarizeTerm(focusArea),
-      result_count: opportunities.length,
-    })
-
-    try {
-      const res = await fetch('/api/leads/capture', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          search_query: { org_type: orgType, focus_area: focusArea, state },
-        }),
-      })
-
-      if (res.ok) {
-        setEmailStatus('success')
-        setUnlocked(true)
-        setUnlockedCookie()
-        document.cookie = `gf_email=${encodeURIComponent(email)}; max-age=2592000; path=/; SameSite=Lax`
-        setGateRequired(false)
-        trackEvent('grant_finder_email_success', {
-          org_type: orgType || 'any',
-          state: state || 'any',
-          focus_area: summarizeTerm(focusArea),
-          result_count: opportunities.length,
-        })
-      } else {
-        setEmailStatus('error')
-        trackEvent('grant_finder_email_error', { status: String(res.status) })
-      }
-    } catch {
-      setEmailStatus('error')
-      trackEvent('grant_finder_email_error', { status: 'network_error' })
-    }
-  }
-
-  const handleSaveSearch = async () => {
-    const emailValue = email || (document.cookie.match(/gf_email=([^;]+)/)?.[1] ?? '')
-    if (!emailValue) {
-      document.getElementById('email-gate')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      return
-    }
-    try {
-      const res = await fetch('/api/searches/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: emailValue,
-          search_params: { org_type: orgType, focus_area: focusArea, state },
-          label: focusArea,
-        }),
-      })
-      if (res.ok) {
-        setSearchSaved(true)
-        trackEvent('grant_finder_search_saved', {
-          focus_area: summarizeTerm(focusArea),
-          org_type: orgType || 'any',
-        })
-      }
-    } catch {}
-  }
-
   return {
     // State
     phase,
@@ -541,26 +430,19 @@ export function useGrantSearchStream(onPhaseChange?: (phase: Phase) => void) {
     amountRange,
     opportunities,
     error,
-    unlocked,
-    email,
-    emailStatus,
-    gateRequired,
     broadened,
-    searchSaved,
     enriching,
     enrichedNames,
     providers,
+    freeResultLimit: FREE_RESULT_LIMIT,
     // Setters
     setOrgType,
     setFocusArea,
     setState,
     setAmountRange,
-    setEmail,
     // Actions
     handleSearch,
     handleBackToBrowsing,
-    handleEmailSubmit,
-    handleSaveSearch,
   }
 }
 

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { useGrantSearchStream, summarizeTerm } from '@/hooks/useGrantSearchStream'
+import { useGrantSearchStream, FREE_RESULT_LIMIT, summarizeTerm } from '@/hooks/useGrantSearchStream'
 import type { Phase, Opportunity } from '@/hooks/useGrantSearchStream'
 import GrantFinder from '@/components/GrantFinder'
 import GrantResultsTable, { type SortOption } from '@/components/GrantResultsTable'
@@ -52,23 +52,15 @@ export default function GrantsPageClient({
     amountRange,
     opportunities,
     error,
-    unlocked,
-    email,
-    emailStatus,
-    gateRequired,
     broadened,
-    searchSaved,
     enriching,
     enrichedNames,
     setOrgType,
     setFocusArea,
     setState,
     setAmountRange,
-    setEmail,
     handleSearch,
     handleBackToBrowsing,
-    handleEmailSubmit,
-    handleSaveSearch,
   } = search
 
   // Results state
@@ -153,11 +145,6 @@ export default function GrantsPageClient({
     setSelectedOpp(null)
   }, [selectedOpp])
 
-  const handleEmailGateClick = useCallback(() => {
-    trackEvent('grant_finder_locked_details_click', { surface: 'discovery' })
-    document.getElementById('email-gate')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }, [])
-
   return (
     <>
       {/* Grant Finder — form + loading */}
@@ -170,17 +157,11 @@ export default function GrantsPageClient({
             state={searchState}
             amountRange={amountRange}
             error={error}
-            gateRequired={gateRequired}
-            unlocked={unlocked}
-            email={email}
-            emailStatus={emailStatus}
             setOrgType={setOrgType}
             setFocusArea={setFocusArea}
             setState={setState}
             setAmountRange={setAmountRange}
-            setEmail={setEmail}
             handleSearch={handleSearch}
-            handleEmailSubmit={handleEmailSubmit}
           />
         </div>
       )}
@@ -359,9 +340,8 @@ export default function GrantsPageClient({
                     {/* Results table */}
                     <GrantResultsTable
                       opportunities={filteredOpps}
-                      unlocked={unlocked}
+                      freeLimit={FREE_RESULT_LIMIT}
                       onRowClick={handleRowClick}
-                      onEmailGateClick={handleEmailGateClick}
                       sort={sort}
                       onSortChange={setSort}
                       focusArea={focusArea}
@@ -381,71 +361,12 @@ export default function GrantsPageClient({
               </>
             )}
 
-            {/* Email gate (shown below results if not unlocked) */}
-            {!unlocked && opportunities.length > 0 && (
-              <div id="email-gate" className="card overflow-hidden mt-8">
-                <div className="bg-navy p-8 text-center noise-overlay">
-                  <div className="relative z-10">
-                    <h3 className="text-xl font-semibold text-white" style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}>
-                      Unlock full fit analysis + source links
-                    </h3>
-                    <p className="text-white/60 mt-2 text-sm max-w-md mx-auto">
-                      Enter your email to see full summaries, eligibility requirements, and direct links for every result.
-                    </p>
-
-                    <form onSubmit={handleEmailSubmit} className="mt-6 flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        placeholder="you@organization.org"
-                        className="flex-1 rounded-md border border-white/20 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none focus:border-brand-yellow/60 focus:ring-1 focus:ring-brand-yellow/40 transition"
-                      />
-                      <button
-                        type="submit"
-                        disabled={emailStatus === 'loading'}
-                        className="rounded-md bg-yellow-400 px-6 py-3 text-sm font-semibold text-black transition hover:bg-yellow-300 disabled:opacity-60 shrink-0"
-                      >
-                        {emailStatus === 'loading' ? 'Unlocking...' : 'Unlock Details'}
-                      </button>
-                    </form>
-                    {emailStatus === 'error' && (
-                      <p className="text-xs text-red-400 mt-2">Something went wrong. Please try again.</p>
-                    )}
-                    <p className="mt-3 text-xs text-white/30">No spam. Unsubscribe anytime.</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Save search CTA */}
-            {unlocked && !searchSaved && opportunities.length > 0 && (
-              <div className="mt-8 text-center">
-                <button
-                  type="button"
-                  onClick={handleSaveSearch}
-                  className="inline-flex items-center gap-2 rounded-md border border-navy/15 bg-white px-5 py-2.5 text-sm font-medium text-navy hover:bg-navy/5 transition-colors"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" /></svg>
-                  Save this search & get weekly alerts
-                </button>
-              </div>
-            )}
-            {searchSaved && (
-              <div className="mt-8 text-center">
-                <p className="text-sm text-green-700 font-medium">
-                  Search saved! We&apos;ll email you weekly when new grants match.
-                </p>
-              </div>
-            )}
-
             {/* CTA */}
             <div className="mt-10 text-center">
               <p className="text-sm text-navy-light mb-4">
                 Want AI to help you write a winning proposal for any of these grants?
               </p>
-              <CheckoutButton label="Try Granted Free" eventName="grant_finder_cta" />
+              <CheckoutButton label="Sign Up Free" eventName="grant_finder_cta" />
             </div>
           </div>
         </div>
@@ -455,8 +376,6 @@ export default function GrantsPageClient({
       <GrantDetailPanel
         opportunity={selectedOpp}
         onClose={handleDetailClose}
-        unlocked={unlocked}
-        onEmailGateClick={handleEmailGateClick}
         focusArea={focusArea}
         orgType={orgType}
         state={searchState}
