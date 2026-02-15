@@ -9,6 +9,7 @@ const nextConfig = {
         permanent: true,
       },
       { source: '/find-grants', destination: '/grants', permanent: true },
+      { source: '/tech', destination: '/platform', permanent: true },
     ]
   },
   images: {

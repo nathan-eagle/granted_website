@@ -84,7 +84,7 @@ export default function ResearchersPage() {
               <div className="mt-10 flex flex-wrap justify-center gap-4">
                 <CheckoutButton label="Draft Your R01 Free" />
                 <ButtonLink
-                  href="/tech"
+                  href="/platform"
                   variant="ghost"
                   className="border-white/20 text-white hover:bg-white/10 hover:border-white/30"
                 >

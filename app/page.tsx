@@ -123,7 +123,7 @@ export default async function HomePage() {
                   Upload any RFP or grant guidelines. Granted&apos;s AI reads the full document, identifies every required section, and coaches you through the details it needs to draft a grounded, complete proposal.
                 </p>
                 <div className="mt-8">
-                  <ButtonLink href="/tech" variant="primary" className="cta-shimmer">
+                  <ButtonLink href="/platform" variant="primary" className="cta-shimmer">
                     See All 50+ Writing Models &rarr;
                   </ButtonLink>
                 </div>
