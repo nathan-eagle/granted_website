@@ -2,6 +2,12 @@
 const nextConfig = {
   async redirects() {
     return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.grantedai.com' }],
+        destination: 'https://grantedai.com/:path*',
+        permanent: true,
+      },
       { source: '/find-grants', destination: '/grants', permanent: true },
     ]
   },
