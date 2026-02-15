@@ -42,8 +42,6 @@ type StreamEnvelope =
   | { type: 'complete'; summary: { totalCount: number; providerResults: ProviderStatus[]; totalDurationMs: number } }
   | { type: 'heartbeat' }
 
-export const FREE_RESULT_LIMIT = 3
-
 export function useGrantSearchStream(onPhaseChange?: (phase: Phase) => void) {
   const [phase, setPhase] = useState<Phase>('form')
   const [orgType, setOrgType] = useState('')
@@ -434,7 +432,6 @@ export function useGrantSearchStream(onPhaseChange?: (phase: Phase) => void) {
     enriching,
     enrichedNames,
     providers,
-    freeResultLimit: FREE_RESULT_LIMIT,
     // Setters
     setOrgType,
     setFocusArea,

@@ -3,11 +3,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { useGrantSearchStream, FREE_RESULT_LIMIT, summarizeTerm } from '@/hooks/useGrantSearchStream'
+import { useGrantSearchStream, summarizeTerm } from '@/hooks/useGrantSearchStream'
 import type { Phase, Opportunity } from '@/hooks/useGrantSearchStream'
 import GrantFinder from '@/components/GrantFinder'
 import GrantResultsTable, { type SortOption } from '@/components/GrantResultsTable'
 import GrantDetailPanel from '@/components/GrantDetailPanel'
+import SignupGateModal from '@/components/SignupGateModal'
+import SignupNudgeBanner from '@/components/SignupNudgeBanner'
 import DiscoveryFilters, { type FilterState, DEFAULT_FILTERS, applyFilters } from '@/components/DiscoveryFilters'
 import DiscoveryTabs, { type DiscoveryTab } from '@/components/DiscoveryTabs'
 import FunderMatchesTable, { type FunderMatch } from '@/components/FunderMatchesTable'
@@ -68,6 +70,7 @@ export default function GrantsPageClient({
   const [selectedOpp, setSelectedOpp] = useState<Opportunity | null>(null)
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS)
   const [activeTab, setActiveTab] = useState<DiscoveryTab>('grants')
+  const [gatedGrant, setGatedGrant] = useState<Opportunity | null>(null)
 
   // Auto-switch to funders tab if URL has tab=funders
   const tabParam = useSearchParams().get('tab')
@@ -340,8 +343,8 @@ export default function GrantsPageClient({
                     {/* Results table */}
                     <GrantResultsTable
                       opportunities={filteredOpps}
-                      freeLimit={FREE_RESULT_LIMIT}
                       onRowClick={handleRowClick}
+                      onApplyClick={setGatedGrant}
                       sort={sort}
                       onSortChange={setSort}
                       focusArea={focusArea}
@@ -369,6 +372,15 @@ export default function GrantsPageClient({
               <CheckoutButton label="Sign Up Free" eventName="grant_finder_cta" />
             </div>
           </div>
+
+          {/* Sticky nudge banner */}
+          <SignupNudgeBanner
+            enriching={enriching}
+            resultCount={filteredOpps.length}
+            focusArea={focusArea}
+            orgType={orgType}
+            state={searchState}
+          />
         </div>
       )}
 
@@ -376,10 +388,22 @@ export default function GrantsPageClient({
       <GrantDetailPanel
         opportunity={selectedOpp}
         onClose={handleDetailClose}
+        onApplyClick={setGatedGrant}
         focusArea={focusArea}
         orgType={orgType}
         state={searchState}
       />
+
+      {/* Signup gate modal */}
+      {gatedGrant && (
+        <SignupGateModal
+          opportunity={gatedGrant}
+          onClose={() => setGatedGrant(null)}
+          focusArea={focusArea}
+          orgType={orgType}
+          state={searchState}
+        />
+      )}
 
       {/* Stats bar */}
       {phase === 'form' && (

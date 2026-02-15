@@ -6,7 +6,6 @@ import {
   SOURCE_LABELS,
   OFFICIAL_SOURCES,
   relativeTime,
-  buildApplyUrl,
   summarizeTerm,
   isPastDeadline,
   deadlineUrgency,
@@ -70,8 +69,6 @@ export function sortOpportunities(opps: Opportunity[], sort: SortOption): Opport
   return sorted
 }
 
-const SIGNUP_URL = 'https://app.grantedai.com/api/auth/signin?callbackUrl=/overview?ref=grant-finder'
-
 function ResultRow({
   opp,
   index: i,
@@ -80,6 +77,7 @@ function ResultRow({
   orgType,
   state,
   onRowClick,
+  onApplyClick,
 }: {
   opp: Opportunity
   index: number
@@ -88,6 +86,7 @@ function ResultRow({
   orgType: string
   state: string
   onRowClick: (opp: Opportunity) => void
+  onApplyClick?: (opp: Opportunity) => void
 }) {
   return (
     <div
@@ -173,8 +172,8 @@ function ResultRow({
               Expired
             </span>
           ) : (
-            <a
-              href={buildApplyUrl(opp)}
+            <button
+              type="button"
               onClick={() => {
                 trackEvent('grant_finder_apply_click', {
                   grant_name: opp.name.slice(0, 120),
@@ -186,12 +185,13 @@ function ResultRow({
                   org_type: orgType || 'any',
                   state: state || 'any',
                 })
+                onApplyClick?.(opp)
               }}
               className="inline-flex items-center gap-1 rounded-md bg-brand-yellow px-3 py-1.5 text-xs font-semibold text-navy hover:bg-brand-gold transition-colors"
             >
               Apply
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-            </a>
+            </button>
           )}
           {opp.rfp_url && (
             <a
@@ -278,8 +278,8 @@ function ResultRow({
               Expired
             </span>
           ) : (
-            <a
-              href={buildApplyUrl(opp)}
+            <button
+              type="button"
               onClick={() => {
                 trackEvent('grant_finder_apply_click', {
                   grant_name: opp.name.slice(0, 120),
@@ -291,12 +291,13 @@ function ResultRow({
                   org_type: orgType || 'any',
                   state: state || 'any',
                 })
+                onApplyClick?.(opp)
               }}
               className="inline-flex items-center gap-1 rounded-md bg-brand-yellow px-3 py-1.5 text-xs font-semibold text-navy hover:bg-brand-gold transition-colors"
             >
               Apply
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-            </a>
+            </button>
           )}
           {opp.rfp_url && (
             <a
@@ -326,8 +327,8 @@ function ResultRow({
 
 interface Props {
   opportunities: Opportunity[]
-  freeLimit: number
   onRowClick: (opp: Opportunity) => void
+  onApplyClick?: (opp: Opportunity) => void
   sort: SortOption
   onSortChange: (sort: SortOption) => void
   focusArea: string
@@ -338,8 +339,8 @@ interface Props {
 
 export default function GrantResultsTable({
   opportunities,
-  freeLimit,
   onRowClick,
+  onApplyClick,
   sort,
   onSortChange,
   focusArea,
@@ -377,7 +378,7 @@ export default function GrantResultsTable({
 
       {/* Results table */}
       <div className="space-y-2">
-        {sorted.slice(0, freeLimit).map((opp, i) => (
+        {sorted.map((opp, i) => (
           <ResultRow
             key={i}
             opp={opp}
@@ -387,76 +388,10 @@ export default function GrantResultsTable({
             orgType={orgType}
             state={state}
             onRowClick={onRowClick}
+            onApplyClick={onApplyClick}
           />
         ))}
       </div>
-
-      {/* Sign-up CTA card (shown after free results if there are more) */}
-      {sorted.length > freeLimit && (
-        <>
-          <div className="my-6 card overflow-hidden">
-            <div className="bg-navy p-8 text-center noise-overlay">
-              <div className="relative z-10">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-yellow/20 mb-4">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-brand-yellow">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-white" style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}>
-                  {sorted.length - freeLimit} more {sorted.length - freeLimit === 1 ? 'grant' : 'grants'} matched your search
-                </h3>
-                <p className="text-white/60 mt-2 text-sm max-w-md mx-auto">
-                  Create a free account to see all results, get full fit analysis, and start applying with AI assistance.
-                </p>
-                <a
-                  href={SIGNUP_URL}
-                  onClick={() => {
-                    trackEvent('grant_finder_signup_redirect', {
-                      total_results: String(sorted.length),
-                      free_shown: String(freeLimit),
-                      focus_area: summarizeTerm(focusArea),
-                      org_type: orgType || 'any',
-                      state: state || 'any',
-                    })
-                  }}
-                  className="mt-6 inline-flex items-center gap-2 rounded-md bg-yellow-400 px-8 py-3 text-sm font-semibold text-black transition hover:bg-yellow-300"
-                >
-                  Sign Up Free
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                </a>
-                <p className="mt-3 text-xs text-white/30">Free tier included. No credit card required.</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Blurred teaser rows */}
-          <div className="space-y-2 relative">
-            <div className="blur-[3px] opacity-60 pointer-events-none select-none" aria-hidden="true">
-              {sorted.slice(freeLimit, freeLimit + 3).map((opp, i) => (
-                <div key={i} className="card p-4 md:p-5 mb-2">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-semibold text-navy leading-snug truncate">{opp.name}</h3>
-                      <p className="text-xs text-navy-light/60 mt-0.5 truncate">{opp.funder}</p>
-                    </div>
-                    <div className="shrink-0 w-28 text-right">
-                      <span className="text-xs font-medium text-navy-light">{opp.amount || '—'}</span>
-                    </div>
-                    <div className="shrink-0 w-28 text-right">
-                      <span className="text-xs text-navy-light/70">{opp.deadline || 'Rolling'}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {sorted.length > freeLimit + 3 && (
-              <p className="text-center text-xs text-navy-light/50 mt-2">
-                + {sorted.length - freeLimit - 3} more {sorted.length - freeLimit - 3 === 1 ? 'result' : 'results'}
-              </p>
-            )}
-          </div>
-        </>
-      )}
     </div>
   )
 }
