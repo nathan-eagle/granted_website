@@ -19,6 +19,7 @@ interface Props {
   focusArea: string
   orgType: string
   state: string
+  side?: 'left' | 'right'
 }
 
 export default function GrantDetailPanel({
@@ -28,6 +29,7 @@ export default function GrantDetailPanel({
   focusArea,
   orgType,
   state,
+  side = 'right',
 }: Props) {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -70,7 +72,11 @@ export default function GrantDetailPanel({
 
       {/* Panel */}
       <div
-        className="fixed inset-0 md:inset-y-0 md:left-auto md:right-0 md:w-[480px] z-50 bg-white shadow-2xl flex flex-col animate-slide-in-right"
+        className={`fixed inset-0 md:inset-y-0 md:w-[480px] z-50 bg-white shadow-2xl flex flex-col ${
+          side === 'left'
+            ? 'md:right-auto md:left-0 animate-slide-in-left'
+            : 'md:left-auto md:right-0 animate-slide-in-right'
+        }`}
         role="dialog"
         aria-label="Grant details"
       >
@@ -272,6 +278,13 @@ export default function GrantDetailPanel({
         }
         .animate-slide-in-right {
           animation: slideInRight 0.25s ease-out;
+        }
+        @keyframes slideInLeft {
+          from { transform: translateX(-100%); }
+          to { transform: translateX(0); }
+        }
+        .animate-slide-in-left {
+          animation: slideInLeft 0.25s ease-out;
         }
       `}</style>
     </>

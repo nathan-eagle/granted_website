@@ -5,6 +5,7 @@ declare class RisingStakesEngine implements SearchVisualization {
   addBatch(provider: string, grants: import('./types').VizGrant[], isInitial: boolean): void
   rerank(grants: import('./types').VizGrant[]): void
   complete(summary: { totalCount: number; durationMs: number }): void
+  loadAll(grants: import('./types').VizGrant[]): void
   onGrantSelect(callback: (grant: import('./types').VizGrant) => void): void
   reset(): void
   destroy(): void

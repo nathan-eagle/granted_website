@@ -1,16 +1,19 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import type { Opportunity } from '@/hooks/useGrantSearch'
 import type { VizMode, VizGrant, VizConfig, SearchVisualization as ISearchVisualization, StreamEnvelope } from '@/lib/viz/types'
-import { createAdapter } from '@/lib/viz/adapter'
+import { createAdapter, toVizGrant } from '@/lib/viz/adapter'
 
 interface Props {
   mode: VizMode
   focusArea: string
   orgType: string
   state: string
-  /** Whether visualization is actively receiving data */
-  active: boolean
+  /** Whether visualization is actively receiving streaming data */
+  enriching: boolean
+  /** Full opportunities list — used for static rendering when not enriching */
+  opportunities: Opportunity[]
   /** Callback when user clicks a grant in the visualization */
   onGrantSelect?: (grant: VizGrant) => void
   /** Called with processEnvelope function when engine is ready — wire this to onEnvelope */
@@ -25,7 +28,8 @@ export default function SearchVisualization({
   focusArea,
   orgType,
   state,
-  active,
+  enriching,
+  opportunities,
   onGrantSelect,
   onReady,
   onTeardown,
@@ -38,6 +42,8 @@ export default function SearchVisualization({
   const [soundEnabled, setSoundEnabled] = useState(false)
   const modeRef = useRef(mode)
   modeRef.current = mode
+  const enrichingRef = useRef(enriching)
+  enrichingRef.current = enriching
 
   // Keep callbacks in refs to avoid re-initializing engine on callback changes
   const onGrantSelectRef = useRef(onGrantSelect)
@@ -49,7 +55,7 @@ export default function SearchVisualization({
 
   // Initialize engine on mount / mode change
   useEffect(() => {
-    if (!containerRef.current || !active) return
+    if (!containerRef.current) return
 
     let destroyed = false
     setLoading(true)
@@ -92,15 +98,18 @@ export default function SearchVisualization({
           engineRef.current = engine
         }
 
-        // Create adapter that routes envelopes to engine
-        if (engineRef.current) {
+        // If currently enriching, set up streaming adapter
+        if (enrichingRef.current && engineRef.current) {
           const adapter = createAdapter(engineRef.current)
           adapterRef.current = adapter
-
-          // Notify parent that engine is ready — parent wires this to the stream hook
           onReadyRef.current?.((envelope: StreamEnvelope) => {
             adapter.processEnvelope(envelope)
           })
+        }
+        // If NOT enriching (switching back to viz after search is done), load all grants statically
+        else if (!enrichingRef.current && engineRef.current && opportunities.length > 0) {
+          const vizGrants = opportunities.map(toVizGrant)
+          engineRef.current.loadAll(vizGrants)
         }
 
         setLoading(false)
@@ -119,12 +128,12 @@ export default function SearchVisualization({
       adapterRef.current = null
       onTeardownRef.current?.()
     }
-  }, [mode, active, focusArea, orgType, state]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [mode, focusArea, orgType, state]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className={`relative ${className}`}>
       {/* Sound toggle */}
-      {active && !loading && (
+      {!loading && (
         <button
           type="button"
           onClick={() => setSoundEnabled(!soundEnabled)}
@@ -136,7 +145,7 @@ export default function SearchVisualization({
       )}
 
       {/* Loading state while engine initializes */}
-      {loading && active && (
+      {loading && (
         <div className="flex items-center justify-center h-[60vh]">
           <div className="flex flex-col items-center gap-3">
             <div className="w-8 h-8 border-2 border-brand-yellow/30 border-t-brand-yellow rounded-full animate-spin" />
@@ -151,10 +160,6 @@ export default function SearchVisualization({
       <div
         ref={containerRef}
         className="search-viz-container w-full"
-        style={{
-          minHeight: active ? '70vh' : '0',
-          display: active ? 'block' : 'none',
-        }}
       />
     </div>
   )

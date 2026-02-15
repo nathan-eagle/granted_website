@@ -20,8 +20,7 @@ import EnrichmentProgress from '@/components/EnrichmentProgress'
 import CheckoutButton from '@/components/CheckoutButton'
 import SearchVisualization from '@/components/SearchVisualization'
 import VizToggle, { getPersistedVizMode, persistVizMode } from '@/components/VizToggle'
-import { createAdapter } from '@/lib/viz/adapter'
-import type { VizMode, VizGrant, SearchVisualization as ISearchVisualization } from '@/lib/viz/types'
+import type { VizMode, VizGrant } from '@/lib/viz/types'
 import { trackEvent } from '@/lib/analytics'
 import { GRANT_CATEGORIES, GRANT_US_STATES, type PublicGrant } from '@/lib/grants'
 import { ORG_TYPES, US_STATES, AMOUNT_RANGES, type AmountRangeKey } from '@/hooks/useGrantSearchStream'
@@ -95,12 +94,19 @@ export default function GrantsPageClient({
     handleBackToBrowsing,
   } = search
 
-  // Activate visualization when enriching starts
+  // Activate visualization when enriching starts (and keep it active after enrichment ends)
   useEffect(() => {
     if (enriching) {
       setVizActive(true)
     }
   }, [enriching])
+
+  // Reset vizActive when going back to form/browsing
+  useEffect(() => {
+    if (phase === 'form') {
+      setVizActive(false)
+    }
+  }, [phase])
 
   // Results state
   const [sort, setSort] = useState<SortOption>('best_match')
@@ -179,7 +185,7 @@ export default function GrantsPageClient({
     trackEvent('viz_grant_select', { name: vizGrant.name.slice(0, 120), mode: vizMode })
   }, [opportunities, vizMode])
 
-  // Switch from visualization to list view
+  // Switch from visualization to list view (or back to viz)
   const handleSwitchToList = useCallback(() => {
     setVizActive(false)
     trackEvent('viz_switch_to_list', { mode: vizMode })
@@ -220,15 +226,16 @@ export default function GrantsPageClient({
         </div>
       )}
 
-      {/* Visualization phase — shown during enrichment when viz is active */}
-      {phase === 'results' && vizActive && enriching && (
+      {/* Visualization phase — shown when viz is active (during AND after enrichment) */}
+      {phase === 'results' && vizActive && (
         <div className="relative">
           <SearchVisualization
             mode={vizMode}
             focusArea={focusArea}
             orgType={orgType}
             state={searchState}
-            active={true}
+            enriching={enriching}
+            opportunities={opportunities}
             onGrantSelect={handleVizGrantSelect}
             onReady={(processEnvelope) => {
               vizEnvelopeHandlerRef.current = processEnvelope
@@ -240,6 +247,14 @@ export default function GrantsPageClient({
           />
           {/* Floating controls over visualization */}
           <div className="absolute top-3 left-3 z-50 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleBackToBrowsing}
+              className="flex items-center gap-1.5 rounded-lg border border-navy/10 bg-white/90 backdrop-blur px-3 py-1.5 text-xs font-medium text-navy-light/70 hover:text-navy transition-colors"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+              Back
+            </button>
             <VizToggle mode={vizMode} onChange={setVizMode} />
             <button
               type="button"
@@ -256,8 +271,8 @@ export default function GrantsPageClient({
         </div>
       )}
 
-      {/* Results phase */}
-      {phase === 'results' && (!vizActive || !enriching) && (
+      {/* Results phase — list view */}
+      {phase === 'results' && !vizActive && (
         <div className="py-8 md:py-12">
           <div className="max-w-4xl mx-auto">
             {/* Back button */}
@@ -417,14 +432,16 @@ export default function GrantsPageClient({
                     funderCount={funders.length}
                     funderLoading={funderLoading}
                   />
-                  <VizToggle
-                    mode={vizMode}
-                    onChange={(m) => {
-                      setVizMode(m)
-                      persistVizMode(m)
-                    }}
-                    className="hidden sm:inline-flex"
-                  />
+                  <div className="hidden sm:flex items-center gap-2">
+                    <VizToggle
+                      mode={vizMode}
+                      onChange={(m) => {
+                        setVizMode(m)
+                        persistVizMode(m)
+                        setVizActive(true)
+                      }}
+                    />
+                  </div>
                 </div>
 
                 {activeTab === 'grants' && (
@@ -481,7 +498,7 @@ export default function GrantsPageClient({
         </div>
       )}
 
-      {/* Detail panel */}
+      {/* Detail panel — slides from left in viz mode, right in list mode */}
       <GrantDetailPanel
         opportunity={selectedOpp}
         onClose={handleDetailClose}
@@ -489,6 +506,7 @@ export default function GrantsPageClient({
         focusArea={focusArea}
         orgType={orgType}
         state={searchState}
+        side={vizActive ? 'left' : 'right'}
       />
 
       {/* Signup gate modal */}

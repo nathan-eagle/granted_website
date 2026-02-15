@@ -29,6 +29,8 @@ export interface SearchVisualization {
   addBatch(provider: string, grants: VizGrant[], isInitial: boolean): void
   rerank(grants: VizGrant[]): void
   complete(summary: { totalCount: number; durationMs: number }): void
+  /** Render all grants in final state instantly (no animation). Used when switching back to viz after enrichment. */
+  loadAll(grants: VizGrant[]): void
   onGrantSelect(callback: (grant: VizGrant) => void): void
   reset(): void
   destroy(): void
