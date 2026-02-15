@@ -23,7 +23,7 @@ export interface VizConfig {
   soundEnabled: boolean
 }
 
-export type VizMode = 'discovery-map' | 'rising-stakes'
+export type VizMode = 'discovery-map' | 'rising-stakes' | 'list'
 
 export interface SearchVisualization {
   init(container: HTMLElement, config: VizConfig, d3?: unknown): void

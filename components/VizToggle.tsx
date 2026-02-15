@@ -16,16 +16,17 @@ interface Props {
 export function getPersistedVizMode(): VizMode {
   if (typeof window === 'undefined') return 'discovery-map'
 
-  // URL param override: ?viz=d or ?viz=e
+  // URL param override: ?viz=d or ?viz=e or ?viz=list
   const params = new URLSearchParams(window.location.search)
   const vizParam = params.get('viz')
   if (vizParam === 'd') return 'discovery-map'
   if (vizParam === 'e') return 'rising-stakes'
+  if (vizParam === 'list') return 'list'
 
   // localStorage persistence
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored === 'discovery-map' || stored === 'rising-stakes') return stored
+    if (stored === 'discovery-map' || stored === 'rising-stakes' || stored === 'list') return stored
   } catch {}
 
   // Default: discovery-map on desktop, rising-stakes on mobile
@@ -88,6 +89,23 @@ export default function VizToggle({ mode, onChange, className = '' }: Props) {
           <rect x="14" y="14" width="7" height="7" rx="1" />
         </svg>
         <span className="hidden sm:inline">Grid</span>
+      </button>
+      <button
+        type="button"
+        onClick={() => handleToggle('list')}
+        className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+          mode === 'list'
+            ? 'bg-brand-yellow/15 text-navy border border-brand-yellow/30'
+            : 'text-navy-light/60 hover:text-navy hover:bg-navy/[0.03] border border-transparent'
+        }`}
+        title="List view"
+      >
+        {/* List icon */}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" />
+          <line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
+        </svg>
+        <span className="hidden sm:inline">List</span>
       </button>
     </div>
   )

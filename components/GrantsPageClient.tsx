@@ -107,9 +107,11 @@ export default function GrantsPageClient({
   useEffect(() => {
     if (enriching) {
       setVizActive(true)
+      // If user was in list mode, switch to a viz mode for the search animation
+      if (vizMode === 'list') setVizMode('discovery-map')
       vizEnvelopeBufferRef.current = [] // Clear buffer for fresh search
     }
-  }, [enriching])
+  }, [enriching]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Reset vizActive when going back to form/browsing
   useEffect(() => {
@@ -194,10 +196,17 @@ export default function GrantsPageClient({
     trackEvent('viz_grant_select', { name: vizGrant.name.slice(0, 120), mode: vizMode })
   }, [vizMode])
 
-  // Switch from visualization to list view (or back to viz)
-  const handleSwitchToList = useCallback(() => {
-    setVizActive(false)
-    trackEvent('viz_switch_to_list', { mode: vizMode })
+  // Unified toggle handler — Map/Grid activate viz, List deactivates
+  const handleVizModeChange = useCallback((newMode: VizMode) => {
+    setVizMode(newMode)
+    persistVizMode(newMode)
+    if (newMode === 'list') {
+      setVizActive(false)
+      trackEvent('viz_switch_to_list', { from: vizMode })
+    } else {
+      setVizActive(true)
+      trackEvent('viz_mode_change', { mode: newMode })
+    }
   }, [vizMode])
 
   const handleRowClick = useCallback((opp: Opportunity) => {
@@ -270,18 +279,7 @@ export default function GrantsPageClient({
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
               Back
             </button>
-            <VizToggle mode={vizMode} onChange={(m) => { setVizMode(m); persistVizMode(m) }} />
-            <button
-              type="button"
-              onClick={handleSwitchToList}
-              className="flex items-center gap-1.5 rounded-lg border border-navy/10 bg-white/90 backdrop-blur px-3 py-1.5 text-xs font-medium text-navy-light/70 hover:text-navy transition-colors"
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" />
-                <line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
-              </svg>
-              List view
-            </button>
+            <VizToggle mode={vizMode} onChange={handleVizModeChange} className="bg-white/90 backdrop-blur" />
           </div>
         </div>
       )}
@@ -450,11 +448,7 @@ export default function GrantsPageClient({
                   <div className="hidden sm:flex items-center gap-2">
                     <VizToggle
                       mode={vizMode}
-                      onChange={(m) => {
-                        setVizMode(m)
-                        persistVizMode(m)
-                        setVizActive(true)
-                      }}
+                      onChange={handleVizModeChange}
                     />
                   </div>
                 </div>
