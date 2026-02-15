@@ -5,7 +5,7 @@ import Footer from '@/components/Footer'
 import Container from '@/components/Container'
 import RevealOnScroll from '@/components/RevealOnScroll'
 import GrantsPageClient from '@/components/GrantsPageClient'
-import { getAllGrants, getClosingSoonGrants, getNewGrants } from '@/lib/grants'
+import { getGrantCount, getClosingSoonGrants, getNewGrants, getRecentlyAddedGrants } from '@/lib/grants'
 
 export const revalidate = 3600
 
@@ -48,13 +48,12 @@ const jsonLd = {
 }
 
 export default async function GrantsIndex() {
-  const [grants, closingSoon, newGrants] = await Promise.all([
-    getAllGrants(false, 1000).catch((err) => { console.error('[grants/page] getAllGrants failed:', err); return [] }),
+  const [totalGrantCount, closingSoon, newGrants, recentlyAdded] = await Promise.all([
+    getGrantCount().catch((err) => { console.error('[grants/page] getGrantCount failed:', err); return 0 }),
     getClosingSoonGrants(30).catch((err) => { console.error('[grants/page] getClosingSoonGrants failed:', err); return [] }),
     getNewGrants().catch((err) => { console.error('[grants/page] getNewGrants failed:', err); return [] }),
+    getRecentlyAddedGrants(24, 9).catch((err) => { console.error('[grants/page] getRecentlyAddedGrants failed:', err); return [] }),
   ])
-  const activeGrants = grants.filter((g) => g.status === 'active')
-  const upcomingGrants = grants.filter((g) => g.status === 'upcoming')
 
   return (
     <>
@@ -69,10 +68,10 @@ export default async function GrantsIndex() {
           <Container className="py-8 md:py-12 relative z-10">
             <RevealOnScroll>
               <div className="text-center max-w-3xl mx-auto">
-                {grants.length > 0 && (
+                {totalGrantCount > 0 && (
                   <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-yellow/10 border border-brand-yellow/20 mb-6">
                     <span className="text-sm font-semibold text-brand-yellow">
-                      {grants.length.toLocaleString()}+ Opportunities
+                      {totalGrantCount.toLocaleString()}+ Opportunities
                     </span>
                   </div>
                 )}
@@ -104,9 +103,8 @@ export default async function GrantsIndex() {
             <GrantsPageClient
               closingSoon={closingSoon}
               newGrants={newGrants}
-              activeGrants={activeGrants}
-              upcomingGrants={upcomingGrants}
-              totalGrantCount={grants.length}
+              recentlyAdded={recentlyAdded}
+              totalGrantCount={totalGrantCount}
             />
           </Suspense>
         </Container>

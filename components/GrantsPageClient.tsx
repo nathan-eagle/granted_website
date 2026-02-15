@@ -33,16 +33,14 @@ const STATS = [
 interface Props {
   closingSoon: PublicGrant[]
   newGrants: PublicGrant[]
-  activeGrants: PublicGrant[]
-  upcomingGrants: PublicGrant[]
+  recentlyAdded: PublicGrant[]
   totalGrantCount: number
 }
 
 export default function GrantsPageClient({
   closingSoon,
   newGrants,
-  activeGrants,
-  upcomingGrants,
+  recentlyAdded,
   totalGrantCount,
 }: Props) {
   const search = useGrantSearchStream()
@@ -553,26 +551,16 @@ export default function GrantsPageClient({
             </RevealOnScroll>
           )}
 
-          {/* Active grants */}
-          {activeGrants.length > 0 && (
+          {/* Recently added */}
+          {recentlyAdded.length > 0 && (
             <RevealOnScroll delay={100}>
-              <h2 className="heading-lg text-navy mb-8">Active Grants</h2>
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {activeGrants.map((g) => (
-                  <GrantCard key={g.id} grant={g} />
-                ))}
-              </div>
-            </RevealOnScroll>
-          )}
-
-          {/* Upcoming grants */}
-          {upcomingGrants.length > 0 && (
-            <RevealOnScroll delay={200}>
-              <h2 className="heading-lg text-navy mb-8 mt-16">Upcoming Grants</h2>
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {upcomingGrants.map((g) => (
-                  <GrantCard key={g.id} grant={g} />
-                ))}
+              <div className="mb-12">
+                <h2 className="heading-lg text-navy mb-8">Recently Discovered by AI</h2>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {recentlyAdded.map((g) => (
+                    <GrantCard key={g.id} grant={g} />
+                  ))}
+                </div>
               </div>
             </RevealOnScroll>
           )}

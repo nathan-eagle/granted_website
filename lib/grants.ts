@@ -262,6 +262,27 @@ export async function getClosingSoonGrants(days = 30): Promise<PublicGrant[]> {
   return (data ?? []) as PublicGrant[]
 }
 
+export async function getRecentlyAddedGrants(hours = 24, sampleSize = 9): Promise<PublicGrant[]> {
+  if (!supabase) return []
+  const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString()
+  const { data, error } = await supabase
+    .from('public_grants')
+    .select(LISTING_COLS)
+    .in('source', ['public_discover', 'public_discover_stream'])
+    .gte('created_at', since)
+    .neq('status', 'closed')
+    .order('created_at', { ascending: false })
+    .limit(200)
+  if (error) throw error
+  const grants = (data ?? []) as PublicGrant[]
+  // Fisher-Yates shuffle then take sampleSize
+  for (let i = grants.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[grants[i], grants[j]] = [grants[j], grants[i]]
+  }
+  return grants.slice(0, sampleSize)
+}
+
 export async function getNewGrants(sinceDate?: Date): Promise<PublicGrant[]> {
   if (!supabase) return []
   const since = sinceDate ?? new Date(new Date().getFullYear(), new Date().getMonth(), 1)
