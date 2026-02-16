@@ -223,6 +223,17 @@ export function getGrantStateBySlug(slug: string): USState | undefined {
   return GRANT_US_STATES.find((s) => s.slug === slug)
 }
 
+export async function getActiveGrantCountByState(stateName: string): Promise<number> {
+  if (!supabase) return 0
+  const { count, error } = await supabase
+    .from('public_grants')
+    .select('*', { count: 'exact', head: true })
+    .contains('target_states', [stateName])
+    .neq('status', 'closed')
+  if (error) return 0
+  return count ?? 0
+}
+
 export async function getGrantsByState(stateName: string): Promise<PublicGrant[]> {
   if (!supabase) return []
   // Try target_states array first, fall back to eligibility text ILIKE

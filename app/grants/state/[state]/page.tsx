@@ -10,6 +10,7 @@ import GrantCTA from '@/components/GrantCTA'
 import GrantFinderCTA from '@/components/GrantFinderCTA'
 import {
   getGrantsByState,
+  getActiveGrantCountByState,
   getGrantStateBySlug,
   isGrantSeoReady,
 } from '@/lib/grants'
@@ -24,9 +25,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const stateObj = getGrantStateBySlug(params.state)
   if (!stateObj) return {}
 
+  const count = await getActiveGrantCountByState(stateObj.name).catch(() => 0)
   const url = `https://grantedai.com/grants/state/${stateObj.slug}`
   const title = `Grants in ${stateObj.name}`
-  const description = `Browse federal and foundation grants available in ${stateObj.name}. Find active funding opportunities and start your AI-powered proposal with Granted.`
+  const description = count > 0
+    ? `Browse ${count} active federal and foundation grants available in ${stateObj.name}. Find funding opportunities and draft AI-powered proposals with Granted.`
+    : `Browse federal and foundation grants available in ${stateObj.name}. Find active funding opportunities and start your AI-powered proposal with Granted.`
 
   return {
     title: `${title} | Granted`,

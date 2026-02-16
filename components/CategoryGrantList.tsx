@@ -12,7 +12,7 @@ type Props = {
 
 type StatusFilter = 'all' | 'active' | 'upcoming' | 'closed'
 
-const VISIBLE_LIMIT = 10
+const VISIBLE_LIMIT = 30
 
 function hasUnlockCookie(): boolean {
   if (typeof document === 'undefined') return false

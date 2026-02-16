@@ -8,6 +8,7 @@ import GrantCTA from '@/components/GrantCTA'
 import CategoryFoundationList from '@/components/CategoryFoundationList'
 import {
   getFoundationsByState,
+  getFoundationCountByState,
   getStateBySlug,
   US_STATES,
   type Foundation,
@@ -23,9 +24,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const stateObj = getStateBySlug(params.state)
   if (!stateObj) return {}
 
+  const count = await getFoundationCountByState(stateObj.abbreviation).catch(() => 0)
   const url = `https://grantedai.com/foundations/state/${stateObj.slug}`
   const title = `Foundations in ${stateObj.name}`
-  const description = `Browse private foundations based in ${stateObj.name}. Find funders by category and asset size in the Granted Foundation Directory.`
+  const description = count > 0
+    ? `Browse ${count.toLocaleString()} private foundations based in ${stateObj.name}. Search by category and asset size to find funders for your nonprofit or research project.`
+    : `Browse private foundations based in ${stateObj.name}. Find funders by category and asset size in the Granted Foundation Directory.`
 
   return {
     title: `${title} | Granted`,
