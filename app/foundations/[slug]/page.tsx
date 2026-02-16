@@ -19,13 +19,17 @@ import {
   getFoundationsByCategory,
   getCategoryBySlug,
   getFoundationFinancials,
+  getFoundationFilings,
+  getFoundationPeople,
   getFoundationSlugsByPrefixes,
   getPublicGrantSlugsForRfps,
   getFoundationRfps,
+  getGrantsReceivedByFoundation,
   computeGrantStats,
   computeGivingByYear,
   computeStateDistribution,
   computeNewGranteeRate,
+  computeGrantSizeBuckets,
   isFoundationSeoReady,
   formatAssets,
   getFoundationLocation,
@@ -37,10 +41,14 @@ import {
   type FoundationCategory,
   type FoundationGrantee,
   type FoundationFinancial,
+  type FoundationFiling,
+  type FoundationPerson,
   type FoundationRfp,
   type GrantStats,
+  type GrantSizeBucket,
   type GivingByYear,
   type StateDistribution,
+  type GrantReceived,
 } from '@/lib/foundations'
 
 export const revalidate = 3600
@@ -245,12 +253,26 @@ function buildFoundationFaq(
   // Q3: How do I apply?
   {
     const parts: string[] = []
-    if (f.grants_page_url) {
-      parts.push(`${f.name} provides grant application information on their website. Visit their grants page for current funding opportunities and application guidelines.`)
-    } else if (f.website) {
-      parts.push(`For information about applying for grants from ${f.name}, visit their official website. Many private foundations accept unsolicited proposals or have specific application windows.`)
-    } else {
-      parts.push(`${f.name} is a private foundation. To inquire about grants, you can look up the foundation using their EIN (${f.ein}) on GuideStar or contact them directly. Many private foundations have specific application processes that may not be publicly listed.`)
+    if (f.preselected_only) {
+      parts.push(`${f.name} typically selects its grantees rather than accepting unsolicited proposals.`)
+    }
+    if (f.application_deadline) {
+      parts.push(`The application deadline is ${f.application_deadline}.`)
+    }
+    if (f.application_restrictions) {
+      parts.push(f.application_restrictions.endsWith('.') ? f.application_restrictions : `${f.application_restrictions}.`)
+    }
+    if (f.application_form_url) {
+      parts.push(`An application form is available on the foundation's website.`)
+    }
+    if (parts.length === 0) {
+      if (f.grants_page_url) {
+        parts.push(`${f.name} provides grant application information on their website. Visit their grants page for current funding opportunities and application guidelines.`)
+      } else if (f.website) {
+        parts.push(`For information about applying for grants from ${f.name}, visit their official website. Many private foundations accept unsolicited proposals or have specific application windows.`)
+      } else {
+        parts.push(`${f.name} is a private foundation. To inquire about grants, you can look up the foundation using their EIN (${f.ein}) on GuideStar or contact them directly. Many private foundations have specific application processes that may not be publicly listed.`)
+      }
     }
     faqs.push({ question: `How do I apply for a grant from ${f.name}?`, answer: parts.join(' ') })
   }
@@ -277,7 +299,11 @@ function FoundationDetailPage({
   insightGivingByYear,
   insightStateDistribution,
   insightNewGranteeInfo,
+  insightGrantSizeBuckets,
   financials,
+  filings,
+  people,
+  grantsReceived,
   rfps,
   rfpSlugMap,
   granteeSlugMap,
@@ -290,7 +316,11 @@ function FoundationDetailPage({
   insightGivingByYear: GivingByYear[]
   insightStateDistribution: StateDistribution[]
   insightNewGranteeInfo: { rate: number; year: number } | null
+  insightGrantSizeBuckets: GrantSizeBucket[]
   financials: FoundationFinancial[]
+  filings: FoundationFiling[]
+  people: FoundationPerson[]
+  grantsReceived: GrantReceived[]
   rfps: FoundationRfp[]
   rfpSlugMap: Map<string, string>
   granteeSlugMap: Map<string, string>
@@ -352,17 +382,26 @@ function FoundationDetailPage({
       }
     : null
 
+  // Refine org type using financials data
+  const latestFinancial = financials.length > 0 ? financials[financials.length - 1] : null
+  const orgTypeDisplay = latestFinancial?.is_operating != null
+    ? (latestFinancial.is_operating ? 'Operating Foundation' : 'Non-Operating Foundation')
+    : foundation.organization_type ?? null
+
   const quickFacts = [
     { label: 'EIN', value: foundation.ein },
     { label: 'Location', value: location },
+    ...(foundation.phone
+      ? [{ label: 'Phone', value: foundation.phone }]
+      : []),
     { label: 'Category', value: getFoundationCategoryLabel(foundation) },
     { label: 'Total Assets', value: formatAssets(foundation.asset_amount) },
     { label: 'Annual Income', value: formatAssets(foundation.income_amount) },
     ...(foundation.ruling_date
       ? [{ label: 'IRS Ruling Year', value: foundation.ruling_date.length >= 4 ? foundation.ruling_date.slice(0, 4) : foundation.ruling_date }]
       : []),
-    ...(foundation.organization_type
-      ? [{ label: 'Organization Type', value: foundation.organization_type }]
+    ...(orgTypeDisplay
+      ? [{ label: 'Organization Type', value: orgTypeDisplay }]
       : []),
     ...(foundation.contact_name
       ? [{ label: 'Principal Officer', value: foundation.contact_name }]
@@ -419,6 +458,9 @@ function FoundationDetailPage({
               <span className="text-sm text-navy-light/50">{location}</span>
             </div>
             <h1 className="heading-xl text-navy">{foundation.name}</h1>
+            {foundation.dba_name && (
+              <p className="text-sm text-navy-light/50 mt-1">Also known as: {foundation.dba_name}</p>
+            )}
           </RevealOnScroll>
 
           {/* Quick Facts */}
@@ -557,6 +599,74 @@ function FoundationDetailPage({
             </section>
           </RevealOnScroll>
 
+          {/* Application Info */}
+          {(foundation.application_deadline || foundation.application_restrictions || foundation.application_form_url || foundation.preselected_only) && (
+            <RevealOnScroll delay={250}>
+              <section className="mt-12">
+                <h2 className="heading-md text-navy text-2xl font-bold mb-4">Application Information</h2>
+                <div className="bg-cream-dark rounded-2xl p-6 space-y-4">
+                  {foundation.preselected_only && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full text-xs font-semibold">Preselected Only</span>
+                      <span className="text-navy-light/60">This foundation typically selects grantees rather than accepting unsolicited proposals.</span>
+                    </div>
+                  )}
+                  {foundation.application_deadline && (
+                    <div>
+                      <dt className="text-xs font-semibold uppercase tracking-[0.1em] text-navy-light/50 mb-1">Deadline</dt>
+                      <dd className="text-sm text-navy">{foundation.application_deadline}</dd>
+                    </div>
+                  )}
+                  {foundation.application_restrictions && (
+                    <div>
+                      <dt className="text-xs font-semibold uppercase tracking-[0.1em] text-navy-light/50 mb-1">Restrictions</dt>
+                      <dd className="text-sm text-navy leading-relaxed">{foundation.application_restrictions}</dd>
+                    </div>
+                  )}
+                  {foundation.application_form_url && (
+                    <div>
+                      <dt className="text-xs font-semibold uppercase tracking-[0.1em] text-navy-light/50 mb-1">Application Form</dt>
+                      <dd>
+                        <a
+                          href={foundation.application_form_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-gold hover:underline"
+                        >
+                          View Application
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline">
+                            <path d="M7 17L17 7M17 7H7M17 7v10" />
+                          </svg>
+                        </a>
+                      </dd>
+                    </div>
+                  )}
+                </div>
+              </section>
+            </RevealOnScroll>
+          )}
+
+          {/* Programs */}
+          {foundation.programs && foundation.programs.length > 0 && (
+            <RevealOnScroll delay={260}>
+              <section className="mt-12">
+                <h2 className="heading-md text-navy text-2xl font-bold mb-4">Programs & Activities</h2>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {foundation.programs.map((prog, i) => (
+                    <div key={i} className="bg-cream-dark rounded-2xl p-5 border border-navy/5">
+                      <p className="text-sm text-navy leading-relaxed">{prog.description}</p>
+                      {prog.expenses != null && prog.expenses > 0 && (
+                        <p className="text-xs text-navy-light/50 mt-2">
+                          Expenses: <span className="font-medium text-navy">{formatAssets(prog.expenses)}</span>
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </RevealOnScroll>
+          )}
+
           {/* FAQ */}
           {faqs.length > 0 && (
             <RevealOnScroll delay={280}>
@@ -569,6 +679,95 @@ function FoundationDetailPage({
                       <p className="mt-2 text-sm leading-relaxed text-navy-light">{faq.answer}</p>
                     </div>
                   ))}
+                </div>
+              </section>
+            </RevealOnScroll>
+          )}
+
+          {/* Key People & Compensation */}
+          {people.length > 0 && (() => {
+            // Group by fiscal year, show latest year only
+            const latestYear = people[0].fiscal_year
+            const latestPeople = people.filter((p) => p.fiscal_year === latestYear)
+            return (
+              <RevealOnScroll delay={290}>
+                <section className="mt-12">
+                  <h2 className="heading-md text-navy text-2xl font-bold mb-4">
+                    Key People & Compensation <span className="text-base font-normal text-navy-light/50">({latestYear})</span>
+                  </h2>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-navy/10">
+                          <th className="text-left py-3 pr-4 text-xs font-semibold uppercase tracking-[0.1em] text-navy-light/50">Name</th>
+                          <th className="text-left py-3 pr-4 text-xs font-semibold uppercase tracking-[0.1em] text-navy-light/50">Title</th>
+                          <th className="text-right py-3 pr-4 text-xs font-semibold uppercase tracking-[0.1em] text-navy-light/50">Compensation</th>
+                          <th className="text-right py-3 pr-4 text-xs font-semibold uppercase tracking-[0.1em] text-navy-light/50">Benefits</th>
+                          <th className="text-right py-3 text-xs font-semibold uppercase tracking-[0.1em] text-navy-light/50">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {latestPeople.map((p) => (
+                          <tr key={`${p.name}-${p.fiscal_year}`} className="border-b border-navy/5 hover:bg-navy/[0.02]">
+                            <td className="py-3 pr-4 text-navy font-medium">{p.name}</td>
+                            <td className="py-3 pr-4 text-navy-light">{p.title ?? '—'}</td>
+                            <td className="py-3 pr-4 text-right text-navy tabular-nums">{p.compensation ? formatAssets(p.compensation) : '$0'}</td>
+                            <td className="py-3 pr-4 text-right text-navy-light tabular-nums">{p.benefits ? formatAssets(p.benefits) : '$0'}</td>
+                            <td className="py-3 text-right text-navy font-medium tabular-nums">{formatAssets(p.compensation + p.benefits + p.expense_account)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              </RevealOnScroll>
+            )
+          })()}
+
+          {/* 990 Filing Links */}
+          {filings.length > 0 && (
+            <RevealOnScroll delay={295}>
+              <section className="mt-12">
+                <h2 className="heading-md text-navy text-2xl font-bold mb-4">990 Tax Filings</h2>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-navy/10">
+                        <th className="text-left py-3 pr-4 text-xs font-semibold uppercase tracking-[0.1em] text-navy-light/50">Year</th>
+                        <th className="text-left py-3 pr-4 text-xs font-semibold uppercase tracking-[0.1em] text-navy-light/50">Return Type</th>
+                        <th className="text-right py-3 text-xs font-semibold uppercase tracking-[0.1em] text-navy-light/50">PDF</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filings.map((f) => (
+                        <tr key={f.id} className="border-b border-navy/5 hover:bg-navy/[0.02]">
+                          <td className="py-3 pr-4 text-navy font-medium tabular-nums">{f.fiscal_year}</td>
+                          <td className="py-3 pr-4 text-navy-light">{f.return_type ?? '990-PF'}</td>
+                          <td className="py-3 text-right">
+                            {f.pdf_url ? (
+                              <a
+                                href={f.pdf_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-gold hover:underline"
+                              >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline">
+                                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                  <polyline points="14 2 14 8 20 8" />
+                                  <line x1="16" y1="13" x2="8" y2="13" />
+                                  <line x1="16" y1="17" x2="8" y2="17" />
+                                  <polyline points="10 9 9 9 8 9" />
+                                </svg>
+                                View
+                              </a>
+                            ) : (
+                              <span className="text-navy-light/30">—</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </section>
             </RevealOnScroll>
@@ -624,6 +823,7 @@ function FoundationDetailPage({
               givingByYear={insightGivingByYear}
               stateDistribution={insightStateDistribution}
               newGranteeInfo={insightNewGranteeInfo}
+              grantSizeBuckets={insightGrantSizeBuckets}
             />
           </RevealOnScroll>
 
@@ -672,6 +872,52 @@ function FoundationDetailPage({
                         </tr>
                         )
                       })}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </RevealOnScroll>
+          )}
+
+          {/* Grants Received (reverse lookup — who funds this foundation) */}
+          {grantsReceived.length > 0 && (
+            <RevealOnScroll delay={370}>
+              <section className="mt-12">
+                <h2 className="heading-md text-navy text-2xl font-bold mb-6">Grants Received</h2>
+                <p className="text-sm text-navy-light/60 mb-4">Other foundations that have funded {foundation.name}.</p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-navy/10">
+                        <th className="text-left py-3 pr-4 text-xs font-semibold uppercase tracking-[0.1em] text-navy-light/50">Funder</th>
+                        <th className="text-right py-3 pr-4 text-xs font-semibold uppercase tracking-[0.1em] text-navy-light/50">Amount</th>
+                        <th className="text-right py-3 pr-4 text-xs font-semibold uppercase tracking-[0.1em] text-navy-light/50">Year</th>
+                        <th className="text-left py-3 text-xs font-semibold uppercase tracking-[0.1em] text-navy-light/50">Purpose</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {grantsReceived.map((g, i) => (
+                        <tr key={`${g.funder_name}-${g.grant_year}-${i}`} className="border-b border-navy/5 hover:bg-navy/[0.02]">
+                          <td className="py-3 pr-4 text-navy font-medium">
+                            {g.funder_slug ? (
+                              <Link href={`/foundations/${g.funder_slug}`} className="hover:text-brand-gold transition-colors hover:underline">
+                                {g.funder_name}
+                              </Link>
+                            ) : (
+                              g.funder_name
+                            )}
+                          </td>
+                          <td className="py-3 pr-4 text-right text-navy font-medium tabular-nums">
+                            {g.amount ? formatAssets(g.amount) : '—'}
+                          </td>
+                          <td className="py-3 pr-4 text-right text-navy-light tabular-nums">
+                            {g.grant_year || '—'}
+                          </td>
+                          <td className="py-3 text-navy-light text-xs line-clamp-1">
+                            {g.purpose || '—'}
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
@@ -768,12 +1014,15 @@ export default async function FoundationSlugPage({ params }: Props) {
       ? getSimilarFoundations(foundation.ntee_major, foundation.slug, 6)
       : getSimilarFoundationsByAssets(foundation.asset_amount ?? 0, foundation.slug, 6)
 
-    const [related, similar, allGrantees, financials, rfps] = await Promise.all([
+    const [related, similar, allGrantees, financials, rfps, filings, people, grantsReceived] = await Promise.all([
       getRelatedFoundations(foundation.state, foundation.ntee_major, foundation.slug, 3).catch((err) => { console.error(`[foundations/${params.slug}] getRelatedFoundations failed:`, err); return [] }),
       similarFn.catch((err) => { console.error(`[foundations/${params.slug}] getSimilarFoundations failed:`, err); return [] }),
       getFoundationGrantees(foundation.id, 5000).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationGrantees failed:`, err); return [] }),
       getFoundationFinancials(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationFinancials failed:`, err); return [] }),
       getFoundationRfps(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationRfps failed:`, err); return [] }),
+      getFoundationFilings(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationFilings failed:`, err); return [] as FoundationFiling[] }),
+      getFoundationPeople(foundation.id).catch((err) => { console.error(`[foundations/${params.slug}] getFoundationPeople failed:`, err); return [] as FoundationPerson[] }),
+      getGrantsReceivedByFoundation(foundation.name, foundation.ein).catch((err) => { console.error(`[foundations/${params.slug}] getGrantsReceivedByFoundation failed:`, err); return [] as GrantReceived[] }),
     ])
 
     // Display table: one row per unique grantee (largest grant), top 50
@@ -814,6 +1063,7 @@ export default async function FoundationSlugPage({ params }: Props) {
     const insightGivingByYear = computeGivingByYear(allGrantees).filter((y) => y.total > 0)
     const insightStateDistribution = computeStateDistribution(allGrantees)
     const insightNewGranteeInfo = computeNewGranteeRate(allGrantees)
+    const insightGrantSizeBuckets = computeGrantSizeBuckets(allGrantees)
 
     return (
       <FoundationDetailPage
@@ -825,7 +1075,11 @@ export default async function FoundationSlugPage({ params }: Props) {
         insightGivingByYear={insightGivingByYear}
         insightStateDistribution={insightStateDistribution}
         insightNewGranteeInfo={insightNewGranteeInfo}
+        insightGrantSizeBuckets={insightGrantSizeBuckets}
         financials={financials}
+        filings={filings}
+        people={people}
+        grantsReceived={grantsReceived}
         rfps={rfps}
         rfpSlugMap={rfpSlugMap}
         granteeSlugMap={granteeSlugMap}

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps'
-import type { GrantStats, GivingByYear, StateDistribution } from '@/lib/foundations'
+import type { GrantStats, GivingByYear, StateDistribution, GrantSizeBucket } from '@/lib/foundations'
 import { formatAssets } from '@/lib/foundations'
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json'
@@ -27,9 +27,10 @@ type Props = {
   givingByYear: GivingByYear[]
   stateDistribution: StateDistribution[]
   newGranteeInfo: { rate: number; year: number } | null
+  grantSizeBuckets?: GrantSizeBucket[]
 }
 
-export default function FoundationInsights({ stats, givingByYear, stateDistribution, newGranteeInfo }: Props) {
+export default function FoundationInsights({ stats, givingByYear, stateDistribution, newGranteeInfo, grantSizeBuckets }: Props) {
   const [tooltip, setTooltip] = useState<{ x: number; y: number; label: string } | null>(null)
 
   if (!stats) return null
@@ -45,11 +46,17 @@ export default function FoundationInsights({ stats, givingByYear, stateDistribut
       <h2 className="heading-md text-navy text-2xl font-bold">Grantmaking Insights</h2>
 
       {/* ── Key Metrics ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <MetricCard label="Total Grants" value={stats.totalGrants.toLocaleString()} />
         <MetricCard label="Total Giving" value={formatAssets(stats.totalGiving)} />
         <MetricCard label="Average Grant" value={formatAssets(stats.averageGrant)} />
         <MetricCard label="Median Grant" value={formatAssets(stats.medianGrant)} />
+        {stats.uniqueRecipients > 0 && (
+          <MetricCard label="Unique Recipients" value={stats.uniqueRecipients.toLocaleString()} />
+        )}
+        {stats.modeGrant > 0 && (
+          <MetricCard label="Most Common Grant" value={formatAssets(stats.modeGrant)} />
+        )}
       </div>
 
       {/* ── Giving by Year ── */}
@@ -64,7 +71,7 @@ export default function FoundationInsights({ stats, givingByYear, stateDistribut
               return (
                 <div key={y.year} className="flex-1 flex flex-col items-center justify-end group relative min-w-0">
                   <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-navy text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                    {formatAssets(y.total)} ({y.count} grants)
+                    {formatAssets(y.total)} ({y.count} grants, avg {formatAssets(y.total / y.count)})
                   </div>
                   <div
                     className="w-full bg-brand-yellow/80 hover:bg-brand-yellow rounded-t transition-colors min-h-[4px]"
@@ -161,6 +168,32 @@ export default function FoundationInsights({ stats, givingByYear, stateDistribut
           </div>
         )}
       </div>
+
+      {/* ── Grant Size Distribution Histogram ── */}
+      {grantSizeBuckets && grantSizeBuckets.length > 0 && (() => {
+        const maxCount = Math.max(...grantSizeBuckets.map((b) => b.count))
+        return (
+          <div className="card p-6 md:p-8">
+            <h3 className="text-sm font-semibold uppercase tracking-[0.1em] text-navy-light/50 mb-6">
+              Grant Size Distribution
+            </h3>
+            <div className="space-y-2">
+              {grantSizeBuckets.map((b) => (
+                <div key={b.label} className="flex items-center gap-3">
+                  <span className="text-xs text-navy-light/60 w-24 text-right shrink-0 tabular-nums">{b.label}</span>
+                  <div className="flex-1 h-6 bg-navy/5 rounded overflow-hidden relative">
+                    <div
+                      className="h-full bg-brand-yellow/80 rounded transition-all"
+                      style={{ width: `${Math.max((b.count / maxCount) * 100, 2)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-navy font-medium w-10 tabular-nums">{b.count}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* ── Geographic Distribution ── */}
       {stateDistribution.length > 0 && (

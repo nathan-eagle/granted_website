@@ -30,6 +30,13 @@ export type Foundation = {
   group_exemption: string | null
   affiliation: string | null
   mission: string | null
+  phone: string | null
+  application_deadline: string | null
+  application_restrictions: string | null
+  application_form_url: string | null
+  preselected_only: boolean
+  programs: { description: string; expenses?: number }[] | null
+  dba_name: string | null
   source: string
   last_verified_at: string | null
   created_at: string
@@ -679,6 +686,8 @@ export type GrantStats = {
   medianGrant: number
   minGrant: number
   maxGrant: number
+  uniqueRecipients: number
+  modeGrant: number
 }
 export type StateDistribution = { state: string; count: number; total: number }
 
@@ -697,6 +706,24 @@ export function computeGrantStats(grantees: FoundationGrantee[]): GrantStats | n
     .sort((a, b) => a - b)
   if (amounts.length === 0) return null
 
+  // Unique recipients (case-insensitive)
+  const recipientSet = new Set<string>()
+  for (const g of grantees) {
+    if (g.recipient_name) recipientSet.add(g.recipient_name.trim().toLowerCase())
+  }
+
+  // Mode grant: most common amount rounded to nearest $1K
+  const roundedCounts = new Map<number, number>()
+  for (const a of amounts) {
+    const rounded = Math.round(a / 1000) * 1000
+    roundedCounts.set(rounded, (roundedCounts.get(rounded) ?? 0) + 1)
+  }
+  let modeGrant = 0
+  let modeCount = 0
+  for (const [val, count] of roundedCounts) {
+    if (count > modeCount) { modeGrant = val; modeCount = count }
+  }
+
   return {
     totalGrants: grantees.length,
     totalGiving: amounts.reduce((sum, a) => sum + a, 0),
@@ -704,6 +731,8 @@ export function computeGrantStats(grantees: FoundationGrantee[]): GrantStats | n
     medianGrant: median(amounts),
     minGrant: amounts[0],
     maxGrant: amounts[amounts.length - 1],
+    uniqueRecipients: recipientSet.size,
+    modeGrant,
   }
 }
 
@@ -734,6 +763,116 @@ export function computeStateDistribution(grantees: FoundationGrantee[]): StateDi
   return Array.from(map.entries())
     .map(([state, { count, total }]) => ({ state, count, total }))
     .sort((a, b) => b.total - a.total)
+}
+
+/* ── Grant Size Distribution ── */
+
+export type GrantSizeBucket = { label: string; min: number; max: number; count: number; total: number }
+
+export function computeGrantSizeBuckets(grantees: FoundationGrantee[]): GrantSizeBucket[] {
+  const bucketDefs = [
+    { label: '<$1K', min: 0, max: 1_000 },
+    { label: '$1K–$5K', min: 1_000, max: 5_000 },
+    { label: '$5K–$10K', min: 5_000, max: 10_000 },
+    { label: '$10K–$25K', min: 10_000, max: 25_000 },
+    { label: '$25K–$50K', min: 25_000, max: 50_000 },
+    { label: '$50K–$100K', min: 50_000, max: 100_000 },
+    { label: '$100K–$250K', min: 100_000, max: 250_000 },
+    { label: '$250K–$500K', min: 250_000, max: 500_000 },
+    { label: '$500K–$1M', min: 500_000, max: 1_000_000 },
+    { label: '$1M+', min: 1_000_000, max: Infinity },
+  ]
+  const buckets: GrantSizeBucket[] = bucketDefs.map((d) => ({ ...d, count: 0, total: 0 }))
+  for (const g of grantees) {
+    if (g.amount === null || g.amount <= 0) continue
+    for (const b of buckets) {
+      if (g.amount >= b.min && g.amount < b.max) {
+        b.count += 1
+        b.total += g.amount
+        break
+      }
+    }
+  }
+  return buckets.filter((b) => b.count > 0)
+}
+
+/* ── Foundation People (Key Officers & Compensation) ── */
+
+export type FoundationPerson = {
+  id: string
+  foundation_id: string
+  name: string
+  title: string | null
+  compensation: number
+  benefits: number
+  expense_account: number
+  fiscal_year: number
+  source: string
+}
+
+export async function getFoundationPeople(foundationId: string): Promise<FoundationPerson[]> {
+  if (!supabase) return []
+  const { data, error } = await supabase
+    .from('foundation_people')
+    .select('*')
+    .eq('foundation_id', foundationId)
+    .order('fiscal_year', { ascending: false })
+    .order('compensation', { ascending: false })
+    .limit(50)
+  if (error) {
+    console.error('Error fetching foundation people:', error.message)
+    return []
+  }
+  return data ?? []
+}
+
+/* ── Grants Received (reverse lookup — who funds this foundation) ── */
+
+export type GrantReceived = {
+  funder_name: string
+  funder_slug: string | null
+  amount: number
+  grant_year: number
+  purpose: string | null
+}
+
+export async function getGrantsReceivedByFoundation(
+  foundationName: string,
+  ein: string,
+): Promise<GrantReceived[]> {
+  if (!supabase) return []
+  // Search foundation_grants for this foundation as a recipient
+  const { data: grants, error } = await supabase
+    .from('foundation_grants')
+    .select('foundation_id, amount, grant_year, purpose, recipient_name')
+    .ilike('recipient_name', `%${foundationName.replace(/'/g, "''")}%`)
+    .order('grant_year', { ascending: false })
+    .order('amount', { ascending: false })
+    .limit(50)
+  if (error) {
+    console.error('Error fetching grants received:', error.message)
+    return []
+  }
+  if (!grants || grants.length === 0) return []
+
+  // Get funder foundation details
+  const funderIds = [...new Set(grants.map((g) => g.foundation_id))]
+  const { data: funders } = await supabase
+    .from('foundations')
+    .select('id, name, slug')
+    .in('id', funderIds)
+  const funderMap = new Map((funders ?? []).map((f) => [f.id, f]))
+
+  return grants.map((g) => {
+    const funder = funderMap.get(g.foundation_id)
+    return {
+      funder_name: funder?.name ?? 'Unknown Foundation',
+      funder_slug: funder?.slug ?? null,
+      amount: g.amount ?? 0,
+      grant_year: g.grant_year ?? 0,
+      purpose: g.purpose,
+    }
+  })
 }
 
 export function computeNewGranteeRate(grantees: FoundationGrantee[]): { rate: number; year: number } | null {
