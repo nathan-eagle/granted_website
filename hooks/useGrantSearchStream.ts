@@ -361,6 +361,17 @@ export function useGrantSearchStream(opts?: {
     })
     setPhase('loading')
 
+    // Sync search params to URL so refresh can restore from cache
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href)
+      url.searchParams.set('q', normalizedFocus)
+      if (searchOrgType) url.searchParams.set('org_type', searchOrgType)
+      else url.searchParams.delete('org_type')
+      if (searchState) url.searchParams.set('state', searchState)
+      else url.searchParams.delete('state')
+      window.history.replaceState({}, '', url.pathname + '?' + url.searchParams.toString())
+    }
+
     try {
       let result = await doStreamSearch(searchOrgType, normalizedFocus, searchState, searchAmountRange, searchDeepResearch)
       let broadenedSearch = false
@@ -417,6 +428,8 @@ export function useGrantSearchStream(opts?: {
 
   const handleSearch = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
+    // Mark as auto-searched so the URL effect doesn't re-trigger
+    autoSearchedQueryRef.current = focusArea.trim()
     await runSearch(orgType, focusArea, state, 'manual', amountRange, deepResearch)
   }, [orgType, focusArea, state, amountRange, deepResearch, runSearch])
 
