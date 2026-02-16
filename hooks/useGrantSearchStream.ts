@@ -22,15 +22,15 @@ const API_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://app.grantedai.com'
 const SEARCH_CACHE_KEY = 'granted_search_cache'
 
 /** Build a cache key from search params */
-function cacheKey(q: string, orgType: string, state: string): string {
-  return [q, orgType, state].map(s => s.toLowerCase().trim()).join('|')
+function cacheKey(q: string, orgType: string, state: string, deep?: boolean): string {
+  return [q, orgType, state, deep ? 'deep' : ''].map(s => s.toLowerCase().trim()).join('|')
 }
 
 /** Save search results to sessionStorage */
-function cacheResults(q: string, orgType: string, state: string, opportunities: Opportunity[]) {
+function cacheResults(q: string, orgType: string, state: string, opportunities: Opportunity[], deep?: boolean) {
   try {
     sessionStorage.setItem(SEARCH_CACHE_KEY, JSON.stringify({
-      key: cacheKey(q, orgType, state),
+      key: cacheKey(q, orgType, state, deep),
       opportunities,
       ts: Date.now(),
     }))
@@ -38,12 +38,12 @@ function cacheResults(q: string, orgType: string, state: string, opportunities: 
 }
 
 /** Load cached results if they match the query and are <30 min old */
-function loadCachedResults(q: string, orgType: string, state: string): Opportunity[] | null {
+function loadCachedResults(q: string, orgType: string, state: string, deep?: boolean): Opportunity[] | null {
   try {
     const raw = sessionStorage.getItem(SEARCH_CACHE_KEY)
     if (!raw) return null
     const cached = JSON.parse(raw)
-    if (cached.key !== cacheKey(q, orgType, state)) return null
+    if (cached.key !== cacheKey(q, orgType, state, deep)) return null
     if (Date.now() - cached.ts > 30 * 60 * 1000) return null
     return cached.opportunities
   } catch { return null }
@@ -406,7 +406,7 @@ export function useGrantSearchStream(opts?: {
 
       // Cache results in sessionStorage so page refresh is instant
       const finalOpps = deduplicateOpportunities(result.opportunities)
-      cacheResults(normalizedFocus, searchOrgType, searchState, finalOpps)
+      cacheResults(normalizedFocus, searchOrgType, searchState, finalOpps, searchDeepResearch)
 
       trackEvent('grant_finder_results', {
         count: String(result.opportunities.length),
@@ -486,7 +486,7 @@ export function useGrantSearchStream(opts?: {
     autoSearchedQueryRef.current = q
 
     // Check sessionStorage cache first — instant restore on refresh
-    const cached = loadCachedResults(q, effectiveOrgType, effectiveState)
+    const cached = loadCachedResults(q, effectiveOrgType, effectiveState, deepResearch)
     if (cached && cached.length > 0) {
       setOpportunities(cached)
       setPhase('results')

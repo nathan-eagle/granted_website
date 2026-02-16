@@ -550,6 +550,7 @@ export default function GrantsPageClient({
                 orgType={orgType}
                 state={searchState}
                 resultCount={opportunities.length}
+                deepResearch={deepResearch}
               />
             )}
             {!enriching && visibleEnrichedCount > 0 && (

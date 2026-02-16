@@ -73,9 +73,10 @@ interface Props {
   orgType: string
   state: string
   resultCount: number
+  deepResearch?: boolean
 }
 
-export default function EnrichmentProgress({ focusArea, orgType, state, resultCount }: Props) {
+export default function EnrichmentProgress({ focusArea, orgType, state, resultCount, deepResearch }: Props) {
   const [stepIndex, setStepIndex] = useState(0)
   const [elapsed, setElapsed] = useState(0)
   const startTime = useRef(Date.now())
@@ -132,7 +133,8 @@ export default function EnrichmentProgress({ focusArea, orgType, state, resultCo
   }, [steps.length])
 
   const step = steps[stepIndex]
-  const progress = Math.min(95, (elapsed / 55) * 95) // cap at 95% until results arrive
+  const progressDuration = deepResearch ? 170 : 55
+  const progress = Math.min(95, (elapsed / progressDuration) * 95) // cap at 95% until results arrive
 
   return (
     <div className="sticky top-0 z-20 pb-3 bg-cream">
@@ -200,7 +202,7 @@ export default function EnrichmentProgress({ focusArea, orgType, state, resultCo
             </svg>
             <p className="text-xs text-navy-light/50">
               <span className="font-semibold text-navy-light/70">Hang tight!</span>{' '}
-              Your grant results will be finalized in about 60 seconds.
+              Your grant results will be finalized in about {deepResearch ? '3 minutes' : '60 seconds'}.
             </p>
           </div>
         </div>
