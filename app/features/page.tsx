@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 }
 
 const checkMarks = [
-  '50+ writing models tuned for fundraising, development, and grant teams',
+  'Handles any RFP — no templates, no per-format models, just upload and draft',
   'Expert prompts and reviewer feedback engineered by real grant writers',
   'Yellowbox guidance shows where to strengthen clarity, evidence, and impact',
   'Fast editing in Granted — accept, rearrange, remix, or export drafts instantly',

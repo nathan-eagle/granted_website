@@ -52,7 +52,7 @@ export default function PricingPage() {
             </p>
             <h1 className="heading-xl text-white">A professional grant writer costs $5K+. <br className="hidden md:block" />Granted costs $29/month.</h1>
             <p className="body-lg mx-auto mt-4 max-w-2xl text-white/60">
-              Every plan includes full-cycle workflow: discover grants, evaluate fit, run RFP analysis, and draft section-by-section proposals. Start free with 5 AI drafts per month.
+              Other grant platforms charge $300&ndash;$900/month. A professional grant writer charges $5,000&ndash;$15,000 per proposal. Every Granted plan includes full-cycle workflow: discover grants, evaluate fit, run RFP analysis, and draft section-by-section proposals.
             </p>
             <div className="mt-10">
               <CheckoutButton label="Start Writing — Free" />

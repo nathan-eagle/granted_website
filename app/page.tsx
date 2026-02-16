@@ -6,14 +6,12 @@ import { ButtonLink } from '@/components/ButtonLink'
 import AgencyLogos from '@/components/AgencyLogos'
 import AudienceSection from '@/components/AudienceSection'
 import CoachConversationC from '@/components/CoachConversationC'
-import AnimatedGoldRule from '@/components/AnimatedGoldRule'
 import RevealOnScroll from '@/components/RevealOnScroll'
 import HeroAnimationCombined from '@/components/hero-concepts/HeroAnimationCombined'
 import HeroSearchBar from '@/components/HeroSearchBar'
 import HowGrantedWorks from '@/components/HowGrantedWorks'
 import TrendingGrants from '@/components/TrendingGrants'
-import EmailCapture from '@/components/EmailCapture'
-import { StatsCounter, OrgLogos } from '@/components/SocialProof'
+import { OrgLogos } from '@/components/SocialProof'
 import { getClosingSoonGrants } from '@/lib/grants'
 import { safeFetch } from '@/lib/safe-fetch'
 
@@ -95,9 +93,6 @@ export default async function HomePage() {
           </Container>
         </section>
 
-        {/* ── Gold rule divider ── */}
-        <AnimatedGoldRule />
-
         {/* ── Organization logos ── */}
         <OrgLogos />
 
@@ -109,9 +104,6 @@ export default async function HomePage() {
 
         {/* ── Trending Grants ── */}
         <TrendingGrants grants={trending.data} error={trending.error} />
-
-        {/* ── Stats counter ── */}
-        <StatsCounter />
 
         {/* ── Quality / Coach section ── */}
         <section>
@@ -127,7 +119,7 @@ export default async function HomePage() {
                 </p>
                 <div className="mt-8">
                   <ButtonLink href="/platform" variant="primary" className="cta-shimmer">
-                    See All 50+ Writing Models &rarr;
+                    See How It Works &rarr;
                   </ButtonLink>
                 </div>
               </div>
@@ -153,55 +145,13 @@ export default async function HomePage() {
               <p className="body-lg mt-4 text-navy-light font-semibold">
                 Other platforms search their database. Granted searches their database <em>and the entire internet.</em>
               </p>
+              <p className="body-lg mt-6 text-navy-light">
+                Other grant platforms charge $300&ndash;$900/month. A professional grant writer charges $5,000&ndash;$15,000 per proposal. Granted starts at $29.
+              </p>
               <div className="mt-8">
                 <ButtonLink href="/platform" variant="primary" className="cta-shimmer">
                   See the architecture &rarr;
                 </ButtonLink>
-              </div>
-            </RevealOnScroll>
-          </Container>
-        </section>
-
-        {/* ── Email capture ── */}
-        <section className="bg-navy text-white noise-overlay overflow-hidden">
-          <Container className="py-16 md:py-20">
-            <RevealOnScroll className="text-center">
-              <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow/80 mb-4">
-                Stay in the loop
-              </p>
-              <h2 className="heading-lg text-white">Not ready to start? No pressure.</h2>
-              <p className="body-lg mt-4 text-white/70 max-w-xl mx-auto">
-                Get free grant writing tips, deadline alerts, and strategy guides every week.
-              </p>
-              <div className="mt-8 relative">
-                <EmailCapture />
-              </div>
-              <p className="mt-4 text-xs text-white/30">
-                Join 500+ grant writers. No spam, unsubscribe anytime.
-              </p>
-            </RevealOnScroll>
-          </Container>
-        </section>
-
-        {/* ── Equity section ── */}
-        <section>
-          <Container className="py-20 md:py-24">
-            <RevealOnScroll className="mx-auto max-w-3xl text-center">
-              <AnimatedGoldRule />
-              <div className="mt-12">
-                <h2 className="heading-lg">The grants office you can&apos;t afford to hire.</h2>
-                <p className="body-lg mt-6 text-navy-light">
-                  The grant system has always favored organizations with dedicated grants departments and expensive consultants. We built Granted to change that.
-                </p>
-                <p className="body-lg mt-4 text-navy-light">
-                  Whether you&apos;re a community nonprofit with a six-person team, a tribal college building research capacity from scratch, or an early-career researcher writing your first independent proposal &mdash; Granted gives you the same AI-powered coaching that levels the playing field.
-                </p>
-                <p className="body-lg mt-4 text-navy-light font-semibold">
-                  Other grant platforms charge $300&ndash;$900/month. A professional grant writer charges $5,000&ndash;$15,000 per proposal. Granted starts at $29.
-                </p>
-              </div>
-              <div className="mt-12">
-                <AnimatedGoldRule />
               </div>
             </RevealOnScroll>
           </Container>
