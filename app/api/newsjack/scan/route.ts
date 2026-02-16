@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { sendDetectionEmail } from '@/lib/newsjack-email'
+import { revalidatePath } from 'next/cache'
 import { DETECTION_SCHEMA, DETECTION_SYSTEM_PROMPT } from '@/lib/newsjack-prompts'
-import { generateActionToken, hashHeadline } from '@/lib/newsjack-helpers'
+import { hashHeadline } from '@/lib/newsjack-helpers'
+import { runGenerationPipeline } from '@/lib/newsjack-generate'
 
 export const runtime = 'nodejs'
-export const maxDuration = 60
+export const maxDuration = 300
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
@@ -88,9 +89,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ detected: 0, message: 'No trending stories met threshold' })
     }
 
-    // 3. Dedup + insert
+    // 3. Dedup + insert + auto-generate + auto-publish
     const supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } })
     let inserted = 0
+    const published: string[] = []
 
     for (const story of qualified) {
       const hHash = hashHeadline(story.headline)
@@ -125,7 +127,7 @@ export async function GET(request: Request) {
           timeliness_score: story.timeliness_score,
           search_queries: story.search_queries,
           grant_angle: story.grant_angle,
-          status: 'detected',
+          status: 'drafting',
         })
         .select('id')
         .single()
@@ -135,30 +137,39 @@ export async function GET(request: Request) {
         continue
       }
 
-      // Generate action tokens and send notification
-      const approveToken = generateActionToken(row.id, 'approve')
-      const skipToken = generateActionToken(row.id, 'skip')
-
-      await supabase
-        .from('newsjack_stories')
-        .update({ action_token: approveToken })
-        .eq('id', row.id)
-
-      await sendDetectionEmail({
-        storyId: row.id,
-        headline: story.headline,
-        sourceUrl: story.source_url,
-        relevanceScore: story.relevance_score,
-        timelinessScore: story.timeliness_score,
-        grantAngle: story.grant_angle,
-        approveToken,
-        skipToken,
-      })
-
       inserted++
+
+      // Auto-generate article
+      try {
+        const slug = await runGenerationPipeline(row.id, story)
+
+        // Auto-publish
+        const now = new Date().toISOString()
+        await supabase
+          .from('newsjack_stories')
+          .update({ status: 'published', published_at: now, updated_at: now })
+          .eq('id', row.id)
+
+        revalidatePath(`/blog/news/${slug}`)
+        published.push(slug)
+      } catch (err) {
+        console.error(`[newsjack/scan] Generation failed for "${story.headline}":`, err)
+        // Leave in drafting status for manual retry
+      }
     }
 
-    return NextResponse.json({ detected: qualified.length, inserted, total_candidates: stories.length })
+    // Revalidate blog index if anything was published
+    if (published.length > 0) {
+      revalidatePath('/blog')
+    }
+
+    return NextResponse.json({
+      detected: qualified.length,
+      inserted,
+      published: published.length,
+      slugs: published,
+      total_candidates: stories.length,
+    })
   } catch (err) {
     console.error('[newsjack/scan] Unexpected error:', err)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
