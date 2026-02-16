@@ -49,7 +49,7 @@ export default function GrantsPageClient({
   totalGrantCount,
 }: Props) {
   // Visualization state
-  const [vizMode, setVizMode] = useState<VizMode>('discovery-map')
+  const [vizMode, setVizMode] = useState<VizMode>('list')
   const [vizActive, setVizActive] = useState(false)
   const vizEnvelopeHandlerRef = useRef<((envelope: StreamEnvelope) => void) | null>(null)
   // Buffer envelopes that arrive before the engine is ready (e.g., db_results
@@ -61,16 +61,7 @@ export default function GrantsPageClient({
     setVizMode(getPersistedVizMode())
   }, [])
 
-  // Auto-force Concept E on mobile
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)')
-    const handler = (e: MediaQueryListEvent) => {
-      if (e.matches) setVizMode('rising-stakes')
-    }
-    mq.addEventListener('change', handler)
-    if (mq.matches) setVizMode('rising-stakes')
-    return () => mq.removeEventListener('change', handler)
-  }, [])
+  // No mobile override — list is default for all devices
 
   // onEnvelope callback — forwards NDJSON envelopes to the visualization engine,
   // buffering them if the engine isn't ready yet
@@ -103,12 +94,12 @@ export default function GrantsPageClient({
     handleBackToBrowsing,
   } = search
 
-  // Activate visualization when enriching starts (and keep it active after enrichment ends)
+  // Activate visualization when enriching starts — only if user chose a viz mode (not list)
   useEffect(() => {
     if (enriching) {
-      setVizActive(true)
-      // If user was in list mode, switch to a viz mode for the search animation
-      if (vizMode === 'list') setVizMode('discovery-map')
+      if (vizMode !== 'list') {
+        setVizActive(true)
+      }
       vizEnvelopeBufferRef.current = [] // Clear buffer for fresh search
     }
   }, [enriching]) // eslint-disable-line react-hooks/exhaustive-deps

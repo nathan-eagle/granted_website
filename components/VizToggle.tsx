@@ -14,7 +14,7 @@ interface Props {
 
 /** Read persisted viz mode from localStorage, with URL param override */
 export function getPersistedVizMode(): VizMode {
-  if (typeof window === 'undefined') return 'discovery-map'
+  if (typeof window === 'undefined') return 'list'
 
   // URL param override: ?viz=d or ?viz=e or ?viz=list
   const params = new URLSearchParams(window.location.search)
@@ -29,9 +29,8 @@ export function getPersistedVizMode(): VizMode {
     if (stored === 'discovery-map' || stored === 'rising-stakes' || stored === 'list') return stored
   } catch {}
 
-  // Default: discovery-map on desktop, rising-stakes on mobile
-  if (typeof window !== 'undefined' && window.innerWidth < 768) return 'rising-stakes'
-  return 'discovery-map'
+  // Default: list view for all devices
+  return 'list'
 }
 
 /** Persist viz mode to localStorage */
