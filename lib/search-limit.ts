@@ -24,8 +24,11 @@ export function incrementSearchCount(): number {
   }
 }
 
-/** True when the user has exhausted their free searches. */
+import { isSignedIn } from './auth-status'
+
+/** True when the user has exhausted their free searches. Bypassed for signed-in users. */
 export function hasReachedSearchLimit(): boolean {
+  if (isSignedIn()) return false
   return getSearchCount() >= FREE_SEARCH_LIMIT
 }
 

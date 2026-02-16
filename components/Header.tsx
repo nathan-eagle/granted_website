@@ -1,10 +1,12 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import CheckoutButton from '@/components/CheckoutButton'
 import { trackEvent } from '@/lib/analytics'
+import { isSignedIn } from '@/lib/auth-status'
 
 const nav = [
   { href: '/grants', label: 'Grants' },
@@ -24,8 +26,16 @@ const resourceLinks = [
 
 const SIGN_IN_URL = 'https://app.grantedai.com/api/auth/signin?callbackUrl=/overview'
 
+const DASHBOARD_URL = 'https://app.grantedai.com/overview'
+
 export default function Header() {
   const pathname = usePathname()
+  const [signedIn, setSignedIn] = useState(false)
+
+  useEffect(() => {
+    setSignedIn(isSignedIn())
+  }, [])
+
   return (
     <header className="w-full">
       <div className="container flex flex-col gap-4 py-6 md:flex-row md:items-center md:justify-between">
@@ -52,18 +62,29 @@ export default function Header() {
           </Link>
 
           <div className="flex items-center gap-3 md:hidden">
-            <Link
-              href={SIGN_IN_URL}
-              onClick={() => trackEvent('sign_in_click', { location: 'header_mobile' })}
-              className="text-sm font-semibold text-navy-light transition-colors hover:text-navy"
-            >
-              Sign in
-            </Link>
-            <CheckoutButton
-              label="Sign up"
-              eventName="sign_up_click_header"
-              className="px-4 py-2 text-sm font-semibold border-black bg-black text-white hover:bg-black/90"
-            />
+            {signedIn ? (
+              <Link
+                href={DASHBOARD_URL}
+                className="px-4 py-2 text-sm font-semibold border-black bg-black text-white hover:bg-black/90 rounded-pill"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href={SIGN_IN_URL}
+                  onClick={() => trackEvent('sign_in_click', { location: 'header_mobile' })}
+                  className="text-sm font-semibold text-navy-light transition-colors hover:text-navy"
+                >
+                  Sign in
+                </Link>
+                <CheckoutButton
+                  label="Sign up"
+                  eventName="sign_up_click_header"
+                  className="px-4 py-2 text-sm font-semibold border-black bg-black text-white hover:bg-black/90"
+                />
+              </>
+            )}
           </div>
         </div>
 
@@ -120,18 +141,29 @@ export default function Header() {
             </div>
           </div>
 
-          <Link
-            href={SIGN_IN_URL}
-            onClick={() => trackEvent('sign_in_click', { location: 'header_desktop' })}
-            className="text-sm font-semibold text-navy-light transition-colors hover:text-navy"
-          >
-            Sign in
-          </Link>
-          <CheckoutButton
-            label="Sign up"
-            eventName="sign_up_click_header"
-            className="px-4 py-2 text-sm font-semibold border-black bg-black text-white hover:bg-black/90"
-          />
+          {signedIn ? (
+            <Link
+              href={DASHBOARD_URL}
+              className="px-4 py-2 text-sm font-semibold border-black bg-black text-white hover:bg-black/90 rounded-pill"
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link
+                href={SIGN_IN_URL}
+                onClick={() => trackEvent('sign_in_click', { location: 'header_desktop' })}
+                className="text-sm font-semibold text-navy-light transition-colors hover:text-navy"
+              >
+                Sign in
+              </Link>
+              <CheckoutButton
+                label="Sign up"
+                eventName="sign_up_click_header"
+                className="px-4 py-2 text-sm font-semibold border-black bg-black text-white hover:bg-black/90"
+              />
+            </>
+          )}
         </nav>
       </div>
     </header>

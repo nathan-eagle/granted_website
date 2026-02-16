@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { trackEvent } from '@/lib/analytics'
+import { isSignedIn } from '@/lib/auth-status'
 
 interface Props {
   enriching: boolean
@@ -69,7 +70,7 @@ export default function SignupNudgeBanner({
     }
   }, [resultCount])
 
-  if (!visible || dismissed || resultCount === 0) return null
+  if (!visible || dismissed || resultCount === 0 || isSignedIn()) return null
 
   const signupUrl = buildSignupUrl(focusArea, orgType, state)
 
