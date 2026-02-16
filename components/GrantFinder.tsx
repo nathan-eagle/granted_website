@@ -11,6 +11,7 @@ import {
   AMOUNT_RANGES,
   summarizeTerm,
 } from '@/hooks/useGrantSearch'
+import DeepResearchToggle from '@/components/DeepResearchToggle'
 
 export type { Phase, Opportunity }
 export { ORG_TYPES, US_STATES }
@@ -33,11 +34,13 @@ interface GrantFinderProps {
   state: string
   amountRange: AmountRangeKey
   error: string
+  deepResearch?: boolean
   // Setters
   setOrgType: (v: string) => void
   setFocusArea: (v: string) => void
   setState: (v: string) => void
   setAmountRange: (v: AmountRangeKey) => void
+  setDeepResearch?: (v: boolean) => void
   // Actions
   handleSearch: (e: React.FormEvent) => void
   // Phase (for loading display)
@@ -52,10 +55,12 @@ export default function GrantFinder({
   state,
   amountRange,
   error,
+  deepResearch,
   setOrgType,
   setFocusArea,
   setState,
   setAmountRange,
+  setDeepResearch,
   handleSearch,
   phase,
   searchesRemaining,
@@ -259,6 +264,16 @@ export default function GrantFinder({
             </div>
           </div>
         </div>
+
+        {/* Deep Research toggle */}
+        {setDeepResearch && (
+          <div className="pt-1">
+            <DeepResearchToggle
+              enabled={deepResearch ?? false}
+              onChange={setDeepResearch}
+            />
+          </div>
+        )}
 
         {error && (
           <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-100">

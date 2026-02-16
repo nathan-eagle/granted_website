@@ -22,6 +22,7 @@ import EnrichmentProgress from '@/components/EnrichmentProgress'
 import CheckoutButton from '@/components/CheckoutButton'
 import SearchVisualization from '@/components/SearchVisualization'
 import VizToggle, { persistVizMode } from '@/components/VizToggle'
+import DeepResearchToggle from '@/components/DeepResearchToggle'
 import type { VizMode, VizGrant } from '@/lib/viz/types'
 import { trackEvent } from '@/lib/analytics'
 import { hasReachedSearchLimit, incrementSearchCount, getSearchesRemaining } from '@/lib/search-limit'
@@ -84,6 +85,7 @@ export default function GrantsPageClient({
     focusArea,
     state: searchState,
     amountRange,
+    deepResearch,
     opportunities,
     error,
     broadened,
@@ -93,6 +95,7 @@ export default function GrantsPageClient({
     setFocusArea,
     setState,
     setAmountRange,
+    setDeepResearch,
     handleSearch,
     handleBackToBrowsing,
   } = search
@@ -289,10 +292,12 @@ export default function GrantsPageClient({
             state={searchState}
             amountRange={amountRange}
             error={error}
+            deepResearch={deepResearch}
             setOrgType={setOrgType}
             setFocusArea={setFocusArea}
             setState={setState}
             setAmountRange={setAmountRange}
+            setDeepResearch={setDeepResearch}
             handleSearch={gatedHandleSearch}
             searchesRemaining={searchesRemaining}
           />
@@ -314,7 +319,10 @@ export default function GrantsPageClient({
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
                   Back to browsing
                 </button>
-                <VizToggle mode={vizMode} onChange={handleVizModeChange} />
+                <div className="flex items-center gap-3">
+                  <DeepResearchToggle compact enabled={deepResearch} onChange={setDeepResearch} />
+                  <VizToggle mode={vizMode} onChange={handleVizModeChange} />
+                </div>
               </div>
 
               <form onSubmit={gatedHandleSearch} className="card p-4">
@@ -440,7 +448,10 @@ export default function GrantsPageClient({
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
                 Back to browsing
               </button>
-              <VizToggle mode={vizMode} onChange={handleVizModeChange} />
+              <div className="flex items-center gap-3">
+                <DeepResearchToggle compact enabled={deepResearch} onChange={setDeepResearch} />
+                <VizToggle mode={vizMode} onChange={handleVizModeChange} />
+              </div>
             </div>
 
             {/* Compact search bar */}

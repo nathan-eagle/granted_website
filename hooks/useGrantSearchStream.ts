@@ -23,10 +23,10 @@ const API_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://app.grantedai.com'
 type ProviderName =
   | 'gemini'
   | 'perplexity_sonar_pro'
-  | 'openai_gpt5'
-  | 'claude_sonnet'
-  | 'perplexity_reasoning'
-  | 'grok'
+  | 'openai_gpt4_1'
+  | 'claude_haiku'
+  | 'grok_deep'
+  | 'perplexity_deep_research'
 
 type ProviderStatus = {
   provider: ProviderName
@@ -56,6 +56,7 @@ export function useGrantSearchStream(opts?: {
   const [focusArea, setFocusArea] = useState('')
   const [state, setState] = useState('')
   const [amountRange, setAmountRange] = useState<AmountRangeKey>('')
+  const [deepResearch, setDeepResearch] = useState(false)
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
   const [error, setError] = useState('')
   const [broadened, setBroadened] = useState(false)
@@ -117,6 +118,7 @@ export function useGrantSearchStream(opts?: {
     searchFocusArea: string,
     searchState: string,
     searchAmountRange?: AmountRangeKey,
+    searchDeepResearch?: boolean,
   ): Promise<{ opportunities: Opportunity[]; streamed: boolean }> => {
     // Abort any previous stream
     abortRef.current?.abort()
@@ -134,6 +136,7 @@ export function useGrantSearchStream(opts?: {
         state: searchState || undefined,
         ...(amountDef?.min ? { amount_min: amountDef.min } : {}),
         ...(amountDef?.max ? { amount_max: amountDef.max } : {}),
+        ...(searchDeepResearch ? { deep_research: true } : {}),
       }),
       signal: controller.signal,
     })
@@ -305,6 +308,7 @@ export function useGrantSearchStream(opts?: {
     searchState: string,
     source: 'manual' | 'url' = 'manual',
     searchAmountRange?: AmountRangeKey,
+    searchDeepResearch?: boolean,
   ) => {
     const normalizedFocus = searchFocusArea.trim()
     if (!normalizedFocus) return
@@ -322,20 +326,21 @@ export function useGrantSearchStream(opts?: {
       focus_area_length: normalizedFocus.length,
       source,
       mode: 'stream',
+      deep_research: String(!!searchDeepResearch),
     })
     setPhase('loading')
 
     try {
-      let result = await doStreamSearch(searchOrgType, normalizedFocus, searchState, searchAmountRange)
+      let result = await doStreamSearch(searchOrgType, normalizedFocus, searchState, searchAmountRange, searchDeepResearch)
       let broadenedSearch = false
 
       // Broaden if no results
       if (result.opportunities.length === 0 && (searchOrgType || searchState)) {
         if (searchState) {
-          result = await doStreamSearch(searchOrgType, normalizedFocus, '', searchAmountRange)
+          result = await doStreamSearch(searchOrgType, normalizedFocus, '', searchAmountRange, searchDeepResearch)
         }
         if (result.opportunities.length === 0 && searchOrgType) {
-          result = await doStreamSearch('', normalizedFocus, '', searchAmountRange)
+          result = await doStreamSearch('', normalizedFocus, '', searchAmountRange, searchDeepResearch)
         }
         if (result.opportunities.length > 0) {
           broadenedSearch = true
@@ -377,8 +382,8 @@ export function useGrantSearchStream(opts?: {
 
   const handleSearch = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
-    await runSearch(orgType, focusArea, state, 'manual', amountRange)
-  }, [orgType, focusArea, state, amountRange, runSearch])
+    await runSearch(orgType, focusArea, state, 'manual', amountRange, deepResearch)
+  }, [orgType, focusArea, state, amountRange, deepResearch, runSearch])
 
   const handleBackToBrowsing = useCallback(() => {
     abortRef.current?.abort()
@@ -429,8 +434,8 @@ export function useGrantSearchStream(opts?: {
     const effectiveOrgType = orgType || searchParams.get('org_type')?.trim() || ''
 
     autoSearchedQueryRef.current = q
-    void runSearch(effectiveOrgType, q, effectiveState, 'url', amountRange)
-  }, [searchParams, focusArea, orgType, state, amountRange, runSearch])
+    void runSearch(effectiveOrgType, q, effectiveState, 'url', amountRange, deepResearch)
+  }, [searchParams, focusArea, orgType, state, amountRange, deepResearch, runSearch])
 
   return {
     // State
@@ -439,6 +444,7 @@ export function useGrantSearchStream(opts?: {
     focusArea,
     state,
     amountRange,
+    deepResearch,
     opportunities,
     error,
     broadened,
@@ -450,6 +456,7 @@ export function useGrantSearchStream(opts?: {
     setFocusArea,
     setState,
     setAmountRange,
+    setDeepResearch,
     // Actions
     handleSearch,
     handleBackToBrowsing,
