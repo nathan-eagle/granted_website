@@ -204,6 +204,8 @@ export function useGrantSearchStream(opts?: {
         case 'model_batch': {
           // Track new names for "AI Found" badges (local set avoids stale closure)
           for (const opp of envelope.opportunities) {
+            // Stamp source_provider so viz engines can attribute grants to their LLM source
+            if (!opp.source_provider) opp.source_provider = envelope.provider
             if (!dbNames.has(opp.name.toLowerCase())) {
               localEnrichedNames.add(opp.name)
             }
