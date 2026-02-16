@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/nurture-drip",
       "schedule": "0 15 * * *"
+    },
+    {
+      "path": "/api/newsjack/scan",
+      "schedule": "0 */4 * * *"
     }
   ]
 }

@@ -1,0 +1,156 @@
+import { NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+import { sendDetectionEmail } from '@/lib/newsjack-email'
+import { DETECTION_SCHEMA, DETECTION_SYSTEM_PROMPT } from '@/lib/newsjack-prompts'
+import { generateActionToken, hashHeadline } from '@/lib/newsjack-helpers'
+
+export const runtime = 'nodejs'
+export const maxDuration = 60
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
+
+export async function GET(request: Request) {
+  // Auth: Vercel cron sends Authorization header
+  const authHeader = request.headers.get('authorization')
+  const expected = process.env.CRON_SECRET
+  if (!expected || authHeader !== `Bearer ${expected}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Kill switch
+  if (process.env.NEWSJACK_ENABLED !== 'true') {
+    return NextResponse.json({ skipped: true, reason: 'NEWSJACK_ENABLED is not true' })
+  }
+
+  const perplexityKey = process.env.PERPLEXITY_API_KEY
+  if (!perplexityKey) {
+    return NextResponse.json({ error: 'PERPLEXITY_API_KEY not configured' }, { status: 500 })
+  }
+
+  try {
+    // 1. Call Perplexity Sonar Pro for trending grant news
+    const res = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${perplexityKey}`,
+      },
+      body: JSON.stringify({
+        model: 'sonar-pro',
+        messages: [
+          { role: 'system', content: DETECTION_SYSTEM_PROMPT },
+          {
+            role: 'user',
+            content:
+              'What are the most trending, breaking, or viral news stories about grants, research funding, federal funding policy, or higher education funding from the last 48 hours? Include any major policy changes, controversial decisions, or announcements generating significant discussion.',
+          },
+        ],
+        max_tokens: 4000,
+        search_recency_filter: 'week',
+        response_format: {
+          type: 'json_schema',
+          json_schema: { name: 'newsjack_detection', schema: DETECTION_SCHEMA },
+        },
+      }),
+    })
+
+    if (!res.ok) {
+      const body = await res.text()
+      console.error(`[newsjack/scan] Perplexity error: ${res.status} ${body.slice(0, 300)}`)
+      return NextResponse.json({ error: 'Perplexity API error', status: res.status }, { status: 502 })
+    }
+
+    const data = await res.json()
+    const content = data.choices?.[0]?.message?.content ?? '{}'
+
+    let stories: Array<{
+      headline: string
+      source_url: string
+      search_queries: string[]
+      relevance_score: number
+      timeliness_score: number
+      grant_angle: string
+    }>
+
+    try {
+      const parsed = JSON.parse(content)
+      stories = parsed.stories ?? []
+    } catch {
+      console.error('[newsjack/scan] Failed to parse Perplexity response')
+      return NextResponse.json({ error: 'Failed to parse detection response' }, { status: 500 })
+    }
+
+    // 2. Filter: relevance >= 7 only
+    const qualified = stories.filter((s) => s.relevance_score >= 7)
+
+    if (qualified.length === 0) {
+      return NextResponse.json({ detected: 0, message: 'No trending stories met threshold' })
+    }
+
+    // 3. Dedup + insert
+    const supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } })
+    let inserted = 0
+
+    for (const story of qualified) {
+      const hHash = hashHeadline(story.headline)
+
+      // Check for existing headline
+      const { data: existing } = await supabase
+        .from('newsjack_stories')
+        .select('id')
+        .eq('headline_hash', hHash)
+        .limit(1)
+
+      if (existing && existing.length > 0) continue
+
+      // Insert new story
+      const { data: row, error } = await supabase
+        .from('newsjack_stories')
+        .insert({
+          headline: story.headline,
+          headline_hash: hHash,
+          source_url: story.source_url,
+          relevance_score: story.relevance_score,
+          timeliness_score: story.timeliness_score,
+          search_queries: story.search_queries,
+          grant_angle: story.grant_angle,
+          status: 'detected',
+        })
+        .select('id')
+        .single()
+
+      if (error) {
+        console.error(`[newsjack/scan] Insert error: ${error.message}`)
+        continue
+      }
+
+      // Generate action tokens and send notification
+      const approveToken = generateActionToken(row.id, 'approve')
+      const skipToken = generateActionToken(row.id, 'skip')
+
+      await supabase
+        .from('newsjack_stories')
+        .update({ action_token: approveToken })
+        .eq('id', row.id)
+
+      await sendDetectionEmail({
+        storyId: row.id,
+        headline: story.headline,
+        sourceUrl: story.source_url,
+        relevanceScore: story.relevance_score,
+        timelinessScore: story.timeliness_score,
+        grantAngle: story.grant_angle,
+        approveToken,
+        skipToken,
+      })
+
+      inserted++
+    }
+
+    return NextResponse.json({ detected: qualified.length, inserted, total_candidates: stories.length })
+  } catch (err) {
+    console.error('[newsjack/scan] Unexpected error:', err)
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+  }
+}
