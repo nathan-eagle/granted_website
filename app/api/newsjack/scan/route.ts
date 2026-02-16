@@ -95,7 +95,7 @@ export async function GET(request: Request) {
     for (const story of qualified) {
       const hHash = hashHeadline(story.headline)
 
-      // Check for existing headline
+      // Check for existing headline OR same source URL
       const { data: existing } = await supabase
         .from('newsjack_stories')
         .select('id')
@@ -103,6 +103,16 @@ export async function GET(request: Request) {
         .limit(1)
 
       if (existing && existing.length > 0) continue
+
+      if (story.source_url) {
+        const { data: urlMatch } = await supabase
+          .from('newsjack_stories')
+          .select('id')
+          .eq('source_url', story.source_url)
+          .limit(1)
+
+        if (urlMatch && urlMatch.length > 0) continue
+      }
 
       // Insert new story
       const { data: row, error } = await supabase
