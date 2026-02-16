@@ -38,7 +38,7 @@ export default function DeepResearchToggle({ enabled, onChange, compact }: DeepR
         ${compact ? 'text-xs' : 'text-sm'}
         ${enabled ? 'text-navy' : 'text-navy-light/60'}
       `}>
-        {compact ? 'Deep' : 'Deep Research'}
+        Granted Deep Research
       </span>
 
       {/* Info tooltip — full mode only */}
@@ -60,7 +60,7 @@ export default function DeepResearchToggle({ enabled, onChange, compact }: DeepR
             <path d="M12 8h.01" />
           </svg>
           <span className="absolute z-30 bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 px-3 py-2 text-xs font-normal text-white bg-navy rounded-lg shadow-lg pointer-events-none opacity-0 group-hover/tip:opacity-100 transition-opacity whitespace-normal">
-            Adds Grok and Perplexity Deep Research for more thorough results. Takes longer (~2 min).
+            Enables Granted Deep Research with additional AI providers for more thorough results. Takes longer (~2 min).
           </span>
         </span>
       )}
