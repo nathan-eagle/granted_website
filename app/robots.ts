@@ -10,6 +10,7 @@ export default function robots(): MetadataRoute.Robots {
     ],
     sitemap: [
       'https://grantedai.com/sitemap-index.xml',
+      'https://grantedai.com/news-sitemap.xml',
     ],
   }
 }

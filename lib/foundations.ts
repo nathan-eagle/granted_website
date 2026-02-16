@@ -194,6 +194,19 @@ export const US_STATES: USState[] = [
   { slug: 'wyoming', name: 'Wyoming', abbreviation: 'WY' },
 ]
 
+/* ── SEO quality gate ── */
+
+/** Returns true if a foundation has enough data for a rich, indexable page */
+export function isFoundationSeoReady(
+  f: Pick<Foundation, 'asset_amount' | 'city' | 'state' | 'name'>,
+): boolean {
+  if (!f.asset_amount || f.asset_amount <= 0) return false
+  if (!f.city && !f.state) return false
+  // Filter out placeholder / generic names
+  if (!f.name || f.name.length < 4) return false
+  return true
+}
+
 /* ── Helpers ── */
 
 export function formatAssets(amount: number | null): string {
@@ -427,11 +440,11 @@ export async function getFoundationCountByState(stateAbbrev: string): Promise<nu
 export async function getFoundationSlugsPage(
   offset: number,
   limit: number,
-): Promise<{ slug: string; updated_at: string }[]> {
+): Promise<{ slug: string; updated_at: string; asset_amount: number | null; city: string | null; state: string | null; name: string }[]> {
   if (!supabase) return []
   const { data, error } = await supabase
     .from('foundations')
-    .select('slug, updated_at')
+    .select('slug, updated_at, asset_amount, city, state, name')
     .order('asset_amount', { ascending: false, nullsFirst: false })
     .range(offset, offset + limit - 1)
   if (error) throw error

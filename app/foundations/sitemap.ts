@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 import {
   getFoundationCount,
   getFoundationSlugsPage,
+  isFoundationSeoReady,
   FOUNDATION_CATEGORIES,
   US_STATES,
 } from '@/lib/foundations'
@@ -66,7 +67,7 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
   for (const f of slugs) {
     entries.push({
       url: `${base}/foundations/${f.slug}`,
-      priority: 0.7,
+      priority: isFoundationSeoReady(f) ? 0.7 : 0.3,
       changeFrequency: 'monthly',
       lastModified: f.updated_at ? new Date(f.updated_at).toISOString() : now,
     })

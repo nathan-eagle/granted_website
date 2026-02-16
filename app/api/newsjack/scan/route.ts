@@ -161,6 +161,37 @@ export async function GET(request: Request) {
     // Revalidate blog index if anything was published
     if (published.length > 0) {
       revalidatePath('/blog')
+
+      // IndexNow: notify search engines of new URLs
+      const indexNowKey = process.env.INDEXNOW_KEY
+      if (indexNowKey) {
+        try {
+          const urls = published.map((slug) => `https://grantedai.com/blog/news/${slug}`)
+          await fetch('https://api.indexnow.org/indexnow', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              host: 'grantedai.com',
+              key: indexNowKey,
+              keyLocation: `https://grantedai.com/${indexNowKey}.txt`,
+              urlList: urls,
+            }),
+          })
+          console.log(`[newsjack/scan] IndexNow pinged for ${urls.length} URLs`)
+        } catch (err) {
+          console.error('[newsjack/scan] IndexNow ping failed:', err)
+        }
+      }
+
+      // Google sitemap ping
+      try {
+        await fetch(
+          'https://www.google.com/ping?sitemap=https%3A%2F%2Fgrantedai.com%2Fnews-sitemap.xml',
+        )
+        console.log('[newsjack/scan] Google sitemap ping sent')
+      } catch (err) {
+        console.error('[newsjack/scan] Google sitemap ping failed:', err)
+      }
     }
 
     return NextResponse.json({

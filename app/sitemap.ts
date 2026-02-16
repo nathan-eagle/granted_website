@@ -46,7 +46,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const newsStories = await listPublishedStories(100).catch((err) => { console.error('[sitemap] listPublishedStories failed:', err); return [] })
   const newsPaths: MetadataRoute.Sitemap = newsStories.map(s => ({
     url: `${base}/blog/news/${s.slug}`,
-    changeFrequency: 'weekly' as const,
+    changeFrequency: 'hourly' as const,
     lastModified: s.published_at ? new Date(s.published_at).toISOString() : now,
   }))
 

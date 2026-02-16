@@ -26,6 +26,7 @@ import {
   computeGivingByYear,
   computeStateDistribution,
   computeNewGranteeRate,
+  isFoundationSeoReady,
   formatAssets,
   getFoundationLocation,
   getFoundationCategoryLabel,
@@ -93,6 +94,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${title} | Granted Foundation Directory`,
     description,
     alternates: { canonical: url },
+    ...(!isFoundationSeoReady(foundation)
+      ? { robots: { index: false, follow: true } }
+      : {}),
     openGraph: {
       title,
       description,
@@ -154,7 +158,7 @@ function CategoryPage({ category, foundations }: { category: FoundationCategory;
 
 /* ── Foundation detail layout ── */
 
-function buildAboutParagraph(f: Foundation): string {
+function buildAboutParagraph(f: Foundation, stats?: GrantStats | null): string {
   const parts: string[] = []
   const location = getFoundationLocation(f)
 
@@ -183,11 +187,79 @@ function buildAboutParagraph(f: Foundation): string {
     parts.push(`The foundation operates in the area of ${catLabel.toLowerCase()}.`)
   }
 
+  if (stats && stats.totalGrants > 0) {
+    parts.push(
+      `According to available records, ${f.name} has made ${stats.totalGrants.toLocaleString()} grants totaling ${formatAssets(stats.totalGiving)}, with a median grant of ${formatAssets(stats.medianGrant)}.`,
+    )
+  }
+
   if (f.deductibility === 'Contributions are deductible') {
     parts.push('Contributions to this foundation are tax-deductible.')
   }
 
   return parts.join(' ')
+}
+
+function buildFoundationFaq(
+  f: Foundation,
+  stats: GrantStats | null,
+  stateDistribution: StateDistribution[],
+): { question: string; answer: string }[] {
+  const faqs: { question: string; answer: string }[] = []
+  const catLabel = getFoundationCategoryLabel(f)
+
+  // Q1: What does [Name] fund?
+  {
+    const parts: string[] = []
+    if (catLabel !== 'General') {
+      parts.push(`${f.name} primarily funds organizations in the area of ${catLabel.toLowerCase()}.`)
+    } else {
+      parts.push(`${f.name} is a private foundation that provides grants to eligible organizations.`)
+    }
+    if (stats && stats.totalGrants > 0) {
+      parts.push(`Based on available records, the foundation has funded ${stats.totalGrants.toLocaleString()} grants.`)
+    }
+    if (stateDistribution.length > 0) {
+      const topStates = stateDistribution.slice(0, 3).map((s) => s.state)
+      parts.push(`Its grantmaking reaches organizations primarily in ${topStates.join(', ')}.`)
+    }
+    faqs.push({ question: `What does ${f.name} fund?`, answer: parts.join(' ') })
+  }
+
+  // Q2: How much does [Name] give? (only if we have stats)
+  if (stats && stats.totalGrants > 0) {
+    const parts = [
+      `${f.name} has distributed a total of ${formatAssets(stats.totalGiving)} across ${stats.totalGrants.toLocaleString()} grants.`,
+      `The median grant size is ${formatAssets(stats.medianGrant)}, with an average of ${formatAssets(stats.averageGrant)}.`,
+      `Individual grants have ranged from ${formatAssets(stats.minGrant)} to ${formatAssets(stats.maxGrant)}.`,
+    ]
+    faqs.push({ question: `How much does ${f.name} give in grants?`, answer: parts.join(' ') })
+  }
+
+  // Q3: How do I apply?
+  {
+    const parts: string[] = []
+    if (f.grants_page_url) {
+      parts.push(`${f.name} provides grant application information on their website. Visit their grants page for current funding opportunities and application guidelines.`)
+    } else if (f.website) {
+      parts.push(`For information about applying for grants from ${f.name}, visit their official website. Many private foundations accept unsolicited proposals or have specific application windows.`)
+    } else {
+      parts.push(`${f.name} is a private foundation. To inquire about grants, you can look up the foundation using their EIN (${f.ein}) on GuideStar or contact them directly. Many private foundations have specific application processes that may not be publicly listed.`)
+    }
+    faqs.push({ question: `How do I apply for a grant from ${f.name}?`, answer: parts.join(' ') })
+  }
+
+  // Q4: Where is [Name] located? (only if we have location)
+  if (f.city || f.state) {
+    const location = getFoundationLocation(f)
+    const parts = [`${f.name} is headquartered in ${location}.`]
+    if (stateDistribution.length > 1) {
+      parts.push(`While based in ${f.state ?? 'the United States'}, the foundation distributes grants to organizations across ${stateDistribution.length} states.`)
+    }
+    faqs.push({ question: `Where is ${f.name} located?`, answer: parts.join(' ') })
+  }
+
+  return faqs
 }
 
 function FoundationDetailPage({
@@ -225,7 +297,7 @@ function FoundationDetailPage({
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: foundation.name,
-    description: buildAboutParagraph(foundation),
+    description: buildAboutParagraph(foundation, insightStats),
     url,
     ...(foundation.ein ? { taxID: foundation.ein } : {}),
     ...(foundation.contact_name
@@ -260,6 +332,19 @@ function FoundationDetailPage({
       ...('href' in c && c.href ? { item: `https://grantedai.com${c.href}` } : {}),
     })),
   }
+
+  const faqs = buildFoundationFaq(foundation, insightStats, insightStateDistribution)
+  const faqJsonLd = faqs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqs.map((faq) => ({
+          '@type': 'Question',
+          name: faq.question,
+          acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+        })),
+      }
+    : null
 
   const quickFacts = [
     { label: 'EIN', value: foundation.ein },
@@ -297,6 +382,12 @@ function FoundationDetailPage({
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
           />
+          {faqJsonLd && (
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+            />
+          )}
 
           {/* Breadcrumbs */}
           <RevealOnScroll>
@@ -455,10 +546,65 @@ function FoundationDetailPage({
             <section className="mt-12">
               <h2 className="heading-md text-navy text-2xl font-bold mb-4">About This Foundation</h2>
               <p className="body-lg text-navy-light leading-relaxed">
-                {buildAboutParagraph(foundation)}
+                {buildAboutParagraph(foundation, insightStats)}
               </p>
             </section>
           </RevealOnScroll>
+
+          {/* FAQ */}
+          {faqs.length > 0 && (
+            <RevealOnScroll delay={280}>
+              <section className="mt-12">
+                <h2 className="heading-md text-navy text-2xl font-bold mb-4">Frequently Asked Questions</h2>
+                <div className="space-y-4">
+                  {faqs.map((faq) => (
+                    <div key={faq.question} className="rounded-xl border border-navy/10 bg-white p-5">
+                      <h3 className="text-base font-semibold text-navy">{faq.question}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-navy-light">{faq.answer}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </RevealOnScroll>
+          )}
+
+          {/* External Links */}
+          {foundation.ein && (
+            <RevealOnScroll delay={300}>
+              <section className="mt-12">
+                <h2 className="heading-md text-navy text-2xl font-bold mb-4">Research This Foundation</h2>
+                <div className="flex flex-wrap gap-3">
+                  <a
+                    href={`https://www.guidestar.org/profile/${foundation.ein.slice(0, 2)}-${foundation.ein.slice(2)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full border border-navy/10 bg-white px-4 py-2 text-sm font-medium text-navy hover:border-brand-gold hover:text-brand-gold transition-colors"
+                  >
+                    GuideStar / Candid
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline opacity-50"><path d="M7 17L17 7M17 7H7M17 7v10" /></svg>
+                  </a>
+                  <a
+                    href={`https://projects.propublica.org/nonprofits/organizations/${foundation.ein.replace(/-/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full border border-navy/10 bg-white px-4 py-2 text-sm font-medium text-navy hover:border-brand-gold hover:text-brand-gold transition-colors"
+                  >
+                    ProPublica Nonprofit Explorer
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline opacity-50"><path d="M7 17L17 7M17 7H7M17 7v10" /></svg>
+                  </a>
+                  <a
+                    href={`https://apps.irs.gov/app/eos/detailsPage?ein=${foundation.ein.replace(/-/g, '')}&name=${encodeURIComponent(foundation.name)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full border border-navy/10 bg-white px-4 py-2 text-sm font-medium text-navy hover:border-brand-gold hover:text-brand-gold transition-colors"
+                  >
+                    IRS Tax Exempt Status
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline opacity-50"><path d="M7 17L17 7M17 7H7M17 7v10" /></svg>
+                  </a>
+                </div>
+              </section>
+            </RevealOnScroll>
+          )}
 
           {/* Financial Overview (from ProPublica summary data) */}
           <RevealOnScroll delay={320}>
