@@ -436,6 +436,16 @@ export function useGrantSearchStream(opts?: {
     const effectiveOrgType = orgType || searchParams.get('org_type')?.trim() || ''
 
     autoSearchedQueryRef.current = q
+
+    // Clear ?q= from URL so a page refresh doesn't re-trigger the search
+    const url = new URL(window.location.href)
+    if (url.searchParams.has('q')) {
+      url.searchParams.delete('q')
+      url.searchParams.delete('state')
+      url.searchParams.delete('org_type')
+      window.history.replaceState({}, '', url.pathname + url.search)
+    }
+
     void runSearch(effectiveOrgType, q, effectiveState, 'url', amountRange, deepResearch)
   }, [searchParams, focusArea, orgType, state, amountRange, deepResearch, runSearch])
 
