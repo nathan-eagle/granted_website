@@ -13,7 +13,7 @@ import HeroSearchBar from '@/components/HeroSearchBar'
 import HowGrantedWorks from '@/components/HowGrantedWorks'
 import TrendingGrants from '@/components/TrendingGrants'
 import EmailCapture from '@/components/EmailCapture'
-import { StatsCounter, Testimonials, OrgLogos } from '@/components/SocialProof'
+import { StatsCounter, OrgLogos } from '@/components/SocialProof'
 import { getClosingSoonGrants } from '@/lib/grants'
 import { safeFetch } from '@/lib/safe-fetch'
 
@@ -75,8 +75,11 @@ export default async function HomePage() {
                   The World&apos;s Largest Grants + Funders Database
                 </p>
                 <h1 className="heading-display">
-                  What would <em>you</em> like funding for?
+                  Search every grant in existence.
                 </h1>
+                <p className="body-lg mt-4 text-white/60 max-w-xl">
+                  133,000 foundations &middot; 76,000 grants &middot; 12 federal sources &middot; plus real-time AI search across the entire web.
+                </p>
                 <HeroSearchBar className="mt-8" />
                 <p className="mt-5 text-sm text-white/40">
                   7-day free trial. Your data is never used to train AI.{' '}
@@ -136,8 +139,28 @@ export default async function HomePage() {
         {/* ── Who is this for? ── */}
         <AudienceSection />
 
-        {/* ── Testimonials ── */}
-        <Testimonials />
+        {/* ── Built Different ── */}
+        <section>
+          <Container className="py-20 md:py-24">
+            <RevealOnScroll className="mx-auto max-w-3xl text-center">
+              <p className="text-sm font-medium uppercase tracking-[0.15em] text-brand-yellow mb-4">
+                Not a ChatGPT wrapper
+              </p>
+              <h2 className="heading-lg text-navy">Built different.</h2>
+              <p className="body-lg mt-6 text-navy-light">
+                5 AI search providers, cross-checked. A 15-feature scoring model trained on 1,034 labeled queries. Hybrid retrieval that combines full-text, semantic, and cross-encoder reranking. Under 200ms.
+              </p>
+              <p className="body-lg mt-4 text-navy-light font-semibold">
+                Other platforms search their database. Granted searches their database <em>and the entire internet.</em>
+              </p>
+              <div className="mt-8">
+                <ButtonLink href="/platform" variant="primary" className="cta-shimmer">
+                  See the architecture &rarr;
+                </ButtonLink>
+              </div>
+            </RevealOnScroll>
+          </Container>
+        </section>
 
         {/* ── Email capture ── */}
         <section className="bg-navy text-white noise-overlay overflow-hidden">
@@ -174,7 +197,7 @@ export default async function HomePage() {
                   Whether you&apos;re a community nonprofit with a six-person team, a tribal college building research capacity from scratch, or an early-career researcher writing your first independent proposal &mdash; Granted gives you the same AI-powered coaching that levels the playing field.
                 </p>
                 <p className="body-lg mt-4 text-navy-light font-semibold">
-                  A professional grant writer charges $5,000&ndash;$15,000 per proposal. Granted costs $29/month.
+                  Other grant platforms charge $300&ndash;$900/month. A professional grant writer charges $5,000&ndash;$15,000 per proposal. Granted starts at $29.
                 </p>
               </div>
               <div className="mt-12">

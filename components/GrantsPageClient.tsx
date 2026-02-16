@@ -34,9 +34,9 @@ const audienceCategories = GRANT_CATEGORIES.filter((c) => c.type === 'audience')
 const topicCategories = GRANT_CATEGORIES.filter((c) => c.type === 'topic')
 
 const STATS = [
-  { stat: '20 hrs', label: 'avg. weekly search time saved' },
-  { stat: '85%', label: 'of grants won by matched orgs' },
-  { stat: '30 sec', label: 'to find grants with Granted' },
+  { stat: '133K', label: 'foundations in database' },
+  { stat: '5', label: 'AI search providers, cross-checked' },
+  { stat: '<200ms', label: 'scoring latency per query' },
 ]
 
 interface Props {
@@ -274,6 +274,9 @@ export default function GrantsPageClient({
                 </h1>
                 <p className="body-lg mt-4 text-white/50 max-w-2xl mx-auto">
                   Search federal, foundation, and corporate grants with AI &mdash; or browse by agency, topic, and state.
+                </p>
+                <p className="text-sm mt-3 text-brand-yellow/70 font-medium">
+                  Free grant search. No account required. No paywall.
                 </p>
               </div>
             </RevealOnScroll>

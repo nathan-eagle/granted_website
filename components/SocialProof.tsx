@@ -29,10 +29,10 @@ function useCounter(target: number, duration = 2000, start = false) {
 
 /* ── Stats block ── */
 const STATS = [
-  { value: 24, suffix: '/7', label: 'Database updates\nacross grants + funders' },
-  { value: 50, suffix: '+', label: 'Specialized writing\nmodels' },
-  { value: 12000, suffix: '+', label: 'Proposals drafted\nwith Granted' },
-  { value: 40, suffix: '%', label: 'Time saved on\naverage per proposal' },
+  { value: 133, suffix: 'K', label: 'Foundations\nin database' },
+  { value: 76, suffix: 'K', label: 'Grants\nindexed' },
+  { value: 79, suffix: 'K', label: 'Foundation officers\n& key people' },
+  { value: 5, suffix: '', label: 'AI search providers\ncross-checked' },
 ]
 
 export function StatsCounter() {
