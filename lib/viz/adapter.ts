@@ -42,7 +42,7 @@ export function toVizGrant(opp: Opportunity): VizGrant {
     summary: opp.summary,
     type: inferType(opp),
     source: opp.source_provider,
-    url: opp.google_url || opp.rfp_url,
+    url: opp.slug ? `/grants/${opp.slug}` : undefined,
     slug: opp.slug,
     eligibility: opp.eligibility,
     match_reasons: opp.match_reasons,
