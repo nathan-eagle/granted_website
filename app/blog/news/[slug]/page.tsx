@@ -60,7 +60,7 @@ export default async function NewsjackPost({ params }: Params) {
       name: 'Granted AI',
       url: 'https://grantedai.com',
     },
-    author: { '@type': 'Organization', name: story.author || 'Granted AI' },
+    author: { '@type': 'Person', name: story.author || 'Arthur Griffin' },
   }
 
   const breadcrumbLd = {
@@ -104,7 +104,7 @@ export default async function NewsjackPost({ params }: Params) {
               {' · '}
               {minutes} min read
             </p>
-            <p className="text-sm text-slate-500 font-medium">{story.author || 'Granted AI'}</p>
+            <p className="text-sm text-slate-500 font-medium">{story.author || 'Arthur Griffin'}</p>
           </div>
           <MDXRemote source={story.content_markdown} options={{ mdxOptions: { remarkPlugins: [remarkGfm], rehypePlugins: [rehypeSlug] } }} />
         </article>

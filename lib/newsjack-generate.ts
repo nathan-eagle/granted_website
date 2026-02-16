@@ -9,6 +9,8 @@ import {
 } from './newsjack-prompts'
 import { slugify } from './newsjack-helpers'
 
+const BYLINE_AUTHORS = ['Arthur Griffin', 'Claire Cummings'] as const
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
 
@@ -181,7 +183,20 @@ export async function runGenerationPipeline(
     }
   }
 
-  // 5. Update DB with generated content
+  // 5. Pick alternating byline author
+  const { data: lastStory } = await supabase
+    .from('newsjack_stories')
+    .select('author')
+    .eq('status', 'published')
+    .order('published_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  const lastAuthor = lastStory?.author
+  const author =
+    lastAuthor === BYLINE_AUTHORS[0] ? BYLINE_AUTHORS[1] : BYLINE_AUTHORS[0]
+
+  // 6. Update DB with generated content
   await supabase
     .from('newsjack_stories')
     .update({
@@ -190,6 +205,7 @@ export async function runGenerationPipeline(
       meta_description: article.meta_description,
       content_markdown: article.content_markdown,
       category: article.category,
+      author,
       quality_pass: qualityPass,
       quality_issues: qualityIssues,
       source_articles: sourceText ? [{ url: sourceUrl, text: sourceText.slice(0, 2000) }] : [],
