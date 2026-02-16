@@ -1,5 +1,5 @@
 // Adapter: maps NDJSON stream envelopes → visualization engine API calls
-// Handles variable cadence queuing to preserve staged reveal drama
+// Handles dedup (the ONE chokepoint) and variable cadence queuing
 
 import type { Opportunity } from '@/hooks/useGrantSearch'
 import type { VizGrant, SearchVisualization, StreamEnvelope } from './types'
@@ -49,17 +49,37 @@ export function toVizGrant(opp: Opportunity): VizGrant {
   }
 }
 
+/** Normalize grant name to a stable dedup key */
+function dedupKey(name: string): string {
+  return (name || '').trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
 /**
  * Create an adapter that routes NDJSON envelopes to the engine.
- * Handles variable cadence queuing so batch arrivals feel staged.
+ * Handles dedup (the ONE chokepoint) and variable cadence queuing.
  */
 export function createAdapter(engine: SearchVisualization) {
   let searchStartTime = Date.now()
   let isFirstBatch = true
+  // NUCLEAR dedup: no grant with the same normalized name passes through twice
+  const seenGrants = new Set<string>()
 
   function resetTiming() {
     searchStartTime = Date.now()
     isFirstBatch = true
+    seenGrants.clear()
+  }
+
+  /** Filter out grants we've already sent to the engine */
+  function dedup(grants: VizGrant[]): VizGrant[] {
+    const unique: VizGrant[] = []
+    for (const g of grants) {
+      const key = dedupKey(g.name)
+      if (!key || seenGrants.has(key)) continue
+      seenGrants.add(key)
+      unique.push(g)
+    }
+    return unique
   }
 
   function processEnvelope(envelope: StreamEnvelope) {
@@ -68,8 +88,8 @@ export function createAdapter(engine: SearchVisualization) {
     switch (envelope.type) {
       case 'db_results': {
         const opps = (env.opportunities as Opportunity[] | undefined) || []
-        const vizGrants = opps.map(toVizGrant)
-        engine.addBatch('db_results', vizGrants, true)
+        const vizGrants = dedup(opps.map(toVizGrant))
+        if (vizGrants.length > 0) engine.addBatch('db_results', vizGrants, true)
         isFirstBatch = false
         break
       }
@@ -77,8 +97,8 @@ export function createAdapter(engine: SearchVisualization) {
       case 'model_batch': {
         const provider = (env.provider as string) || 'unknown'
         const opps = (env.opportunities as Opportunity[] | undefined) || []
-        const vizGrants = opps.map(toVizGrant)
-        engine.addBatch(provider, vizGrants, isFirstBatch)
+        const vizGrants = dedup(opps.map(toVizGrant))
+        if (vizGrants.length > 0) engine.addBatch(provider, vizGrants, isFirstBatch)
         isFirstBatch = false
         break
       }
@@ -89,6 +109,7 @@ export function createAdapter(engine: SearchVisualization) {
       case 'reranked': {
         const opps = (env.opportunities as Opportunity[] | undefined) || []
         const vizGrants = opps.map(toVizGrant)
+        // Rerank uses ALL grants (no dedup filter — engine only updates existing nodes)
         engine.rerank(vizGrants)
         break
       }
@@ -107,5 +128,13 @@ export function createAdapter(engine: SearchVisualization) {
     }
   }
 
-  return { processEnvelope, resetTiming }
+  /** Pre-register grants that were loaded via loadAll so adapter skips them */
+  function markSeen(grants: VizGrant[]) {
+    for (const g of grants) {
+      const key = dedupKey(g.name)
+      if (key) seenGrants.add(key)
+    }
+  }
+
+  return { processEnvelope, resetTiming, markSeen }
 }

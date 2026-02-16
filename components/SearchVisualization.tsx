@@ -100,14 +100,14 @@ export default function SearchVisualization({
         // IMPORTANT: Only wire up adapter for NEW envelopes — don't replay buffer
         // because loadAll already rendered the existing opportunities
         if (enrichingRef.current && engineRef.current) {
+          const adapter = createAdapter(engineRef.current)
+          adapterRef.current = adapter
           if (opportunities.length > 0) {
             const vizGrants = opportunities.map(toVizGrant)
             engineRef.current.loadAll(vizGrants)
+            // Tell adapter about these grants so it skips them in future addBatch calls
+            adapter.markSeen(vizGrants)
           }
-          // Wire up adapter for new incoming envelopes only (not buffered ones
-          // which would duplicate grants already loaded via loadAll)
-          const adapter = createAdapter(engineRef.current)
-          adapterRef.current = adapter
           onReadyRef.current?.((envelope: StreamEnvelope) => {
             adapter.processEnvelope(envelope)
           })
