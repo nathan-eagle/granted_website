@@ -10,6 +10,7 @@ import {
   isPastDeadline,
   deadlineUrgency,
 } from '@/hooks/useGrantSearch'
+import BookmarkButton from './BookmarkButton'
 
 export type SortOption = 'best_match' | 'deadline' | 'amount' | 'newest'
 
@@ -167,6 +168,7 @@ function ResultRow({
         </div>
 
         <div className="shrink-0 flex items-center gap-2" onClick={e => e.stopPropagation()}>
+          {opp.slug && <BookmarkButton slug={opp.slug} size="sm" />}
           {isPastDeadline(opp.deadline) ? (
             <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-400 cursor-not-allowed">
               Expired
@@ -273,6 +275,7 @@ function ResultRow({
         </div>
 
         <div className="mt-3 flex items-center gap-3" onClick={e => e.stopPropagation()}>
+          {opp.slug && <BookmarkButton slug={opp.slug} size="sm" />}
           {isPastDeadline(opp.deadline) ? (
             <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-400 cursor-not-allowed">
               Expired

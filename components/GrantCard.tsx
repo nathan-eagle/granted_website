@@ -4,6 +4,7 @@ import Link from 'next/link'
 import type { PublicGrant } from '@/lib/grants'
 import { SOURCE_LABELS, OFFICIAL_SOURCES } from '@/lib/source-labels'
 import GrantStatusBadge from './GrantStatusBadge'
+import BookmarkButton from './BookmarkButton'
 import { trackEvent } from '@/lib/analytics'
 
 function formatDeadline(deadline: string | null): string {
@@ -55,7 +56,10 @@ export default function GrantCard({ grant }: { grant: PublicGrant }) {
               </span>
             )}
           </div>
-          <GrantStatusBadge status={grant.status} />
+          <div className="flex items-center gap-2">
+            <BookmarkButton slug={grant.slug} size="sm" />
+            <GrantStatusBadge status={grant.status} />
+          </div>
         </div>
         <h3 className="text-sm font-bold text-navy group-hover:text-brand-gold transition-colors leading-snug line-clamp-2">
           {grant.name}

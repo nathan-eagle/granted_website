@@ -386,7 +386,7 @@ function GrantDetailPage({ grant, related, blogPosts, stale }: { grant: PublicGr
 
           <RevealOnScroll delay={160}>
             <div className="mt-10">
-              <GrantQuickFacts grant={grant} />
+              <GrantQuickFacts grant={grant} slug={grant.slug} />
             </div>
           </RevealOnScroll>
 

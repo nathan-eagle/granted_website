@@ -11,6 +11,7 @@ import {
   isPastDeadline,
   deadlineUrgency,
 } from '@/hooks/useGrantSearch'
+import BookmarkButton from './BookmarkButton'
 
 interface Props {
   opportunity: Opportunity | null
@@ -88,23 +89,26 @@ export default function GrantDetailPanel({
             </h2>
             <p className="text-sm text-navy-light/60 mt-1">{opp.funder}</p>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              trackEvent('grant_discovery_detail_close', {
-                grant_name: opp.name.slice(0, 120),
-                method: 'button',
-              })
-              onClose()
-            }}
-            className="shrink-0 p-2 -m-2 rounded-md text-navy-light/40 hover:text-navy hover:bg-navy/5 transition-colors"
-            aria-label="Close"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            {opp.slug && <BookmarkButton slug={opp.slug} size="sm" />}
+            <button
+              type="button"
+              onClick={() => {
+                trackEvent('grant_discovery_detail_close', {
+                  grant_name: opp.name.slice(0, 120),
+                  method: 'button',
+                })
+                onClose()
+              }}
+              className="p-2 -m-2 rounded-md text-navy-light/40 hover:text-navy hover:bg-navy/5 transition-colors"
+              aria-label="Close"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Content */}
