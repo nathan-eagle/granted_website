@@ -237,39 +237,129 @@ export default function GrantsPageClient({
 
       {/* Visualization phase — shown when viz is active (during AND after enrichment) */}
       {phase === 'results' && vizActive && (
-        <div className="relative">
-          <SearchVisualization
-            mode={vizMode}
-            focusArea={focusArea}
-            orgType={orgType}
-            state={searchState}
-            enriching={enriching}
-            opportunities={opportunities}
-            onGrantSelect={handleVizGrantSelect}
-            onReady={(processEnvelope) => {
-              vizEnvelopeHandlerRef.current = processEnvelope
-              // Don't replay buffered envelopes — loadAll already rendered existing
-              // opportunities. Only forward NEW envelopes from here on.
-              vizEnvelopeBufferRef.current = []
-            }}
-            onTeardown={() => {
-              vizEnvelopeHandlerRef.current = null
-            }}
-            className="w-full"
-          />
-          {/* Floating controls over visualization — z-[999] to stay above engine internals */}
-          <div className="absolute top-3 left-3 z-[999] flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleBackToBrowsing}
-              className="flex items-center gap-1.5 rounded-lg border border-navy/10 bg-white/90 backdrop-blur px-3 py-1.5 text-xs font-medium text-navy-light/70 hover:text-navy transition-colors"
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
-              Back
-            </button>
-            <VizToggle mode={vizMode} onChange={handleVizModeChange} className="bg-white/90 backdrop-blur" />
+        <>
+          {/* Search bar above visualization — matches list view controls */}
+          <div className="pt-8 md:pt-12 pb-4">
+            <div className="max-w-4xl mx-auto">
+              <button
+                type="button"
+                onClick={handleBackToBrowsing}
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-navy-light hover:text-navy transition-colors mb-4"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+                Back to browsing
+              </button>
+
+              <form onSubmit={handleSearch} className="card p-4">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1 flex flex-col sm:flex-row gap-2">
+                    <select
+                      value={orgType}
+                      onChange={e => {
+                        setOrgType(e.target.value)
+                        trackEvent('grant_finder_filter_change', {
+                          filter: 'org_type',
+                          value: e.target.value || 'any',
+                          surface: 'results_viz',
+                        })
+                      }}
+                      className="sm:w-36 rounded-md border border-navy/10 bg-white px-3 py-2 text-sm text-navy outline-none focus:border-brand-yellow/60 transition appearance-none"
+                    >
+                      <option value="">Any org type</option>
+                      {ORG_TYPES.map(t => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                    <input
+                      type="text"
+                      required
+                      minLength={3}
+                      value={focusArea}
+                      onChange={e => setFocusArea(e.target.value)}
+                      onBlur={() =>
+                        trackEvent('grant_finder_focus_blur', {
+                          focus_area: summarizeTerm(focusArea),
+                          surface: 'results_viz',
+                        })
+                      }
+                      placeholder="Focus area..."
+                      className="flex-1 rounded-md border border-navy/10 bg-white px-3 py-2 text-sm text-navy placeholder:text-navy-light/40 outline-none focus:border-brand-yellow/60 transition"
+                    />
+                    <select
+                      value={searchState}
+                      onChange={e => {
+                        setState(e.target.value)
+                        trackEvent('grant_finder_filter_change', {
+                          filter: 'state',
+                          value: e.target.value || 'any',
+                          surface: 'results_viz',
+                        })
+                      }}
+                      className="sm:w-36 rounded-md border border-navy/10 bg-white px-3 py-2 text-sm text-navy outline-none focus:border-brand-yellow/60 transition appearance-none"
+                    >
+                      <option value="">Any state</option>
+                      {US_STATES.map(s => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={amountRange}
+                      onChange={e => {
+                        setAmountRange(e.target.value as AmountRangeKey)
+                        trackEvent('grant_finder_filter_change', {
+                          filter: 'amount_range',
+                          value: e.target.value || 'any',
+                          surface: 'results_viz',
+                        })
+                      }}
+                      className="sm:w-36 rounded-md border border-navy/10 bg-white px-3 py-2 text-sm text-navy outline-none focus:border-brand-yellow/60 transition appearance-none"
+                    >
+                      {AMOUNT_RANGES.map(r => (
+                        <option key={r.key} value={r.key}>{r.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="shrink-0 flex items-center gap-2">
+                    <button
+                      type="submit"
+                      className="inline-flex items-center justify-center gap-1.5 rounded-md px-4 py-2 text-sm font-semibold bg-brand-yellow text-navy hover:bg-brand-gold transition-colors"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                      </svg>
+                      Search
+                    </button>
+                    <VizToggle mode={vizMode} onChange={handleVizModeChange} />
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
+
+          {/* Visualization canvas */}
+          <div className="relative">
+            <SearchVisualization
+              mode={vizMode}
+              focusArea={focusArea}
+              orgType={orgType}
+              state={searchState}
+              enriching={enriching}
+              opportunities={opportunities}
+              onGrantSelect={handleVizGrantSelect}
+              onReady={(processEnvelope) => {
+                vizEnvelopeHandlerRef.current = processEnvelope
+                // Don't replay buffered envelopes — loadAll already rendered existing
+                // opportunities. Only forward NEW envelopes from here on.
+                vizEnvelopeBufferRef.current = []
+              }}
+              onTeardown={() => {
+                vizEnvelopeHandlerRef.current = null
+              }}
+              className="w-full"
+            />
+          </div>
+        </>
       )}
 
       {/* Results phase — list view */}
