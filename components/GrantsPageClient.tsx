@@ -13,6 +13,7 @@ import SignupNudgeBanner from '@/components/SignupNudgeBanner'
 import DiscoveryFilters, { type FilterState, DEFAULT_FILTERS, applyFilters } from '@/components/DiscoveryFilters'
 import DiscoveryTabs, { type DiscoveryTab } from '@/components/DiscoveryTabs'
 import FunderMatchesTable, { type FunderMatch } from '@/components/FunderMatchesTable'
+import Container from '@/components/Container'
 import RevealOnScroll from '@/components/RevealOnScroll'
 import GrantCard from '@/components/GrantCard'
 import GrantCTA from '@/components/GrantCTA'
@@ -216,6 +217,32 @@ export default function GrantsPageClient({
 
   return (
     <>
+      {/* Hero — only during form/loading phases */}
+      {(phase === 'form' || phase === 'loading') && (
+        <section className="bg-navy noise-overlay overflow-hidden">
+          <Container className="py-8 md:py-12 relative z-10">
+            <RevealOnScroll>
+              <div className="text-center max-w-3xl mx-auto">
+                {totalGrantCount > 0 && (
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-yellow/10 border border-brand-yellow/20 mb-6">
+                    <span className="text-sm font-semibold text-brand-yellow">
+                      {totalGrantCount.toLocaleString()}+ Opportunities
+                    </span>
+                  </div>
+                )}
+                <h1 className="heading-xl text-white">
+                  Find the right grant for your organization
+                </h1>
+                <p className="body-lg mt-4 text-white/50 max-w-2xl mx-auto">
+                  Search federal, foundation, and corporate grants with AI &mdash; or browse by agency, topic, and state.
+                </p>
+              </div>
+            </RevealOnScroll>
+          </Container>
+        </section>
+      )}
+
+      <Container>
       {/* Grant Finder — form + loading */}
       {(phase === 'form' || phase === 'loading') && (
         <div className="py-12 md:py-16">
@@ -364,7 +391,7 @@ export default function GrantsPageClient({
 
       {/* Results phase — list view */}
       {phase === 'results' && !vizActive && (
-        <div className="py-8 md:py-12">
+        <div className="py-4 md:py-6">
           <div className="max-w-4xl mx-auto">
             {/* Back button + view toggle */}
             <div className="flex items-center justify-between mb-4">
@@ -728,6 +755,7 @@ export default function GrantsPageClient({
           </RevealOnScroll>
         </>
       )}
+      </Container>
     </>
   )
 }

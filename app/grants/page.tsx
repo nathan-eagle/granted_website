@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
-import RevealOnScroll from '@/components/RevealOnScroll'
 import GrantsPageClient from '@/components/GrantsPageClient'
 import { getGrantCount, getClosingSoonGrants, getNewGrants, getRecentlyAddedGrants } from '@/lib/grants'
 
@@ -63,51 +62,47 @@ export default async function GrantsIndex() {
       />
       <Header />
       <main>
-        {/* Hero */}
-        <section className="bg-navy noise-overlay overflow-hidden">
-          <Container className="py-8 md:py-12 relative z-10">
-            <RevealOnScroll>
-              <div className="text-center max-w-3xl mx-auto">
-                {totalGrantCount > 0 && (
+        <Suspense fallback={
+          <>
+            <section className="bg-navy noise-overlay overflow-hidden">
+              <Container className="py-8 md:py-12 relative z-10">
+                <div className="text-center max-w-3xl mx-auto">
                   <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-yellow/10 border border-brand-yellow/20 mb-6">
                     <span className="text-sm font-semibold text-brand-yellow">
-                      {totalGrantCount.toLocaleString()}+ Opportunities
+                      1,000+ Opportunities
                     </span>
                   </div>
-                )}
-                <h1 className="heading-xl text-white">
-                  Find the right grant for your organization
-                </h1>
-                <p className="body-lg mt-4 text-white/50 max-w-2xl mx-auto">
-                  Search federal, foundation, and corporate grants with AI — or browse by agency, topic, and state.
-                </p>
-              </div>
-            </RevealOnScroll>
-          </Container>
-        </section>
-
-        <Container>
-          <Suspense fallback={
-            <div className="py-12 md:py-16">
-              <div className="max-w-2xl mx-auto">
-                <div className="card p-8 md:p-10 animate-pulse">
-                  <div className="h-6 bg-navy/8 rounded w-1/3 mb-6" />
-                  <div className="h-12 bg-navy/5 rounded mb-6" />
-                  <div className="h-6 bg-navy/8 rounded w-1/3 mb-6" />
-                  <div className="h-12 bg-navy/5 rounded mb-6" />
-                  <div className="h-12 bg-navy/8 rounded-pill mt-8" />
+                  <h1 className="heading-xl text-white">
+                    Find the right grant for your organization
+                  </h1>
+                  <p className="body-lg mt-4 text-white/50 max-w-2xl mx-auto">
+                    Search federal, foundation, and corporate grants with AI &mdash; or browse by agency, topic, and state.
+                  </p>
+                </div>
+              </Container>
+            </section>
+            <Container>
+              <div className="py-12 md:py-16">
+                <div className="max-w-2xl mx-auto">
+                  <div className="card p-8 md:p-10 animate-pulse">
+                    <div className="h-6 bg-navy/8 rounded w-1/3 mb-6" />
+                    <div className="h-12 bg-navy/5 rounded mb-6" />
+                    <div className="h-6 bg-navy/8 rounded w-1/3 mb-6" />
+                    <div className="h-12 bg-navy/5 rounded mb-6" />
+                    <div className="h-12 bg-navy/8 rounded-pill mt-8" />
+                  </div>
                 </div>
               </div>
-            </div>
-          }>
-            <GrantsPageClient
-              closingSoon={closingSoon}
-              newGrants={newGrants}
-              recentlyAdded={recentlyAdded}
-              totalGrantCount={totalGrantCount}
-            />
-          </Suspense>
-        </Container>
+            </Container>
+          </>
+        }>
+          <GrantsPageClient
+            closingSoon={closingSoon}
+            newGrants={newGrants}
+            recentlyAdded={recentlyAdded}
+            totalGrantCount={totalGrantCount}
+          />
+        </Suspense>
       </main>
       <Footer />
     </>
