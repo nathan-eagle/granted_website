@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import CheckoutButton from '@/components/CheckoutButton'
 import { trackEvent } from '@/lib/analytics'
-import { isSignedIn } from '@/lib/auth-status'
+import { isSignedIn, getUserName, clearAuthCookies } from '@/lib/auth-status'
 
 const nav = [
   { href: '/grants', label: 'Grants' },
@@ -31,10 +31,18 @@ const DASHBOARD_URL = 'https://app.grantedai.com/overview'
 export default function Header() {
   const pathname = usePathname()
   const [signedIn, setSignedIn] = useState(false)
+  const [userName, setUserName] = useState<string | null>(null)
 
   useEffect(() => {
     setSignedIn(isSignedIn())
+    setUserName(getUserName())
   }, [])
+
+  const handleSignOut = () => {
+    clearAuthCookies()
+    setSignedIn(false)
+    setUserName(null)
+  }
 
   return (
     <header className="w-full">
@@ -63,12 +71,24 @@ export default function Header() {
 
           <div className="flex items-center gap-3 md:hidden">
             {signedIn ? (
-              <Link
-                href={DASHBOARD_URL}
-                className="px-4 py-2 text-sm font-semibold border-black bg-black text-white hover:bg-black/90 rounded-pill"
-              >
-                Dashboard
-              </Link>
+              <>
+                {userName && (
+                  <span className="text-sm text-navy-light truncate max-w-[120px]">{userName.split(' ')[0]}</span>
+                )}
+                <Link
+                  href={DASHBOARD_URL}
+                  className="px-4 py-2 text-sm font-semibold bg-navy text-white hover:bg-navy/90 rounded-pill"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="text-sm font-medium text-navy-light/60 hover:text-navy transition-colors"
+                >
+                  Sign out
+                </button>
+              </>
             ) : (
               <>
                 <Link
@@ -142,12 +162,24 @@ export default function Header() {
           </div>
 
           {signedIn ? (
-            <Link
-              href={DASHBOARD_URL}
-              className="px-4 py-2 text-sm font-semibold border-black bg-black text-white hover:bg-black/90 rounded-pill"
-            >
-              Dashboard
-            </Link>
+            <>
+              {userName && (
+                <span className="text-sm text-navy-light truncate max-w-[140px]">{userName.split(' ')[0]}</span>
+              )}
+              <Link
+                href={DASHBOARD_URL}
+                className="px-4 py-2 text-sm font-semibold bg-navy text-white hover:bg-navy/90 rounded-pill"
+              >
+                Dashboard
+              </Link>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="text-sm font-medium text-navy-light/60 hover:text-navy transition-colors"
+              >
+                Sign out
+              </button>
+            </>
           ) : (
             <>
               <Link
