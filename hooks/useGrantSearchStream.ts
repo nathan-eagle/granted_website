@@ -19,6 +19,35 @@ import {
 } from './useGrantSearch'
 
 const API_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://app.grantedai.com'
+const SEARCH_CACHE_KEY = 'granted_search_cache'
+
+/** Build a cache key from search params */
+function cacheKey(q: string, orgType: string, state: string): string {
+  return [q, orgType, state].map(s => s.toLowerCase().trim()).join('|')
+}
+
+/** Save search results to sessionStorage */
+function cacheResults(q: string, orgType: string, state: string, opportunities: Opportunity[]) {
+  try {
+    sessionStorage.setItem(SEARCH_CACHE_KEY, JSON.stringify({
+      key: cacheKey(q, orgType, state),
+      opportunities,
+      ts: Date.now(),
+    }))
+  } catch {}
+}
+
+/** Load cached results if they match the query and are <30 min old */
+function loadCachedResults(q: string, orgType: string, state: string): Opportunity[] | null {
+  try {
+    const raw = sessionStorage.getItem(SEARCH_CACHE_KEY)
+    if (!raw) return null
+    const cached = JSON.parse(raw)
+    if (cached.key !== cacheKey(q, orgType, state)) return null
+    if (Date.now() - cached.ts > 30 * 60 * 1000) return null
+    return cached.opportunities
+  } catch { return null }
+}
 
 type ProviderName =
   | 'gemini'
@@ -363,6 +392,10 @@ export function useGrantSearchStream(opts?: {
 
       setPhase('results')
 
+      // Cache results in sessionStorage so page refresh is instant
+      const finalOpps = deduplicateOpportunities(result.opportunities)
+      cacheResults(normalizedFocus, searchOrgType, searchState, finalOpps)
+
       trackEvent('grant_finder_results', {
         count: String(result.opportunities.length),
         broadened: String(broadenedSearch),
@@ -394,6 +427,7 @@ export function useGrantSearchStream(opts?: {
     setProviders(new Map())
     setPhase('form')
     autoSearchedQueryRef.current = null
+    try { sessionStorage.removeItem(SEARCH_CACHE_KEY) } catch {}
     const url = new URL(window.location.href)
     url.searchParams.delete('q')
     window.history.replaceState({}, '', url.pathname + url.search)
@@ -437,13 +471,13 @@ export function useGrantSearchStream(opts?: {
 
     autoSearchedQueryRef.current = q
 
-    // Clear ?q= from URL so a page refresh doesn't re-trigger the search
-    const url = new URL(window.location.href)
-    if (url.searchParams.has('q')) {
-      url.searchParams.delete('q')
-      url.searchParams.delete('state')
-      url.searchParams.delete('org_type')
-      window.history.replaceState({}, '', url.pathname + url.search)
+    // Check sessionStorage cache first — instant restore on refresh
+    const cached = loadCachedResults(q, effectiveOrgType, effectiveState)
+    if (cached && cached.length > 0) {
+      setOpportunities(cached)
+      setPhase('results')
+      trackEvent('grant_finder_cache_hit', { source: 'session', count: String(cached.length) })
+      return
     }
 
     void runSearch(effectiveOrgType, q, effectiveState, 'url', amountRange, deepResearch)
