@@ -39,10 +39,10 @@ export interface SearchVisualization {
 export type ProviderName =
   | 'gemini'
   | 'perplexity_sonar_pro'
-  | 'openai_gpt5'
-  | 'claude_sonnet'
-  | 'perplexity_reasoning'
-  | 'grok'
+  | 'openai_gpt4_1'
+  | 'claude_haiku'
+  | 'grok_deep'
+  | 'perplexity_deep_research'
 
 export interface StreamEnvelope {
   type: 'db_results' | 'model_batch' | 'model_error' | 'reranked' | 'complete' | 'heartbeat'

@@ -182,8 +182,12 @@ function buildAboutParagraph(f: Foundation, stats?: GrantStats | null): string {
     parts.push(`Annual income is reported at ${formatAssets(f.income_amount)}.`)
   }
 
+  if (f.mission) {
+    parts.push(f.mission.endsWith('.') ? f.mission : `${f.mission}.`)
+  }
+
   const catLabel = getFoundationCategoryLabel(f)
-  if (catLabel !== 'General') {
+  if (catLabel !== 'General' && !f.mission) {
     parts.push(`The foundation operates in the area of ${catLabel.toLowerCase()}.`)
   }
 
@@ -211,7 +215,9 @@ function buildFoundationFaq(
   // Q1: What does [Name] fund?
   {
     const parts: string[] = []
-    if (catLabel !== 'General') {
+    if (f.mission) {
+      parts.push(f.mission.endsWith('.') ? f.mission : `${f.mission}.`)
+    } else if (catLabel !== 'General') {
       parts.push(`${f.name} primarily funds organizations in the area of ${catLabel.toLowerCase()}.`)
     } else {
       parts.push(`${f.name} is a private foundation that provides grants to eligible organizations.`)

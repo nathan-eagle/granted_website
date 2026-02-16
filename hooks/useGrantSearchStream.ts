@@ -54,7 +54,8 @@ type ProviderName =
   | 'perplexity_sonar_pro'
   | 'openai_gpt4_1'
   | 'claude_haiku'
-  | 'grok_deep'
+  | 'grok'
+  | 'grok_fast'
   | 'perplexity_deep_research'
 
 type ProviderStatus = {

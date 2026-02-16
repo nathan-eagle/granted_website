@@ -29,6 +29,7 @@ export type Foundation = {
   activity_codes: string | null
   group_exemption: string | null
   affiliation: string | null
+  mission: string | null
   source: string
   last_verified_at: string | null
   created_at: string
