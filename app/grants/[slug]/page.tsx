@@ -31,6 +31,7 @@ import {
   getRelatedBlogPosts,
   type PostFrontmatter,
 } from '@/lib/blog'
+import { getFoundationSlugByFunderName } from '@/lib/foundations'
 import RelatedBlogPosts from '@/components/RelatedBlogPosts'
 
 export const revalidate = 3600
@@ -303,7 +304,7 @@ function CategoryPage({ category, grants, blogPosts }: { category: GrantCategory
 
 /* ── Grant detail layout ── */
 
-function GrantDetailPage({ grant, related, blogPosts, stale }: { grant: PublicGrant; related: PublicGrant[]; blogPosts: { slug: string; frontmatter: PostFrontmatter }[]; stale?: boolean }) {
+function GrantDetailPage({ grant, related, blogPosts, stale, funderFoundation }: { grant: PublicGrant; related: PublicGrant[]; blogPosts: { slug: string; frontmatter: PostFrontmatter }[]; stale?: boolean; funderFoundation?: { slug: string; name: string } | null }) {
   const year = grant.deadline ? new Date(grant.deadline).getFullYear() : 2026
   const url = `https://grantedai.com/grants/${grant.slug}`
   const faqs = buildGrantFaq(grant)
@@ -483,6 +484,31 @@ function GrantDetailPage({ grant, related, blogPosts, stale }: { grant: PublicGr
             </RevealOnScroll>
           )}
 
+          {funderFoundation && (
+            <RevealOnScroll delay={390}>
+              <section className="mt-12">
+                <h2 className="heading-md text-navy text-2xl font-bold mb-4">About the Funder</h2>
+                <Link
+                  href={`/foundations/${funderFoundation.slug}`}
+                  className="block rounded-2xl border border-navy/10 bg-cream-dark p-6 hover:border-brand-yellow transition-colors group"
+                >
+                  <h3 className="text-base font-bold text-navy group-hover:text-brand-gold transition-colors">
+                    {funderFoundation.name}
+                  </h3>
+                  <p className="text-sm text-navy-light/60 mt-1">
+                    View foundation profile, grantmaking history, financials, and key people.
+                  </p>
+                  <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-gold mt-3">
+                    View Foundation Profile
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="inline">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </Link>
+              </section>
+            </RevealOnScroll>
+          )}
+
           <RevealOnScroll delay={400}>
             <div className="mt-16">
               <GrantCTA />
@@ -541,12 +567,13 @@ export default async function GrantSlugPage({ params }: Props) {
   }
   if (grant) {
     const stale = !isGrantSeoReady(grant)
-    const [related, blogPosts] = await Promise.all([
+    const [related, blogPosts, funderFoundation] = await Promise.all([
       getRelatedGrants(grant.funder, grant.slug, 3).catch((err) => { console.error(`[grants/${params.slug}] getRelatedGrants failed:`, err); return [] }),
       getRelatedBlogPosts(grant.funder, 3).catch((err) => { console.error(`[grants/${params.slug}] getRelatedBlogPosts failed:`, err); return [] }),
+      getFoundationSlugByFunderName(grant.funder).catch((err) => { console.error(`[grants/${params.slug}] getFoundationSlugByFunderName failed:`, err); return null }),
     ])
     const readyRelated = related.filter((g) => isGrantSeoReady(g))
-    return <GrantDetailPage grant={grant} related={readyRelated} blogPosts={blogPosts} stale={stale} />
+    return <GrantDetailPage grant={grant} related={readyRelated} blogPosts={blogPosts} stale={stale} funderFoundation={funderFoundation} />
   }
 
   // 3. Not found

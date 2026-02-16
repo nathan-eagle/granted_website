@@ -65,10 +65,11 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
   const slugs = await getFoundationSlugsPage(offset, FOUNDATIONS_PER_SITEMAP).catch((err) => { console.error(`[foundations/sitemap] getFoundationSlugsPage(${offset}) failed:`, err); return [] })
 
   for (const f of slugs) {
+    const seoReady = isFoundationSeoReady(f)
     entries.push({
       url: `${base}/foundations/${f.slug}`,
-      priority: isFoundationSeoReady(f) ? 0.7 : 0.3,
-      changeFrequency: 'monthly',
+      priority: seoReady ? 0.7 : 0.3,
+      changeFrequency: seoReady ? 'weekly' : 'monthly',
       lastModified: f.updated_at ? new Date(f.updated_at).toISOString() : now,
     })
   }

@@ -875,6 +875,20 @@ export async function getGrantsReceivedByFoundation(
   })
 }
 
+/** Lightweight lookup: find a foundation slug by funder name (for cross-linking from grant pages) */
+export async function getFoundationSlugByFunderName(
+  funderName: string,
+): Promise<{ slug: string; name: string } | null> {
+  if (!supabase || !funderName) return null
+  const { data, error } = await supabase
+    .from('foundations')
+    .select('slug, name')
+    .ilike('name', funderName)
+    .limit(1)
+  if (error || !data || data.length === 0) return null
+  return data[0]
+}
+
 export function computeNewGranteeRate(grantees: FoundationGrantee[]): { rate: number; year: number } | null {
   const byYear = new Map<number, Set<string>>()
   for (const g of grantees) {

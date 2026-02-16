@@ -166,7 +166,12 @@ function CategoryPage({ category, foundations }: { category: FoundationCategory;
 
 /* ── Foundation detail layout ── */
 
-function buildAboutParagraph(f: Foundation, stats?: GrantStats | null): string {
+function buildAboutParagraph(
+  f: Foundation,
+  stats?: GrantStats | null,
+  givingByYear?: GivingByYear[],
+  stateDistribution?: StateDistribution[],
+): string {
   const parts: string[] = []
   const location = getFoundationLocation(f)
 
@@ -190,19 +195,90 @@ function buildAboutParagraph(f: Foundation, stats?: GrantStats | null): string {
     parts.push(`Annual income is reported at ${formatAssets(f.income_amount)}.`)
   }
 
+  // Mission or category focus
   if (f.mission) {
     parts.push(f.mission.endsWith('.') ? f.mission : `${f.mission}.`)
+  } else {
+    const catLabel = getFoundationCategoryLabel(f)
+    if (catLabel !== 'General') {
+      parts.push(`The foundation operates in the area of ${catLabel.toLowerCase()}.`)
+    }
   }
 
-  const catLabel = getFoundationCategoryLabel(f)
-  if (catLabel !== 'General' && !f.mission) {
-    parts.push(`The foundation operates in the area of ${catLabel.toLowerCase()}.`)
-  }
-
+  // Grantmaking overview — the core unique content
   if (stats && stats.totalGrants > 0) {
     parts.push(
       `According to available records, ${f.name} has made ${stats.totalGrants.toLocaleString()} grants totaling ${formatAssets(stats.totalGiving)}, with a median grant of ${formatAssets(stats.medianGrant)}.`,
     )
+
+    // Giving trend analysis
+    const years = givingByYear ?? []
+    if (years.length >= 2) {
+      const earliest = years[0]
+      const latest = years[years.length - 1]
+      const peakYear = years.reduce((max, y) => (y.total > max.total ? y : max), years[0])
+
+      if (latest.year !== earliest.year) {
+        if (latest.total > earliest.total * 1.2) {
+          parts.push(
+            `Annual giving has grown from ${formatAssets(earliest.total)} in ${earliest.year} to ${formatAssets(latest.total)} in ${latest.year}.`,
+          )
+        } else if (latest.total < earliest.total * 0.8) {
+          parts.push(
+            `Annual giving has decreased from ${formatAssets(earliest.total)} in ${earliest.year} to ${formatAssets(latest.total)} in ${latest.year}.`,
+          )
+        } else {
+          parts.push(
+            `The foundation has distributed between ${formatAssets(Math.min(...years.map((y) => y.total)))} and ${formatAssets(peakYear.total)} annually from ${earliest.year} to ${latest.year}.`,
+          )
+        }
+      }
+
+      if (peakYear.year !== latest.year && peakYear.year !== earliest.year) {
+        parts.push(
+          `Grantmaking activity was highest in ${peakYear.year} with ${formatAssets(peakYear.total)} distributed across ${peakYear.count.toLocaleString()} grants.`,
+        )
+      }
+    }
+
+    // Grant size range
+    if (stats.minGrant !== stats.maxGrant) {
+      parts.push(
+        `Individual grants have ranged from ${formatAssets(stats.minGrant)} to ${formatAssets(stats.maxGrant)}, with an average award of ${formatAssets(stats.averageGrant)}.`,
+      )
+    }
+
+    // Unique recipients
+    if (stats.uniqueRecipients > 1) {
+      parts.push(
+        `The foundation has supported ${stats.uniqueRecipients.toLocaleString()} unique organizations.`,
+      )
+    }
+
+    // Geographic reach
+    const states = stateDistribution ?? []
+    if (states.length > 0) {
+      const topStates = states.slice(0, 3)
+      const stateNames = topStates.map((s) => {
+        const st = getStateByAbbrev(s.state)
+        return st?.name ?? s.state
+      })
+
+      if (states.length === 1) {
+        parts.push(`Grant recipients are concentrated in ${stateNames[0]}.`)
+      } else if (states.length <= 3) {
+        parts.push(
+          `Grants have been distributed to organizations in ${stateNames.join(' and ')}.`,
+        )
+      } else {
+        const topPct = Math.round(
+          (topStates.reduce((s, t) => s + t.count, 0) / stats.totalGrants) * 100,
+        )
+        parts.push(
+          `The foundation primarily supports organizations in ${stateNames.join(', ')}, which account for ${topPct}% of all grants. Grantmaking reaches organizations across ${states.length} states.`,
+        )
+      }
+    }
   }
 
   if (f.deductibility === 'Contributions are deductible') {
@@ -333,7 +409,7 @@ function FoundationDetailPage({
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: foundation.name,
-    description: buildAboutParagraph(foundation, insightStats),
+    description: buildAboutParagraph(foundation, insightStats, insightGivingByYear, insightStateDistribution),
     url,
     ...(foundation.ein ? { taxID: foundation.ein } : {}),
     ...(foundation.contact_name
@@ -594,7 +670,7 @@ function FoundationDetailPage({
             <section className="mt-12">
               <h2 className="heading-md text-navy text-2xl font-bold mb-4">About This Foundation</h2>
               <p className="body-lg text-navy-light leading-relaxed">
-                {buildAboutParagraph(foundation, insightStats)}
+                {buildAboutParagraph(foundation, insightStats, insightGivingByYear, insightStateDistribution)}
               </p>
             </section>
           </RevealOnScroll>
