@@ -354,7 +354,7 @@ export function useGrantSearchStream(opts?: {
         await matchSlugs(result.opportunities)
       }
 
-      if (phase !== 'results') setPhase('results')
+      setPhase('results')
 
       trackEvent('grant_finder_results', {
         count: String(result.opportunities.length),
@@ -373,7 +373,7 @@ export function useGrantSearchStream(opts?: {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
       setPhase('form')
     }
-  }, [doStreamSearch, matchSlugs, phase])
+  }, [doStreamSearch, matchSlugs])
 
   const handleSearch = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -403,7 +403,9 @@ export function useGrantSearchStream(opts?: {
     if (urlState || urlOrgType) urlParamsApplied.current = true
   }, [searchParams]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Auto-run search from URL query string
+  // Auto-run search from URL query string.
+  // IMPORTANT: Guard on `q` alone so that async profile-fetch filling in
+  // state/orgType doesn't trigger a SECOND concurrent search with the same query.
   useEffect(() => {
     const q = searchParams.get('q')?.trim() ?? ''
 
@@ -416,17 +418,17 @@ export function useGrantSearchStream(opts?: {
       setFocusArea(q)
     }
 
+    // Only fire once per unique query string — profile-fetched state/orgType
+    // changes must NOT re-trigger the search
+    if (autoSearchedQueryRef.current === q) {
+      return
+    }
+
     // Use URL params for state/org if available (from hero search)
     const effectiveState = state || searchParams.get('state')?.trim() || ''
     const effectiveOrgType = orgType || searchParams.get('org_type')?.trim() || ''
 
-    // Build a composite key that includes all search dimensions
-    const searchKey = `${q}|${effectiveState}|${effectiveOrgType}`
-    if (autoSearchedQueryRef.current === searchKey) {
-      return
-    }
-
-    autoSearchedQueryRef.current = searchKey
+    autoSearchedQueryRef.current = q
     void runSearch(effectiveOrgType, q, effectiveState, 'url', amountRange)
   }, [searchParams, focusArea, orgType, state, amountRange, runSearch])
 
