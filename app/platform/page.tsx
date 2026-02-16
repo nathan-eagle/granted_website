@@ -6,7 +6,7 @@ import { ButtonLink } from '@/components/ButtonLink'
 import CheckoutButton from '@/components/CheckoutButton'
 
 export const metadata: Metadata = {
-  title: 'Platform — AI Search Architecture & Grant Discovery Engine',
+  title: 'Technology — AI Search Architecture & Grant Discovery Engine',
   description:
     'Hybrid retrieval, 5-provider federated search, learned scoring model, and 12-source data pipeline. See the infrastructure behind Granted.',
   alternates: { canonical: 'https://grantedai.com/platform' },
@@ -223,7 +223,7 @@ export default function PlatformPage() {
         <section className="bg-navy text-white noise-overlay overflow-hidden">
           <Container className="py-28 md:py-36 text-center">
             <div className="relative z-10">
-              <p className="text-sm uppercase tracking-[0.35em] text-white/70">Platform</p>
+              <p className="text-sm uppercase tracking-[0.35em] text-white/70">Technology</p>
               <h1 className="heading-xl mt-6 text-white">
                 Built for Grant Discovery at Scale
               </h1>

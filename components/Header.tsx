@@ -12,6 +12,7 @@ const nav = [
   { href: '/grants', label: 'Grants' },
   { href: '/foundations', label: 'Foundations' },
   { href: '/pricing', label: 'Pricing' },
+  { href: '/platform', label: 'Technology' },
 ]
 
 const SIGN_IN_URL = 'https://app.grantedai.com/auth/login'
