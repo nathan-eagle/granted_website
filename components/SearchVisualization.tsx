@@ -137,10 +137,10 @@ export default function SearchVisualization({
   }, [mode, focusArea, orgType, state]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className={`relative ${className}`}>
-      {/* Loading state while engine initializes */}
+    <div className={`relative ${className}${loading ? ' min-h-[60vh]' : ''}`}>
+      {/* Loading overlay — absolute so it doesn't stack above engine container */}
       {loading && (
-        <div className="flex items-center justify-center h-[60vh]">
+        <div className="absolute inset-0 flex items-center justify-center z-10">
           <div className="flex flex-col items-center gap-3">
             <div className="w-8 h-8 border-2 border-brand-yellow/30 border-t-brand-yellow rounded-full animate-spin" />
             <p className="text-sm text-navy-light/50">

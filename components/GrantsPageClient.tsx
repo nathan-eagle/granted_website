@@ -337,8 +337,8 @@ export default function GrantsPageClient({
             </div>
           </div>
 
-          {/* Visualization canvas */}
-          <div className="relative">
+          {/* Visualization canvas — overflow-hidden clips sidebar within container bounds */}
+          <div className="relative overflow-hidden rounded-lg">
             <SearchVisualization
               mode={vizMode}
               focusArea={focusArea}
