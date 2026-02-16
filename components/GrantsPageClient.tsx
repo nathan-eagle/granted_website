@@ -21,7 +21,7 @@ import GrantCTA from '@/components/GrantCTA'
 import EnrichmentProgress from '@/components/EnrichmentProgress'
 import CheckoutButton from '@/components/CheckoutButton'
 import SearchVisualization from '@/components/SearchVisualization'
-import VizToggle, { getPersistedVizMode, persistVizMode } from '@/components/VizToggle'
+import VizToggle, { persistVizMode } from '@/components/VizToggle'
 import type { VizMode, VizGrant } from '@/lib/viz/types'
 import { trackEvent } from '@/lib/analytics'
 import { hasReachedSearchLimit, incrementSearchCount, getSearchesRemaining } from '@/lib/search-limit'
@@ -59,10 +59,10 @@ export default function GrantsPageClient({
   // arrive in ~1s but engine needs 2-5s to load d3 dynamically)
   const vizEnvelopeBufferRef = useRef<StreamEnvelope[]>([])
 
-  // Initialize viz mode from localStorage/URL on mount
-  useEffect(() => {
-    setVizMode(getPersistedVizMode())
-  }, [])
+  // NOTE: We intentionally do NOT restore persisted viz mode on mount.
+  // The view always starts as 'list', and the toggle should match.
+  // Users switch via the toggle, which persists their choice for next time
+  // only within the same search session (handleVizModeChange).
 
   // No mobile override — list is default for all devices
 
