@@ -1,5 +1,6 @@
 const SIGNED_IN_COOKIE = 'gf_signed_in'
 const USER_NAME_COOKIE = 'gf_user_name'
+const USER_ID_COOKIE = 'gf_user_id'
 
 function getCookie(name: string): string | null {
   if (typeof document === 'undefined') return null
@@ -22,10 +23,16 @@ export function getUserName(): string | null {
   return getCookie(USER_NAME_COOKIE) || null
 }
 
+/** Return the user's ID (Supabase auth UID) from the cross-domain cookie, or null. */
+export function getUserId(): string | null {
+  return getCookie(USER_ID_COOKIE) || null
+}
+
 /** Clear cross-domain auth cookies (client-side sign-out from marketing site). */
 export function clearAuthCookies(): void {
   if (typeof document === 'undefined') return
   const expires = 'Thu, 01 Jan 1970 00:00:00 GMT'
   document.cookie = `${SIGNED_IN_COOKIE}=; domain=.grantedai.com; path=/; expires=${expires}; secure; samesite=lax`
   document.cookie = `${USER_NAME_COOKIE}=; domain=.grantedai.com; path=/; expires=${expires}; secure; samesite=lax`
+  document.cookie = `${USER_ID_COOKIE}=; domain=.grantedai.com; path=/; expires=${expires}; secure; samesite=lax`
 }
