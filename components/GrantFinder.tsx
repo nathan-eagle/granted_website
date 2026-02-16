@@ -42,6 +42,8 @@ interface GrantFinderProps {
   handleSearch: (e: React.FormEvent) => void
   // Phase (for loading display)
   phase: Phase
+  // Search limit
+  searchesRemaining?: number
 }
 
 export default function GrantFinder({
@@ -56,6 +58,7 @@ export default function GrantFinder({
   setAmountRange,
   handleSearch,
   phase,
+  searchesRemaining,
 }: GrantFinderProps) {
   const [loadingRotation, setLoadingRotation] = useState<{ order: number[]; index: number }>({
     order: [],
@@ -273,6 +276,12 @@ export default function GrantFinder({
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
         </button>
+
+        {searchesRemaining !== undefined && searchesRemaining < 3 && searchesRemaining > 0 && (
+          <p className="mt-3 text-xs text-navy-light/50 text-center">
+            {searchesRemaining} free {searchesRemaining === 1 ? 'search' : 'searches'} remaining
+          </p>
+        )}
       </form>
 
       <p className="mt-4 text-sm text-navy-light/60 text-center">

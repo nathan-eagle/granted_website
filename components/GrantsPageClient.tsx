@@ -9,6 +9,7 @@ import GrantFinder from '@/components/GrantFinder'
 import GrantResultsTable, { type SortOption } from '@/components/GrantResultsTable'
 import GrantDetailPanel from '@/components/GrantDetailPanel'
 import SignupGateModal from '@/components/SignupGateModal'
+import SearchLimitGateModal from '@/components/SearchLimitGateModal'
 import SignupNudgeBanner from '@/components/SignupNudgeBanner'
 import DiscoveryFilters, { type FilterState, DEFAULT_FILTERS, applyFilters } from '@/components/DiscoveryFilters'
 import DiscoveryTabs, { type DiscoveryTab } from '@/components/DiscoveryTabs'
@@ -23,6 +24,7 @@ import SearchVisualization from '@/components/SearchVisualization'
 import VizToggle, { getPersistedVizMode, persistVizMode } from '@/components/VizToggle'
 import type { VizMode, VizGrant } from '@/lib/viz/types'
 import { trackEvent } from '@/lib/analytics'
+import { hasReachedSearchLimit, incrementSearchCount, getSearchesRemaining } from '@/lib/search-limit'
 import { GRANT_CATEGORIES, GRANT_US_STATES, type PublicGrant } from '@/lib/grants'
 import { ORG_TYPES, US_STATES, AMOUNT_RANGES, type AmountRangeKey } from '@/hooks/useGrantSearchStream'
 
@@ -119,6 +121,40 @@ export default function GrantsPageClient({
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS)
   const [activeTab, setActiveTab] = useState<DiscoveryTab>('grants')
   const [gatedGrant, setGatedGrant] = useState<Opportunity | null>(null)
+  const [searchLimitReached, setSearchLimitReached] = useState(false)
+  const [searchesRemaining, setSearchesRemaining] = useState(3)
+
+  // Initialize search limit counter on mount
+  useEffect(() => {
+    setSearchesRemaining(getSearchesRemaining())
+  }, [])
+
+  // Track whether a search was user-initiated (via form) vs auto-triggered (URL ?q=)
+  const userInitiatedRef = useRef(false)
+
+  // Wrapped search handler — checks limit before executing, increments after
+  const gatedHandleSearch = useCallback((e: React.FormEvent) => {
+    e.preventDefault()
+    if (hasReachedSearchLimit()) {
+      setSearchLimitReached(true)
+      return
+    }
+    userInitiatedRef.current = true
+    incrementSearchCount()
+    setSearchesRemaining(getSearchesRemaining())
+    handleSearch(e)
+  }, [handleSearch])
+
+  // Count auto-searches (URL ?q=) toward the limit too
+  useEffect(() => {
+    if (phase === 'loading' && !userInitiatedRef.current) {
+      incrementSearchCount()
+      setSearchesRemaining(getSearchesRemaining())
+    }
+    if (phase !== 'loading') {
+      userInitiatedRef.current = false
+    }
+  }, [phase])
 
   // Auto-switch to funders tab if URL has tab=funders
   const tabParam = useSearchParams().get('tab')
@@ -257,7 +293,8 @@ export default function GrantsPageClient({
             setFocusArea={setFocusArea}
             setState={setState}
             setAmountRange={setAmountRange}
-            handleSearch={handleSearch}
+            handleSearch={gatedHandleSearch}
+            searchesRemaining={searchesRemaining}
           />
         </div>
       )}
@@ -280,7 +317,7 @@ export default function GrantsPageClient({
                 <VizToggle mode={vizMode} onChange={handleVizModeChange} />
               </div>
 
-              <form onSubmit={handleSearch} className="card p-4">
+              <form onSubmit={gatedHandleSearch} className="card p-4">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex-1 flex flex-col sm:flex-row gap-2">
                     <select
@@ -407,7 +444,7 @@ export default function GrantsPageClient({
             </div>
 
             {/* Compact search bar */}
-            <form onSubmit={handleSearch} className="card p-4 mb-6">
+            <form onSubmit={gatedHandleSearch} className="card p-4 mb-6">
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1 flex flex-col sm:flex-row gap-2">
                   <select
@@ -626,6 +663,16 @@ export default function GrantsPageClient({
         <SignupGateModal
           opportunity={gatedGrant}
           onClose={() => setGatedGrant(null)}
+          focusArea={focusArea}
+          orgType={orgType}
+          state={searchState}
+        />
+      )}
+
+      {/* Search limit gate modal */}
+      {searchLimitReached && (
+        <SearchLimitGateModal
+          onClose={() => setSearchLimitReached(false)}
           focusArea={focusArea}
           orgType={orgType}
           state={searchState}
