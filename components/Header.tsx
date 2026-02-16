@@ -39,48 +39,46 @@ export default function Header() {
       {/* Gold accent stripe */}
       <div className="h-[3px] bg-gradient-to-r from-brand-yellow via-yellow-300 to-brand-yellow" />
 
-      <div className="container h-14 flex items-center justify-between">
+      <div className="container relative h-14 flex items-center justify-between">
         {/* Left: Logo */}
-        <div className="flex items-center gap-4">
-          <Link
-            href="/"
-            onClick={() => trackEvent('header_logo_click', { location: pathname })}
-            className="flex items-center"
-          >
-            <Image
-              src="/images/logo-wordmark-text.png"
-              alt="Granted"
-              width={170}
-              height={53}
-              priority
-              className="h-auto w-[120px] md:w-[150px]"
-            />
-          </Link>
+        <Link
+          href="/"
+          onClick={() => trackEvent('header_logo_click', { location: pathname })}
+          className="flex items-center shrink-0"
+        >
+          <Image
+            src="/images/logo-wordmark-text.png"
+            alt="Granted"
+            width={170}
+            height={53}
+            priority
+            className="h-auto w-[120px] md:w-[150px]"
+          />
+        </Link>
 
-          {/* Nav links — desktop only */}
-          <nav className="hidden md:flex items-center gap-6 ml-4">
-            {nav.map(item => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() =>
-                  trackEvent('header_nav_click', {
-                    label: item.label,
-                    href: item.href,
-                    location: pathname,
-                  })
-                }
-                className={`text-sm tracking-[0.02em] transition-colors ${
-                  pathname === item.href
-                    ? 'font-semibold text-navy'
-                    : 'font-medium text-slate-600 hover:text-navy'
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
+        {/* Center: Nav links — desktop only, absolutely centered */}
+        <nav className="hidden md:flex items-center gap-6 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          {nav.map(item => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() =>
+                trackEvent('header_nav_click', {
+                  label: item.label,
+                  href: item.href,
+                  location: pathname,
+                })
+              }
+              className={`text-sm tracking-[0.02em] transition-colors ${
+                pathname === item.href
+                  ? 'font-semibold text-navy'
+                  : 'font-medium text-slate-600 hover:text-navy'
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
 
         {/* Right: Auth */}
         <div className="flex items-center gap-3">
