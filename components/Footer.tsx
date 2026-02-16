@@ -32,6 +32,17 @@ export default function Footer() {
               </ul>
             </div>
             <div>
+              <p className="font-semibold text-navy mb-4 tracking-tight">Solutions</p>
+              <ul className="space-y-2">
+                <li><Link href="/for/researchers" className="hover:text-navy">For Researchers</Link></li>
+                <li><Link href="/for/nonprofits" className="hover:text-navy">For Nonprofits</Link></li>
+                <li><Link href="/for/k12" className="hover:text-navy">For K-12 Schools</Link></li>
+                <li><Link href="/for/environmental" className="hover:text-navy">For Environmental Orgs</Link></li>
+                <li><Link href="/for/sbir" className="hover:text-navy">For SBIR Applicants</Link></li>
+                <li><Link href="/for/first-time" className="hover:text-navy">First-Time Applicants</Link></li>
+              </ul>
+            </div>
+            <div>
               <p className="font-semibold text-navy mb-4 tracking-tight">Free Tools</p>
               <ul className="space-y-2">
                 <li><Link href="/grants" className="hover:text-navy">Find Grants</Link></li>

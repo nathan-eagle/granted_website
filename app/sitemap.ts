@@ -23,6 +23,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/for/researchers`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
     { url: `${base}/for/sbir`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
     { url: `${base}/for/scholarships`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
+    { url: `${base}/for/first-time`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
+    { url: `${base}/for/k12`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
+    { url: `${base}/for/environmental`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
     // Comparison pages
     { url: `${base}/compare/grant-writers`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
     { url: `${base}/compare/grantboost`, priority: 0.8, changeFrequency: 'monthly', lastModified: now },
