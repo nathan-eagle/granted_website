@@ -72,15 +72,15 @@ export default function Header() {
           <div className="flex items-center gap-3 md:hidden">
             {signedIn ? (
               <>
-                {userName && (
-                  <span className="text-sm text-navy-light truncate max-w-[120px]">{userName.split(' ')[0]}</span>
-                )}
                 <Link
                   href={DASHBOARD_URL}
-                  className="px-4 py-2 text-sm font-semibold bg-navy text-white hover:bg-navy/90 rounded-pill"
+                  className="px-4 py-2 text-sm font-semibold bg-brand-yellow text-navy hover:bg-brand-gold rounded-pill transition-colors"
                 >
                   Dashboard
                 </Link>
+                {userName && (
+                  <span className="text-sm font-medium text-navy truncate max-w-[120px]">{userName}</span>
+                )}
                 <button
                   type="button"
                   onClick={handleSignOut}
@@ -163,15 +163,15 @@ export default function Header() {
 
           {signedIn ? (
             <>
-              {userName && (
-                <span className="text-sm text-navy-light truncate max-w-[140px]">{userName.split(' ')[0]}</span>
-              )}
               <Link
                 href={DASHBOARD_URL}
-                className="px-4 py-2 text-sm font-semibold bg-navy text-white hover:bg-navy/90 rounded-pill"
+                className="px-4 py-2 text-sm font-semibold bg-brand-yellow text-navy hover:bg-brand-gold rounded-pill transition-colors"
               >
                 Dashboard
               </Link>
+              {userName && (
+                <span className="text-sm font-medium text-navy truncate max-w-[160px]">{userName}</span>
+              )}
               <button
                 type="button"
                 onClick={handleSignOut}
