@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { listPosts, getPost, deriveDescription, readingTime, detectCategory } from '@/lib/blog'
+import { listPublishedStories } from '@/lib/newsjack'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
 
-export const dynamic = 'force-static'
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   title: 'NIH, NSF & Federal Grant Writing Blog',
@@ -31,6 +32,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   USDA: 'bg-lime-100 text-lime-800',
   Tribal: 'bg-orange-100 text-orange-800',
   Tips: 'bg-amber-100 text-amber-800',
+  News: 'bg-red-100 text-red-800',
 }
 
 const CATEGORY_HEADERS: Record<string, string> = {
@@ -43,6 +45,7 @@ const CATEGORY_HEADERS: Record<string, string> = {
   USDA: 'blog-header-usda',
   Tribal: 'blog-header-tribal',
   Tips: 'blog-header-tips',
+  News: 'blog-header-news',
 }
 
 const CATEGORY_ICONS: Record<string, JSX.Element> = {
@@ -103,22 +106,49 @@ const CATEGORY_ICONS: Record<string, JSX.Element> = {
       <line x1="9" y1="21" x2="15" y2="21" />
     </svg>
   ),
+  News: (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/60">
+      <path d="M4 4h16v16H4z" />
+      <path d="M4 8h16M8 4v16" />
+    </svg>
+  ),
 }
 
 export default async function BlogIndex() {
-  const postList = await listPosts().catch(() => [])
+  const [postList, newsStories] = await Promise.all([
+    listPosts().catch(() => []),
+    listPublishedStories(10).catch(() => []),
+  ])
 
-  const posts = await Promise.all(
+  const blogPosts = await Promise.all(
     postList.map(async (p) => {
       const { content } = await getPost(p.slug)
       return {
-        ...p,
+        slug: p.slug,
+        href: `/blog/${p.slug}`,
+        frontmatter: p.frontmatter,
         description: deriveDescription(p.frontmatter, content),
         minutes: readingTime(content),
         category: detectCategory(p.frontmatter.title || p.slug),
+        isNews: false,
+        sortDate: p.frontmatter.date ? new Date(p.frontmatter.date).getTime() : 0,
       }
     })
   )
+
+  const newsPosts = newsStories.map((s) => ({
+    slug: s.slug,
+    href: `/blog/news/${s.slug}`,
+    frontmatter: { title: s.title, date: s.published_at, author: s.author, description: s.meta_description },
+    description: s.meta_description,
+    minutes: Math.max(1, Math.ceil(s.content_markdown.split(/\s+/).length / 250)),
+    category: 'News',
+    isNews: true,
+    sortDate: new Date(s.published_at).getTime(),
+  }))
+
+  // Merge and sort by date, newest first
+  const posts = [...blogPosts, ...newsPosts].sort((a, b) => b.sortDate - a.sortDate)
 
   const featured = posts[0]
   const rest = posts.slice(1)
@@ -144,7 +174,7 @@ export default async function BlogIndex() {
           {/* ── Featured post ── */}
           {featured && (
             <article className="mb-16">
-              <Link href={`/blog/${featured.slug}`} className="group block">
+              <Link href={featured.href} className="group block">
                 <div className={`${CATEGORY_HEADERS[featured.category]} rounded-2xl p-8 md:p-12 mb-6 relative overflow-hidden`}>
                   <div className="relative z-10 flex items-end justify-between gap-8">
                     <div>
@@ -195,7 +225,7 @@ export default async function BlogIndex() {
                   <span className="text-xs text-white/40">{p.minutes} min read</span>
                 </div>
                 <div className="p-6 flex flex-col flex-1">
-                  <Link href={`/blog/${p.slug}`} className="text-lg font-semibold text-navy group-hover:text-brand-gold transition-colors leading-snug">
+                  <Link href={p.href} className="text-lg font-semibold text-navy group-hover:text-brand-gold transition-colors leading-snug">
                     {p.frontmatter.title || p.slug}
                   </Link>
                   <p className="text-sm text-navy-light mt-3 line-clamp-3 flex-1">{p.description}</p>

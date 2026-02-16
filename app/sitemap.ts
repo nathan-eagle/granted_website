@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { listPosts } from '@/lib/blog'
+import { listPublishedStories } from '@/lib/newsjack'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = 'https://grantedai.com'
@@ -42,5 +43,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: p.frontmatter.date ? new Date(p.frontmatter.date).toISOString() : now,
   }))
 
-  return [...staticPaths, ...blogPaths]
+  const newsStories = await listPublishedStories(100).catch((err) => { console.error('[sitemap] listPublishedStories failed:', err); return [] })
+  const newsPaths: MetadataRoute.Sitemap = newsStories.map(s => ({
+    url: `${base}/blog/news/${s.slug}`,
+    changeFrequency: 'weekly' as const,
+    lastModified: s.published_at ? new Date(s.published_at).toISOString() : now,
+  }))
+
+  return [...staticPaths, ...blogPaths, ...newsPaths]
 }

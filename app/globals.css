@@ -304,6 +304,9 @@
 .blog-header-tips {
   background: linear-gradient(135deg, #5f4a1a 0%, #876a2d 50%, #725a1a 100%);
 }
+.blog-header-news {
+  background: linear-gradient(135deg, #7a1a1a 0%, #b33030 50%, #8a2020 100%);
+}
 
 /* ── Floating card overlap between sections ── */
 .overlap-card {
